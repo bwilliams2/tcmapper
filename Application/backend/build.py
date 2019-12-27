@@ -10,7 +10,9 @@ from distutils.command.build_ext import build_ext
 
 extensions = [
     Extension(
-        "calc_distance", ["geocalc/calc_distance.pyx"], include_dirs=[np.get_include()]
+        "calc_distance",
+        ["backend/geocalc/calc_distance.pyx"],
+        include_dirs=[np.get_include()],
     )
 ]
 
