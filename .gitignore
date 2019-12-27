@@ -6,6 +6,7 @@ __pycache__/
 # C extensions
 *.so
 
+CMakeFiles/
 # Distribution / packaging
 .Python
 build/
