@@ -8,9 +8,10 @@
 #define FALSE 0
 #define TRUE 1
 
-void alterLongLat(DBFHandle dbfH) {
+void alterLongLat(DBFHandle dbfH, SHPHandle shpH) {
     double currLong, currLat, newLong, newLat;
     int i;
+
     
     PJ_CONTEXT *C;
     PJ *P;
@@ -44,19 +45,36 @@ void alterLongLat(DBFHandle dbfH) {
     int records = DBFGetRecordCount(dbfH);
 
     int longLoc = DBFGetFieldIndex(dbfH, "LONGITUDE");
+    if (longLoc == -1)
+    {
+        DBFAddField(dbfH, "LONGITUDE", FTDouble, 7, 6);
+        int longLoc = DBFGetFieldIndex(dbfH, "LONGITUDE");
+    }
     int latLoc = DBFGetFieldIndex(dbfH, "LATITUDE");
+    if (latLoc == -1)
+    {
+        DBFAddField(dbfH, "LATITUDE", FTDouble, 7, 6);
+        int latLoc = DBFGetFieldIndex(dbfH, "LATITUDE");
+    }
     for (i = 0; i < records; ++i) {
-        currLong = DBFReadDoubleAttribute(dbfH, i, longLoc);
-        currLat = DBFReadDoubleAttribute(dbfH, i, latLoc);
-        printf("Longitude: %lf Latitude: %lf\n", currLong, currLat);
-        if (currLong > 0) {
-            a = proj_coord (currLong, currLat, 0, 0);
-            b = proj_trans (P, PJ_FWD, a);
-            newLong = b.lp.phi;
-            newLat = b.lp.lam;
-            DBFWriteDoubleAttribute(dbfH, i, longLoc, newLong);
-            DBFWriteDoubleAttribute(dbfH, i, latLoc, newLat);
-        } 
+        SHPObject *currRecord = SHPReadObject(shpH, i);
+        printf("\n");
+        printf("Vertices: %d\n", currRecord -> nVertices);
+        printf("x: %lf\n", currRecord->dfXMin);
+        printf("y: %lf\n", currRecord->dfYMin);
+        currLong = currRecord->dfXMin;
+        currLat = currRecord->dfYMin;
+        // printf("Longitude: %lf Latitude: %lf\n", currLong, currLat);
+        SHPDestroyObject(currRecord);
+        // if (currLong > 0) {
+        a = proj_coord (currLong, currLat, 0, 0);
+        b = proj_trans (P, PJ_FWD, a);
+        newLong = b.lp.phi;
+        newLat = b.lp.lam;
+        printf("Longitude: %lf Latitude: %lf\n", newLong, newLat);
+        DBFWriteDoubleAttribute(dbfH, i, longLoc, newLong);
+        DBFWriteDoubleAttribute(dbfH, i, latLoc, newLat);
+        // } 
     }
 
     /* Clean up */
@@ -66,8 +84,10 @@ void alterLongLat(DBFHandle dbfH) {
 
 int main ( int argc, char *argv[] )
 {
-    DBFHandle dbfH = DBFOpen( argv[1], "rb+" );
-    alterLongLat(dbfH);
+    DBFHandle dbfH = DBFOpen(argv[1], "rb+");
+    SHPHandle shpH = SHPOpen(argv[1], "rb+");
+    alterLongLat(dbfH, shpH);
     DBFClose(dbfH);
+    SHPClose(shpH);
     return 0;
 }
