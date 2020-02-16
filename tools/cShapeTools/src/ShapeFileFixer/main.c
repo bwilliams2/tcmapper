@@ -8,7 +8,12 @@
 #define FALSE 0
 #define TRUE 1
 
-void alterLongLat(DBFHandle dbfH, SHPHandle shpH) {
+// Adds long lat to DBF file
+// long lat not in DBF for metro data set
+void alterLongLat(char fpath[]) {
+    DBFHandle dbfH = DBFOpen(fpath, "rb+");
+    SHPHandle shpH = SHPOpen(fpath, "rb+");
+    
     double currLong, currLat, newLong, newLat;
     int i;
 
@@ -64,9 +69,9 @@ void alterLongLat(DBFHandle dbfH, SHPHandle shpH) {
         printf("y: %lf\n", currRecord->dfYMin);
         currLong = currRecord->dfXMin;
         currLat = currRecord->dfYMin;
-        // printf("Longitude: %lf Latitude: %lf\n", currLong, currLat);
+
         SHPDestroyObject(currRecord);
-        // if (currLong > 0) {
+
         a = proj_coord (currLong, currLat, 0, 0);
         b = proj_trans (P, PJ_FWD, a);
         newLong = b.lp.phi;
@@ -80,14 +85,13 @@ void alterLongLat(DBFHandle dbfH, SHPHandle shpH) {
     /* Clean up */
     proj_destroy (P);
     proj_context_destroy (C); /* may be omitted in the single threaded case */
+    DBFClose(dbfH);
+    SHPClose(shpH);
 }
+
 
 int main ( int argc, char *argv[] )
 {
-    DBFHandle dbfH = DBFOpen(argv[1], "rb+");
-    SHPHandle shpH = SHPOpen(argv[1], "rb+");
-    alterLongLat(dbfH, shpH);
-    DBFClose(dbfH);
-    SHPClose(shpH);
+    alterLongLat(argv[1]);
     return 0;
 }
