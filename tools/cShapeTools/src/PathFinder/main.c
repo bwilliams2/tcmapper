@@ -14,7 +14,7 @@ int main ( int argc, char *argv[] )
     DBFHandle dbfH = DBFOpen( argv[1], "r" );
     int records = DBFGetRecordCount(dbfH);
     PJ_COORD other = proj_coord (43.1, -93.1, 0, 0);
-    double (*distances) = malloc (sizeof(double)*records);
+    double (*distances) = malloc (sizeof(double) * records * 3);
     geoSearch(dbfH, 45.147901, -93.134040, 5000, distances);
     DBFClose(dbfH);
     free(distances);

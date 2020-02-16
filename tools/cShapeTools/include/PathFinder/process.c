@@ -20,24 +20,42 @@ void geoSearch(DBFHandle dbfH, double baseLat, double baseLong, int searchRadius
     int records = DBFGetRecordCount(dbfH);
     int longLoc = DBFGetFieldIndex(dbfH, "LONGITUDE");
     int latLoc = DBFGetFieldIndex(dbfH, "LATITUDE");
+    printf("Long int: %d; Lat int: %d\n", longLoc, latLoc);
     int effDateLoc = DBFGetFieldIndex(dbfH, "EFF_DATE");
     
     geod_init(&g, 6378137, 1/298.257223563);
+    n = 0;
     for (i = 0; i < records; ++i) {
         otherLong = DBFReadDoubleAttribute(dbfH, i, longLoc);
         otherLat = DBFReadDoubleAttribute(dbfH, i, latLoc);
+        printf("Long: %lf; Lat: %lf\n", otherLong, otherLat);
         geod_inverse(&g, otherLat, otherLong, baseLat, baseLong, &distance, 0, 0);
-        distances[i] = distance;
         if (distance <= searchRadius) {
             printf("\n");
             printf("This distance is %lf km\n", distance / 1000);
             const char *effDate = DBFReadStringAttribute(dbfH, i, effDateLoc);
+            distances[n] = i;
+            distances[n + 1] = distance;
             printf("Effective Date: %s", effDate);
             ++n;
+            n += 2;
         }
     }
     printf("Number of addresses within %d m is %d\n", searchRadius, n);
 }
+
+// void doSearch()
+// {
+//     int i;
+//     DBFHandle dbfH = DBFOpen( argv[1], "r" );
+//     int records = DBFGetRecordCount(dbfH);
+//     PJ_COORD other = proj_coord (43.1, -93.1, 0, 0);
+//     double (*distances) = malloc (sizeof(double)*records);
+//     geoSearch(dbfH, 45.147901, -93.134040, 5000, distances);
+//     DBFClose(dbfH);
+//     free(distances);
+//     return 0;
+// }
 
 void geoConversion(double longlat_array[][2], int line_nums) {
     PJ_CONTEXT *C;

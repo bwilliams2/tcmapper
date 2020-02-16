@@ -1,6 +1,7 @@
 {
     "python.pythonPath": "/home/bryce/.pyenv/versions/commute/bin/python",
     "files.associations": {
-        "geodesic.h": "c"
+        "geodesic.h": "c",
+        "process.h": "c"
     }
 }
