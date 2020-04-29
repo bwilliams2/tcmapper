@@ -34,20 +34,21 @@
     </v-app-bar>
 
     <v-content>
-      <HelloWorld />
+      <Landing />
     </v-content>
   </v-app>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import HelloWorld from "./components/HelloWorld.vue";
+import Landing from "@/components/Landing.vue";
+
 
 export default Vue.extend({
   name: "App",
 
   components: {
-    HelloWorld
+   Landing 
   },
 
   data: () => ({
