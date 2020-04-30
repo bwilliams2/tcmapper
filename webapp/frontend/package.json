@@ -38,6 +38,8 @@
     "eslint": "^6.7.2",
     "eslint-plugin-prettier": "^3.1.1",
     "eslint-plugin-vue": "^6.2.2",
+    "husky": "^4.2.5",
+    "lint-staged": "^10.2.0",
     "prettier": "^1.19.1",
     "sass": "^1.19.0",
     "sass-loader": "^8.0.0",
@@ -45,5 +47,25 @@
     "vue-cli-plugin-vuetify": "~2.0.5",
     "vue-template-compiler": "^2.6.11",
     "vuetify-loader": "^1.3.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": "eslint --cache --fix",
+    "*.{ts,tsx}": [
+      "prettier --write --parser typescript",
+      "git add"
+    ],
+    "*.vue": [
+      "prettier --write --parser vue",
+      "git add"
+    ],
+    "*.{ts,vue}": [
+      "vue-cli-service lint",
+      "git add"
+    ]
   }
 }
