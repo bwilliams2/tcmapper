@@ -32,21 +32,22 @@
         <v-icon>mdi-open-in-new</v-icon>
       </v-btn>
     </v-app-bar>
+
     <v-content>
-      <Landing />
+      <HelloWorld />
     </v-content>
   </v-app>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import Landing from "@/components/Landing.vue";
+import HelloWorld from "./components/HelloWorld.vue";
 
 export default Vue.extend({
   name: "App",
 
   components: {
-    Landing
+    HelloWorld
   },
 
   data: () => ({
