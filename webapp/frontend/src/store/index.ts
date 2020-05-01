@@ -16,14 +16,11 @@ const store = new Vuex.Store({
 if (module.hot) {
   // accept actions and mutations as hot modules
   // module.hot.accept(['./mutations', './modules/a'], () => {
-  module.hot.accept([
-    './mutations',
-    './actions',
-  ], () => {
+  module.hot.accept(["./mutations", "./actions"], () => {
     // require the updated modules
     // have to add .default here due to babel 6 module output
-    const newMutations = require('./mutations').default
-    const newActions = require('./actions').default
+    const newMutations = require("./mutations").default;
+    const newActions = require("./actions").default;
     // swap in the new modules and mutations
     store.hotUpdate({
       mutations: newMutations,
@@ -31,8 +28,8 @@ if (module.hot) {
       // modules: {
       //   a: newModuleA
       // }
-    })
-  })
+    });
+  });
 }
 
 export default store;

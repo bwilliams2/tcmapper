@@ -1,41 +1,30 @@
 <template>
   <v-container fluid>
-    <v-col cols="12">
-      <v-row
-        align="center"
-        justify="center"
-        class="grey lighten-5"
-        style="height: 300px;"
-      >
-        <v-card v-for="n in 3" :key="n" class="ma-3 pa-6" outlined tile>
-          Column
-        </v-card>
-      </v-row>
-    </v-col>
-    <!-- <v-row justify="end">
+    <v-row justify="center">
       <v-col cols="6">
         <v-card-text>
           Enter base address
         </v-card-text>
         <v-card-text>
           <v-autocomplete
-          :value="address"
-          @input="updateAddress"
-          :items="items"
-          :loading="isLoading"
-          :search-input.sync="search"
-          filled
+            :value="address"
+            @input="updateAddress"
+            :items="items"
+            :loading="isLoading"
+            :search-input.sync="search"
+            filled
           ></v-autocomplete>
         </v-card-text>
-        <v-btn>Find My House</v-btn>
+        <v-btn class="mr-5">Find My House</v-btn>
       </v-col>
-    </v-row> -->
+    </v-row>
   </v-container>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import { mapState } from "vuex";
+const apiKey = process.env.PLACES_API_KEY;
 
 export default Vue.extend({
   name: "Landing",
@@ -53,8 +42,8 @@ export default Vue.extend({
   },
   methods: {
     updateAddress(e: Event) {
-      if (event?.target) {
-        const target = event.target as HTMLInputElement;
+      if (e?.target) {
+        const target = e.target as HTMLInputElement;
         this.$store.commit("updateAddress", target.value);
       }
     }

@@ -1,9 +1,9 @@
 export interface RootState {
-    address: string;
+  address: string;
 }
 
 const rootState = {
-    address: "",
-}
+  address: ""
+};
 
 export default rootState;

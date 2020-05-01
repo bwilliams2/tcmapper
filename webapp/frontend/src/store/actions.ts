@@ -1,9 +1,9 @@
-import { Commit, ActionContext } from "vuex/types";
+import { Commit } from "vuex/types";
 
 const rootActions = {
-    updateAddress ({commit}: {commit: Commit}, address: string) {
-        commit("updateAddress", {address: address});
-    }
-}
+  updateAddress({ commit }: { commit: Commit }, address: string) {
+    commit("updateAddress", { address: address });
+  }
+};
 
 export default rootActions;
