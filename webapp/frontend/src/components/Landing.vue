@@ -1,21 +1,25 @@
 <template>
-  <v-container fluid>
-    <v-row justify="center">
-      <v-col cols="6">
-        <v-card-text>
-          Enter base address
-        </v-card-text>
-        <v-card-text>
-          <v-autocomplete
-            :value="address"
-            @input="updateAddress"
-            :items="items"
-            :loading="isLoading"
-            :search-input.sync="search"
-            filled
-          ></v-autocomplete>
-        </v-card-text>
-        <v-btn class="mr-5">Find My House</v-btn>
+  <v-container style="height: 100%;">
+    <v-row justify="center" align="center" style="height: 100%;">
+      <v-col cols="8" md="6">
+        <v-card>
+          <v-card-text>
+            <v-autocomplete
+              :value="address"
+              @input="updateAddress"
+              :items="items"
+              :loading="isLoading"
+              :search-input.sync="search"
+              filled
+            ></v-autocomplete>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn class="mr-5" @click.native="submitAddress()"
+                >Find My House</v-btn
+              >
+            </v-card-actions>
+          </v-card-text>
+        </v-card>
       </v-col>
     </v-row>
   </v-container>
@@ -24,10 +28,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { mapState } from "vuex";
-import axios from "axios";
-import { v4 as uuidv4 } from "uuid";
-import hereInit from "../utils/here";
-const apiKey = process.env.HERE_API_KEY as string;
+const apiKey = process.env.VUE_APP_HERE_API_KEY as string;
 
 export interface HereAddress {
   title: string;
@@ -73,6 +74,9 @@ export default Vue.extend({
     entries: [],
     descriptionLimit: 60
   }),
+  // created() {
+  //   this.updateSearch = debounce(this.updateSearch, 300);
+  // },
   // mounted() {
   //   this.sessionToken = uuidv4();
   // },
@@ -80,22 +84,26 @@ export default Vue.extend({
     items(): string[] {
       return this.entries.map(e => e.title);
     },
-    ...mapState(["address"])
+    ...mapState(["address", "addressSubmitted"])
   },
   methods: {
+    submitAddress() {
+      this.$store.dispatch("submitAddress", !this.addressSubmitted);
+    },
     updateAddress(e: Event) {
       if (e?.target) {
         const target = e.target as HTMLInputElement;
-        this.$store.commit("updateAddress", target.value);
+        this.$store.dispatch("updateAddress", target.value);
       }
     }
   },
   watch: {
-    async search(val) {
-      const H = (await hereInit()) as any;
-
+    search(val) {
       // Items have already been loaded
-      if (this.items.length > 0) return;
+      // if (this.items.length > 0) return;
+      if (val === "") {
+        return;
+      }
 
       // Items have already been requested
       if (this.isLoading) return;
@@ -103,7 +111,7 @@ export default Vue.extend({
       this.isLoading = true;
 
       // Instantiate a map and platform object:
-      const platform = new H.service.Platform({
+      const platform = new window.H.service.Platform({
         apikey: apiKey
       });
       // Get an instance of the search service:
@@ -112,15 +120,20 @@ export default Vue.extend({
       // Call the "autosuggest" method with the search parameters,
       // the callback and an error callback function (called if a
       // communication error occurs):
+      const changeLoading = () => {
+        this.isLoading = false;
+      };
       service.autosuggest(
         {
           // Search query
           q: val,
           // Center of the search context
           in: "circle:44.985207,-93.264622;r=50000"
+          // at: "44.985207,-93.264622"
         },
         (result: any) => {
-          const { position, title } = result.items[0];
+          this.entries = result.items;
+          changeLoading();
           // Assumption: ui is instantiated
           // Create an InfoBubble at the returned location
           // ui.addBubble(new H.ui.InfoBubble(position, {
@@ -129,20 +142,6 @@ export default Vue.extend({
         },
         alert
       );
-
-      // Lazily load input items
-      // axios.get(
-      //   'https://autosuggest.search.hereapi.com/v1/autosuggest',
-      //   { params: { q: val, in: "circle:44.985207,-93.264622;r=50000", apiKey: apiKey } },
-      // )
-      //   .then(res => {
-      //     const d =0;
-      //     this.entries = res.data;
-      //  })
-      // .catch(err => {
-      //   console.log(err)
-      // })
-      // .finally(() => (this.isLoading = false))
     }
   }
 });
