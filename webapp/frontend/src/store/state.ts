@@ -1,9 +1,11 @@
 export interface RootState {
   address: string;
+  addressSubmitted: boolean;
 }
 
-const rootState = {
-  address: ""
+const rootState: RootState = {
+  address: "",
+  addressSubmitted: false
 };
 
 export default rootState;

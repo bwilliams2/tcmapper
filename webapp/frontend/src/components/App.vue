@@ -33,7 +33,12 @@
       </v-btn>
     </v-app-bar>
     <v-content>
-      <Landing />
+      <template v-if="!addressSubmitted">
+        <Landing />
+      </template>
+      <template v-if="addressSubmitted">
+        <Map />
+      </template>
     </v-content>
   </v-app>
 </template>
@@ -41,16 +46,22 @@
 <script lang="ts">
 import Vue from "vue";
 import Landing from "@/components/Landing.vue";
+import Map from "@/components/Map.vue";
+import { mapState } from "vuex";
 
 export default Vue.extend({
   name: "App",
 
   components: {
-    Landing
+    Landing,
+    Map
   },
 
   data: () => ({
     //
-  })
+  }),
+  computed: {
+    ...mapState(["addressSubmitted"])
+  }
 });
 </script>
