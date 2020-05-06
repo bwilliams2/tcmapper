@@ -1,11 +1,11 @@
-import { RootState } from "./state";
+import { RootState, HereAddress } from "./state";
 
 const mutations = {
   updateAddress(state: RootState, payload: { address: string }) {
     state.address = payload.address;
   },
-  submitAddress(state: RootState, payload: { addressSubmitted: boolean }) {
-    state.addressSubmitted = payload.addressSubmitted;
+  updateAddressInfo(state: RootState, payload: { addressInfo: HereAddress }) {
+    state.addressInfo = payload.addressInfo;
   }
 };
 

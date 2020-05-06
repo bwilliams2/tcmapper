@@ -33,10 +33,10 @@
       </v-btn>
     </v-app-bar>
     <v-content>
-      <template v-if="!addressSubmitted">
+      <template v-if="!addressInfo.title">
         <Landing />
       </template>
-      <template v-if="addressSubmitted">
+      <template v-if="addressInfo.title">
         <Map />
       </template>
     </v-content>
@@ -61,7 +61,7 @@ export default Vue.extend({
     //
   }),
   computed: {
-    ...mapState(["addressSubmitted"])
+    ...mapState(["addressInfo"])
   }
 });
 </script>
