@@ -1,12 +1,5 @@
 const CALLBACK_NAME = "hereCallback";
 
-declare global {
-  interface Window {
-    H: any;
-    hereCallback: any;
-  }
-}
-
 let initialized = !!window.H;
 let resolveInitPromise: (value?: any | PromiseLike<any>) => void;
 let rejectInitPromise: (reason?: any) => void;
