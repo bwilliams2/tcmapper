@@ -5,8 +5,7 @@
         <v-card>
           <v-card-text>
             <v-autocomplete
-              :value="address"
-              @input="updateAddress"
+              v-model="address"
               :items="items"
               :loading="isLoading"
               :search-input.sync="search"
@@ -28,6 +27,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { mapState } from "vuex";
+import _ from "lodash";
 const apiKey = process.env.VUE_APP_HERE_API_KEY as string;
 
 export interface HereAddress {
@@ -84,11 +84,47 @@ export default Vue.extend({
     items(): string[] {
       return this.entries.map(e => e.title);
     },
-    ...mapState(["address", "addressSubmitted"])
+    address: {
+      get() {
+        return this.$store.state.address;
+      },
+      set(value) {
+        return this.$store.commit("updateAddress", { address: value });
+      }
+    },
+    ...mapState(["addressInfo"])
   },
   methods: {
     submitAddress() {
-      this.$store.dispatch("submitAddress", !this.addressSubmitted);
+      // Instantiate a map and platform object:
+      const platform = new window.H.service.Platform({
+        apikey: apiKey
+      });
+      // Get an instance of the search service:
+      const service = platform.getSearchService();
+
+      service.autosuggest(
+        {
+          // Search query
+          q: this.address,
+          // Center of the search context
+          in: "circle:44.985207,-93.264622;r=50000"
+          // at: "44.985207,-93.264622"
+        },
+        (result: any) => {
+          const addressInfo = _.pick(
+            result.items[0],
+            ...Object.keys(this.addressInfo)
+          );
+          this.$store.dispatch("updateAddressInfo", addressInfo);
+          // Assumption: ui is instantiated
+          // Create an InfoBubble at the returned location
+          // ui.addBubble(new H.ui.InfoBubble(position, {
+          //   content: title
+          // }));
+        },
+        alert
+      );
     },
     updateAddress(e: Event) {
       if (e?.target) {

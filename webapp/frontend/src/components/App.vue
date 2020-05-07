@@ -44,6 +44,13 @@
 </template>
 
 <script lang="ts">
+declare global {
+  interface Window {
+    H: any;
+    hereCallback: any;
+    L: any;
+  }
+}
 import Vue from "vue";
 import Landing from "@/components/Landing.vue";
 import Map from "@/components/Map.vue";
