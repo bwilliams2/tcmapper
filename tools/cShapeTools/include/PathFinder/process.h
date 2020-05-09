@@ -5,6 +5,6 @@
     void makeArray(double longlat[][2], int numrows, FILE *ifp);
     void geoConversion(double longlat_array[][2], int line_nums);
     void distanceCalc(double longlat_array[][2], double distance[], int line_nums, PJ_COORD base);
-    void geoSearch(DBFHandle dbfH, double baseLong, double baseLat, int searchRadius, double * distances);
+    void geoSearch(char * fname, double baseLong, double baseLat, int searchRadius, double * distances);
 
 #endif
