@@ -5,12 +5,14 @@
 #include <geodesic.h>
 #include "./process.h"
 
-void geoSearch(DBFHandle dbfH, double baseLat, double baseLong, int searchRadius, double * distances) 
+void geoSearch(char *fname, double baseLat, double baseLong, int searchRadius, double * distances) 
 {
     PJ_CONTEXT *C;
     PJ *P;
     PJ* P_for_GIS;
     PJ_COORD other;
+
+    DBFHandle dbfH = DBFOpen( fname, "r" );
     double otherLong, otherLat, distance;
     struct geod_geodesic g;
     double s12;
@@ -28,15 +30,15 @@ void geoSearch(DBFHandle dbfH, double baseLat, double baseLong, int searchRadius
     for (i = 0; i < records; ++i) {
         otherLong = DBFReadDoubleAttribute(dbfH, i, longLoc);
         otherLat = DBFReadDoubleAttribute(dbfH, i, latLoc);
-        printf("Long: %lf; Lat: %lf\n", otherLong, otherLat);
+        // printf("Long: %lf; Lat: %lf\n", otherLong, otherLat);
         geod_inverse(&g, otherLat, otherLong, baseLat, baseLong, &distance, 0, 0);
         if (distance <= searchRadius) {
-            printf("\n");
-            printf("This distance is %lf km\n", distance / 1000);
+            // printf("\n");
+            // printf("This distance is %lf km\n", distance / 1000);
             const char *effDate = DBFReadStringAttribute(dbfH, i, effDateLoc);
             distances[n] = i;
             distances[n + 1] = distance;
-            printf("Effective Date: %s", effDate);
+            // printf("Effective Date: %s", effDate);
             ++n;
             n += 2;
         }
