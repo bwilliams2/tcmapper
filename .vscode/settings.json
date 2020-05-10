@@ -3,5 +3,11 @@
     "files.associations": {
         "geodesic.h": "c",
         "process.h": "c"
-    }
+    },
+    "python.testing.pytestArgs": [
+        "webapp"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.nosetestsEnabled": false,
+    "python.testing.pytestEnabled": true
 }
