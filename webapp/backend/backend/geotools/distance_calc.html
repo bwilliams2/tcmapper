@@ -376,14 +376,40 @@ body.cython { font-family: courier; font-size: 12; }
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_1); __pyx_t_1 = 0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">02</span>: </pre>
 <pre class="cython line score-0">&#xA0;<span class="">03</span>: <span class="k">cdef</span> <span class="kr">extern</span> <span class="k">from</span> <span class="s">&quot;../../../../tools/cShapeTools/include/PathFinder/process.h&quot;</span><span class="p">:</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">04</span>: </pre>
-<pre class="cython line score-0">&#xA0;<span class="">05</span>:     <span class="n">void</span> <span class="n">geoSearch</span><span class="p">(</span><span class="n">char</span> <span class="o">*</span> <span class="n">fname</span><span class="p">,</span> <span class="n">double</span> <span class="n">baseLong</span><span class="p">,</span> <span class="n">double</span> <span class="n">baseLat</span><span class="p">,</span> <span class="nb">int</span> <span class="n">searchRadius</span><span class="p">,</span> <span class="n">double</span> <span class="o">*</span> <span class="n">distances</span><span class="p">)</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">06</span>: </pre>
-<pre class="cython line score-100" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">07</span>: <span class="k">def</span> <span class="nf">getDistances</span><span class="p">(</span><span class="nb">bytes</span> <span class="n">fname</span><span class="p">,</span> <span class="n">double</span> <span class="n">baseLong</span><span class="p">,</span> <span class="n">double</span> <span class="n">baseLat</span><span class="p">,</span> <span class="nb">int</span> <span class="n">searchRadius</span><span class="p">,</span> <span class="nb">int</span> <span class="n">recordLength</span><span class="p">):</span></pre>
-<pre class='cython code score-100 '>/* Python wrapper */
-static PyObject *__pyx_pw_13distance_calc_1getDistances(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_13distance_calc_1getDistances = {"getDistances", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_13distance_calc_1getDistances, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_13distance_calc_1getDistances(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+<pre class="cython line score-0">&#xA0;<span class="">04</span>:     <span class="n">void</span> <span class="n">geoSearch</span><span class="p">(</span><span class="n">char</span> <span class="o">*</span> <span class="n">fname</span><span class="p">,</span> <span class="n">double</span> <span class="n">baseLong</span><span class="p">,</span> <span class="n">double</span> <span class="n">baseLat</span><span class="p">,</span> <span class="nb">int</span> <span class="n">searchRadius</span><span class="p">,</span> <span class="n">double</span> <span class="o">*</span> <span class="n">distances</span><span class="p">)</span></pre>
+<pre class="cython line score-0">&#xA0;<span class="">05</span>: </pre>
+<pre class="cython line score-91" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">06</span>: <span class="k">cpdef</span> <span class="nf">get_distances</span><span class="p">(</span><span class="nb">bytes</span> <span class="n">fname</span><span class="p">,</span> <span class="n">double</span> <span class="n">baseLong</span><span class="p">,</span> <span class="n">double</span> <span class="n">baseLat</span><span class="p">,</span> <span class="nb">int</span> <span class="n">searchRadius</span><span class="p">,</span> <span class="nb">int</span> <span class="n">recordLength</span><span class="p">):</span></pre>
+<pre class='cython code score-91 '>static PyObject *__pyx_pw_7backend_8geotools_13distance_calc_1get_distances(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_f_7backend_8geotools_13distance_calc_get_distances(PyObject *__pyx_v_fname, double __pyx_v_baseLong, double __pyx_v_baseLat, int __pyx_v_searchRadius, int __pyx_v_recordLength, CYTHON_UNUSED int __pyx_skip_dispatch) {
+  PyObject *__pyx_v_distances_array = NULL;
+  __Pyx_memviewslice __pyx_v_distances = { 0, 0, { 0 }, { 0 }, { 0 } };
+  char *__pyx_v_cfname;
+  PyObject *__pyx_r = NULL;
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("get_distances", 0);
+/* … */
+  /* function exit code */
+  __pyx_L1_error:;
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_1);
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_2);
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_4);
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_5);
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_7);
+  __PYX_XDEC_MEMVIEW(&amp;__pyx_t_8, 1);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("backend.geotools.distance_calc.get_distances", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  __pyx_L0:;
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_v_distances_array);
+  __PYX_XDEC_MEMVIEW(&amp;__pyx_v_distances, 1);
+  <span class='refnanny'>__Pyx_XGIVEREF</span>(__pyx_r);
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return __pyx_r;
+}
+
+/* Python wrapper */
+static PyObject *__pyx_pw_7backend_8geotools_13distance_calc_1get_distances(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_7backend_8geotools_13distance_calc_1get_distances(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_fname = 0;
   double __pyx_v_baseLong;
   double __pyx_v_baseLat;
@@ -391,7 +417,7 @@ static PyObject *__pyx_pw_13distance_calc_1getDistances(PyObject *__pyx_self, Py
   int __pyx_v_recordLength;
   PyObject *__pyx_r = 0;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
-  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("getDistances (wrapper)", 0);
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("get_distances (wrapper)", 0);
   {
     static PyObject **__pyx_pyargnames[] = {&amp;__pyx_n_s_fname,&amp;__pyx_n_s_baseLong,&amp;__pyx_n_s_baseLat,&amp;__pyx_n_s_searchRadius,&amp;__pyx_n_s_recordLength,0};
     PyObject* values[5] = {0,0,0,0,0};
@@ -421,29 +447,29 @@ static PyObject *__pyx_pw_13distance_calc_1getDistances(PyObject *__pyx_self, Py
         case  1:
         if (likely((values[1] = <span class='pyx_c_api'>__Pyx_PyDict_GetItemStr</span>(__pyx_kwds, __pyx_n_s_baseLong)) != 0)) kw_args--;
         else {
-          <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("getDistances", 1, 5, 5, 1); <span class='error_goto'>__PYX_ERR(0, 7, __pyx_L3_error)</span>
+          <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("get_distances", 1, 5, 5, 1); <span class='error_goto'>__PYX_ERR(0, 6, __pyx_L3_error)</span>
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = <span class='pyx_c_api'>__Pyx_PyDict_GetItemStr</span>(__pyx_kwds, __pyx_n_s_baseLat)) != 0)) kw_args--;
         else {
-          <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("getDistances", 1, 5, 5, 2); <span class='error_goto'>__PYX_ERR(0, 7, __pyx_L3_error)</span>
+          <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("get_distances", 1, 5, 5, 2); <span class='error_goto'>__PYX_ERR(0, 6, __pyx_L3_error)</span>
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = <span class='pyx_c_api'>__Pyx_PyDict_GetItemStr</span>(__pyx_kwds, __pyx_n_s_searchRadius)) != 0)) kw_args--;
         else {
-          <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("getDistances", 1, 5, 5, 3); <span class='error_goto'>__PYX_ERR(0, 7, __pyx_L3_error)</span>
+          <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("get_distances", 1, 5, 5, 3); <span class='error_goto'>__PYX_ERR(0, 6, __pyx_L3_error)</span>
         }
         CYTHON_FALLTHROUGH;
         case  4:
         if (likely((values[4] = <span class='pyx_c_api'>__Pyx_PyDict_GetItemStr</span>(__pyx_kwds, __pyx_n_s_recordLength)) != 0)) kw_args--;
         else {
-          <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("getDistances", 1, 5, 5, 4); <span class='error_goto'>__PYX_ERR(0, 7, __pyx_L3_error)</span>
+          <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("get_distances", 1, 5, 5, 4); <span class='error_goto'>__PYX_ERR(0, 6, __pyx_L3_error)</span>
         }
       }
       if (unlikely(kw_args &gt; 0)) {
-        if (unlikely(<span class='pyx_c_api'>__Pyx_ParseOptionalKeywords</span>(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "getDistances") &lt; 0)) <span class='error_goto'>__PYX_ERR(0, 7, __pyx_L3_error)</span>
+        if (unlikely(<span class='pyx_c_api'>__Pyx_ParseOptionalKeywords</span>(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "get_distances") &lt; 0)) <span class='error_goto'>__PYX_ERR(0, 6, __pyx_L3_error)</span>
       }
     } else if (<span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args) != 5) {
       goto __pyx_L5_argtuple_error;
@@ -455,21 +481,21 @@ static PyObject *__pyx_pw_13distance_calc_1getDistances(PyObject *__pyx_self, Py
       values[4] = <span class='py_macro_api'>PyTuple_GET_ITEM</span>(__pyx_args, 4);
     }
     __pyx_v_fname = ((PyObject*)values[0]);
-    __pyx_v_baseLong = __pyx_<span class='py_c_api'>PyFloat_AsDouble</span>(values[1]); if (unlikely((__pyx_v_baseLong == (double)-1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(0, 7, __pyx_L3_error)</span>
-    __pyx_v_baseLat = __pyx_<span class='py_c_api'>PyFloat_AsDouble</span>(values[2]); if (unlikely((__pyx_v_baseLat == (double)-1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(0, 7, __pyx_L3_error)</span>
-    __pyx_v_searchRadius = <span class='pyx_c_api'>__Pyx_PyInt_As_int</span>(values[3]); if (unlikely((__pyx_v_searchRadius == (int)-1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(0, 7, __pyx_L3_error)</span>
-    __pyx_v_recordLength = <span class='pyx_c_api'>__Pyx_PyInt_As_int</span>(values[4]); if (unlikely((__pyx_v_recordLength == (int)-1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(0, 7, __pyx_L3_error)</span>
+    __pyx_v_baseLong = __pyx_<span class='py_c_api'>PyFloat_AsDouble</span>(values[1]); if (unlikely((__pyx_v_baseLong == (double)-1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(0, 6, __pyx_L3_error)</span>
+    __pyx_v_baseLat = __pyx_<span class='py_c_api'>PyFloat_AsDouble</span>(values[2]); if (unlikely((__pyx_v_baseLat == (double)-1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(0, 6, __pyx_L3_error)</span>
+    __pyx_v_searchRadius = <span class='pyx_c_api'>__Pyx_PyInt_As_int</span>(values[3]); if (unlikely((__pyx_v_searchRadius == (int)-1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(0, 6, __pyx_L3_error)</span>
+    __pyx_v_recordLength = <span class='pyx_c_api'>__Pyx_PyInt_As_int</span>(values[4]); if (unlikely((__pyx_v_recordLength == (int)-1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(0, 6, __pyx_L3_error)</span>
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("getDistances", 1, 5, 5, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(0, 7, __pyx_L3_error)</span>
+  <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("get_distances", 1, 5, 5, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(0, 6, __pyx_L3_error)</span>
   __pyx_L3_error:;
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("distance_calc.getDistances", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("backend.geotools.distance_calc.get_distances", __pyx_clineno, __pyx_lineno, __pyx_filename);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!<span class='pyx_c_api'>__Pyx_ArgTypeTest</span>(((PyObject *)__pyx_v_fname), (&amp;PyBytes_Type), 1, "fname", 1))) <span class='error_goto'>__PYX_ERR(0, 7, __pyx_L1_error)</span>
-  __pyx_r = __pyx_pf_13distance_calc_getDistances(__pyx_self, __pyx_v_fname, __pyx_v_baseLong, __pyx_v_baseLat, __pyx_v_searchRadius, __pyx_v_recordLength);
+  if (unlikely(!<span class='pyx_c_api'>__Pyx_ArgTypeTest</span>(((PyObject *)__pyx_v_fname), (&amp;PyBytes_Type), 1, "fname", 1))) <span class='error_goto'>__PYX_ERR(0, 6, __pyx_L1_error)</span>
+  __pyx_r = __pyx_pf_7backend_8geotools_13distance_calc_get_distances(__pyx_self, __pyx_v_fname, __pyx_v_baseLong, __pyx_v_baseLat, __pyx_v_searchRadius, __pyx_v_recordLength);
 
   /* function exit code */
   goto __pyx_L0;
@@ -480,53 +506,38 @@ static PyObject *__pyx_pw_13distance_calc_1getDistances(PyObject *__pyx_self, Py
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_13distance_calc_getDistances(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_fname, double __pyx_v_baseLong, double __pyx_v_baseLat, int __pyx_v_searchRadius, int __pyx_v_recordLength) {
-  PyObject *__pyx_v_distances_array = NULL;
-  __Pyx_memviewslice __pyx_v_distances = { 0, 0, { 0 }, { 0 }, { 0 } };
-  char *__pyx_v_cfname;
+static PyObject *__pyx_pf_7backend_8geotools_13distance_calc_get_distances(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_fname, double __pyx_v_baseLong, double __pyx_v_baseLat, int __pyx_v_searchRadius, int __pyx_v_recordLength) {
   PyObject *__pyx_r = NULL;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
-  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("getDistances", 0);
-/* … */
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("get_distances", 0);
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
+  __pyx_t_1 = __pyx_f_7backend_8geotools_13distance_calc_get_distances(__pyx_v_fname, __pyx_v_baseLong, __pyx_v_baseLat, __pyx_v_searchRadius, __pyx_v_recordLength, 0);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 6, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
   /* function exit code */
   __pyx_L1_error:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_1);
-  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_2);
-  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
-  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_4);
-  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_5);
-  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_7);
-  __PYX_XDEC_MEMVIEW(&amp;__pyx_t_8, 1);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("distance_calc.getDistances", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("backend.geotools.distance_calc.get_distances", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
-  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_v_distances_array);
-  __PYX_XDEC_MEMVIEW(&amp;__pyx_v_distances, 1);
   <span class='refnanny'>__Pyx_XGIVEREF</span>(__pyx_r);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
-/* … */
-  __pyx_tuple__19 = <span class='py_c_api'>PyTuple_Pack</span>(8, __pyx_n_s_fname, __pyx_n_s_baseLong, __pyx_n_s_baseLat, __pyx_n_s_searchRadius, __pyx_n_s_recordLength, __pyx_n_s_distances_array, __pyx_n_s_distances, __pyx_n_s_cfname);<span class='error_goto'> if (unlikely(!__pyx_tuple__19)) __PYX_ERR(0, 7, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__19);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__19);
-/* … */
-  __pyx_t_1 = PyCFunction_NewEx(&amp;__pyx_mdef_13distance_calc_1getDistances, NULL, __pyx_n_s_distance_calc);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 7, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
-  if (<span class='py_c_api'>PyDict_SetItem</span>(__pyx_d, __pyx_n_s_getDistances, __pyx_t_1) &lt; 0) <span class='error_goto'>__PYX_ERR(0, 7, __pyx_L1_error)</span>
-  <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_codeobj__20 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(5, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__19, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_distance_calc_pyx, __pyx_n_s_getDistances, 7, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__20)) __PYX_ERR(0, 7, __pyx_L1_error)</span>
-</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">08</span>:     <span class="n">distances_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">recordLength</span> <span class="o">*</span> <span class="mf">2</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">doublec</span><span class="p">)</span></pre>
-<pre class='cython code score-51 '>  <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_2, __pyx_n_s_np);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 8, __pyx_L1_error)</span>
+</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">07</span>:     <span class="n">distances_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">recordLength</span> <span class="o">*</span> <span class="mf">2</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">doublec</span><span class="p">)</span></pre>
+<pre class='cython code score-51 '>  <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_2, __pyx_n_s_np);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 7, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
-  __pyx_t_3 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_2, __pyx_n_s_empty);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 8, __pyx_L1_error)</span>
+  __pyx_t_3 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_2, __pyx_n_s_empty);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 7, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_PyInt_From_long</span>((__pyx_v_recordLength * 2));<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 8, __pyx_L1_error)</span>
+  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_PyInt_From_long</span>((__pyx_v_recordLength * 2));<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 7, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
-  <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_4, __pyx_n_s_np);<span class='error_goto'> if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 8, __pyx_L1_error)</span>
+  <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_4, __pyx_n_s_np);<span class='error_goto'> if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 7, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_4);
-  __pyx_t_5 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_4, __pyx_n_s_doublec);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 8, __pyx_L1_error)</span>
+  __pyx_t_5 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_4, __pyx_n_s_doublec);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 7, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_5);
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_t_4 = NULL;
@@ -544,7 +555,7 @@ static PyObject *__pyx_pf_13distance_calc_getDistances(CYTHON_UNUSED PyObject *_
   #if CYTHON_FAST_PYCALL
   if (<span class='py_c_api'>PyFunction_Check</span>(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_t_2, __pyx_t_5};
-    __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyFunction_FastCall</span>(__pyx_t_3, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 8, __pyx_L1_error)</span>
+    __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyFunction_FastCall</span>(__pyx_t_3, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 7, __pyx_L1_error)</span>
     <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_4); __pyx_t_4 = 0;
     <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
     <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_2); __pyx_t_2 = 0;
@@ -554,7 +565,7 @@ static PyObject *__pyx_pf_13distance_calc_getDistances(CYTHON_UNUSED PyObject *_
   #if CYTHON_FAST_PYCCALL
   if (<span class='pyx_c_api'>__Pyx_PyFastCFunction_Check</span>(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_t_2, __pyx_t_5};
-    __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyCFunction_FastCall</span>(__pyx_t_3, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 8, __pyx_L1_error)</span>
+    __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyCFunction_FastCall</span>(__pyx_t_3, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 7, __pyx_L1_error)</span>
     <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_4); __pyx_t_4 = 0;
     <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
     <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_2); __pyx_t_2 = 0;
@@ -562,7 +573,7 @@ static PyObject *__pyx_pf_13distance_calc_getDistances(CYTHON_UNUSED PyObject *_
   } else
   #endif
   {
-    __pyx_t_7 = <span class='py_c_api'>PyTuple_New</span>(2+__pyx_t_6);<span class='error_goto'> if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 8, __pyx_L1_error)</span>
+    __pyx_t_7 = <span class='py_c_api'>PyTuple_New</span>(2+__pyx_t_6);<span class='error_goto'> if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 7, __pyx_L1_error)</span>
     <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_7);
     if (__pyx_t_4) {
       <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_t_4); <span class='py_macro_api'>PyTuple_SET_ITEM</span>(__pyx_t_7, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -573,26 +584,26 @@ static PyObject *__pyx_pf_13distance_calc_getDistances(CYTHON_UNUSED PyObject *_
     <span class='py_macro_api'>PyTuple_SET_ITEM</span>(__pyx_t_7, 1+__pyx_t_6, __pyx_t_5);
     __pyx_t_2 = 0;
     __pyx_t_5 = 0;
-    __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_Call</span>(__pyx_t_3, __pyx_t_7, NULL);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 8, __pyx_L1_error)</span>
+    __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_Call</span>(__pyx_t_3, __pyx_t_7, NULL);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 7, __pyx_L1_error)</span>
     <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
     <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_7); __pyx_t_7 = 0;
   }
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_distances_array = __pyx_t_1;
   __pyx_t_1 = 0;
-</pre><pre class="cython line score-2" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">09</span>:     <span class="k">cdef</span> <span class="kt">double</span>[<span class="p">:]</span> <span class="n">distances</span> <span class="o">=</span> <span class="n">distances_array</span></pre>
-<pre class='cython code score-2 '>  __pyx_t_8 = <span class='pyx_c_api'>__Pyx_PyObject_to_MemoryviewSlice_ds_double</span>(__pyx_v_distances_array, PyBUF_WRITABLE);<span class='error_goto'> if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 9, __pyx_L1_error)</span>
+</pre><pre class="cython line score-2" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">08</span>:     <span class="k">cdef</span> <span class="kt">double</span>[<span class="p">:]</span> <span class="n">distances</span> <span class="o">=</span> <span class="n">distances_array</span></pre>
+<pre class='cython code score-2 '>  __pyx_t_8 = <span class='pyx_c_api'>__Pyx_PyObject_to_MemoryviewSlice_ds_double</span>(__pyx_v_distances_array, PyBUF_WRITABLE);<span class='error_goto'> if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 8, __pyx_L1_error)</span>
   __pyx_v_distances = __pyx_t_8;
   __pyx_t_8.memview = NULL;
   __pyx_t_8.data = NULL;
-</pre><pre class="cython line score-12" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">10</span>:     <span class="k">cdef</span> <span class="kt">char</span> * <span class="nf">cfname</span> <span class="o">=</span> <span class="n">fname</span></pre>
+</pre><pre class="cython line score-12" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">09</span>:     <span class="k">cdef</span> <span class="kt">char</span> * <span class="nf">cfname</span> <span class="o">=</span> <span class="n">fname</span></pre>
 <pre class='cython code score-12 '>  if (unlikely(__pyx_v_fname == Py_None)) {
     <span class='py_c_api'>PyErr_SetString</span>(PyExc_TypeError, "expected bytes, NoneType found");
-    <span class='error_goto'>__PYX_ERR(0, 10, __pyx_L1_error)</span>
+    <span class='error_goto'>__PYX_ERR(0, 9, __pyx_L1_error)</span>
   }
-  __pyx_t_9 = <span class='pyx_c_api'>__Pyx_PyBytes_AsWritableString</span>(__pyx_v_fname); if (unlikely((!__pyx_t_9) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(0, 10, __pyx_L1_error)</span>
+  __pyx_t_9 = <span class='pyx_c_api'>__Pyx_PyBytes_AsWritableString</span>(__pyx_v_fname); if (unlikely((!__pyx_t_9) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(0, 9, __pyx_L1_error)</span>
   __pyx_v_cfname = __pyx_t_9;
-</pre><pre class="cython line score-2" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">11</span>:     <span class="n">geoSearch</span><span class="p">(</span><span class="n">cfname</span><span class="p">,</span> <span class="n">baseLong</span><span class="p">,</span> <span class="n">baseLat</span><span class="p">,</span> <span class="n">searchRadius</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">distances</span><span class="p">[</span><span class="mf">0</span><span class="p">])</span></pre>
+</pre><pre class="cython line score-2" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">10</span>:     <span class="n">geoSearch</span><span class="p">(</span><span class="n">cfname</span><span class="p">,</span> <span class="n">baseLong</span><span class="p">,</span> <span class="n">baseLat</span><span class="p">,</span> <span class="n">searchRadius</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">distances</span><span class="p">[</span><span class="mf">0</span><span class="p">])</span></pre>
 <pre class='cython code score-2 '>  __pyx_t_10 = 0;
   __pyx_t_6 = -1;
   if (__pyx_t_10 &lt; 0) {
@@ -601,12 +612,21 @@ static PyObject *__pyx_pf_13distance_calc_getDistances(CYTHON_UNUSED PyObject *_
   } else if (unlikely(__pyx_t_10 &gt;= __pyx_v_distances.shape[0])) __pyx_t_6 = 0;
   if (unlikely(__pyx_t_6 != -1)) {
     <span class='pyx_c_api'>__Pyx_RaiseBufferIndexError</span>(__pyx_t_6);
-    <span class='error_goto'>__PYX_ERR(0, 11, __pyx_L1_error)</span>
+    <span class='error_goto'>__PYX_ERR(0, 10, __pyx_L1_error)</span>
   }
   geoSearch(__pyx_v_cfname, __pyx_v_baseLong, __pyx_v_baseLat, __pyx_v_searchRadius, (&amp;(*((double *) ( /* dim=0 */ (__pyx_v_distances.data + __pyx_t_10 * __pyx_v_distances.strides[0]) )))));
-</pre><pre class="cython line score-2" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">12</span>:     <span class="k">return</span> <span class="n">distances_array</span></pre>
-<pre class='cython code score-2 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
-  <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_v_distances_array);
-  __pyx_r = __pyx_v_distances_array;
+</pre><pre class="cython line score-11" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">11</span>:     <span class="k">return</span> <span class="n">distances_array</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mf">1</span><span class="p">,</span> <span class="mf">2</span><span class="p">)</span></pre>
+<pre class='cython code score-11 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
+  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_v_distances_array, __pyx_n_s_reshape);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 11, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
+  __pyx_t_3 = <span class='pyx_c_api'>__Pyx_PyObject_Call</span>(__pyx_t_1, __pyx_tuple_, NULL);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 11, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
+  <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_r = __pyx_t_3;
+  __pyx_t_3 = 0;
   goto __pyx_L0;
+/* … */
+  __pyx_tuple_ = <span class='py_c_api'>PyTuple_Pack</span>(2, __pyx_int_1, __pyx_int_2);<span class='error_goto'> if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 11, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple_);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple_);
 </pre></div></body></html>

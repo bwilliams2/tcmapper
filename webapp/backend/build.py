@@ -1,5 +1,6 @@
 import os
 import sys
+from pathlib import Path
 
 import numpy as np
 from distutils.core import Extension
@@ -10,32 +11,40 @@ from distutils.command.build_ext import build_ext
 
 extensions = [
     Extension(
-        "calc_distance",
+        "distance_calc",
         ["backend/geotools/distance_calc.pyx"],
-        include_dirs=[np.get_include()],
+        libraries=["shp", "proj"],
+        library_dirs=["usr/lib64"],
+        include_dirs=[
+            '/usr/include',
+            np.get_include(),
+            str(Path("../../tools/cShapeTools/include/PathFinder").absolute())
+        ],
     )
 ]
 
 
-class BuildFailed(Exception):
+# class BuildFailed(Exception):
 
-    pass
+#     pass
 
 
 class ExtBuilder(build_ext):
     # This class allows C extension building to fail.
 
     def run(self):
-        try:
-            build_ext.run(self)
-        except (DistutilsPlatformError, FileNotFoundError):
-            pass
+        # try:
+        build_ext.run(self)
+        # except (DistutilsPlatformError, FileNotFoundError):
+        #     pass
 
     def build_extension(self, ext):
-        try:
-            build_ext.build_extension(self, ext)
-        except (CCompilerError, DistutilsExecError, DistutilsPlatformError, ValueError):
-            pass
+        # try:
+        build_ext.build_extension(self, ext)
+        self.inplace = 1
+        build_ext.build_extension(self, ext)
+        # except (CCompilerError, DistutilsExecError, DistutilsPlatformError, ValueError):
+        #     pass
 
 
 def build(setup_kwargs):
