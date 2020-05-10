@@ -32,16 +32,18 @@ void geoSearch(char *fname, double baseLat, double baseLong, int searchRadius, d
         otherLat = DBFReadDoubleAttribute(dbfH, i, latLoc);
         // printf("Long: %lf; Lat: %lf\n", otherLong, otherLat);
         geod_inverse(&g, otherLat, otherLong, baseLat, baseLong, &distance, 0, 0);
-        if (distance <= searchRadius) {
-            // printf("\n");
-            // printf("This distance is %lf km\n", distance / 1000);
-            const char *effDate = DBFReadStringAttribute(dbfH, i, effDateLoc);
-            distances[n] = i;
-            distances[n + 1] = distance;
-            // printf("Effective Date: %s", effDate);
-            ++n;
-            n += 2;
-        }
+        distances[i] = distance;
+        // ++n;
+        // n += 2;
+        // if (distance <= searchRadius) {
+        //     // printf("\n");
+        //     // printf("This distance is %lf km\n", distance / 1000);
+        //     distances[n] = i;
+        //     distances[n + 1] = distance;
+        //     // printf("Effective Date: %s", effDate);
+        //     ++n;
+        //     n += 2;
+        // }
     }
     printf("Number of addresses within %d m is %d\n", searchRadius, n);
 }
