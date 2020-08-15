@@ -10,7 +10,7 @@ from .distance_calc import get_distances
 
 def address_search(longitude: float, latitude: float, distance: float):
     with path("backend", "data") as data_dir:
-        files = [bytes(Path(file).absolute()) for file in glob.glob(str(data_dir.joinpath("*.shp").absolute()))]
+        files = [bytes(Path(file).absolute()) for file in glob.glob(str(data_dir.joinpath("parcels/*.shp").absolute()))]
     all_distances = np.array([]) 
     county_addresses = []
     for file in files:

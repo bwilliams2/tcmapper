@@ -191,6 +191,14 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 version = "0.29.14"
 
 [[package]]
+category = "main"
+description = "Read DBF Files with Python"
+name = "dbfread"
+optional = false
+python-versions = "*"
+version = "2.0.7"
+
+[[package]]
 category = "dev"
 description = "Decorators for Humans"
 name = "decorator"
@@ -1155,7 +1163,7 @@ python-versions = "*"
 version = "1.11.2"
 
 [metadata]
-content-hash = "c49b469fdb8f49bb2928b6a3341cdfa587a648bb7a2ac5f65c3e0529e2a26b05"
+content-hash = "13a1eccdc827810297ce2b3d35e5348c3181385825fdcf527d45f3c5ea1ecf5c"
 python-versions = "^3.8"
 
 [metadata.files]
@@ -1272,6 +1280,10 @@ cython = [
     {file = "Cython-0.29.14-cp38-cp38-win32.whl", hash = "sha256:c7894c06205166d360ab2915ae306d1f7403e9ce3d3aaeff4095eaf98e42ce66"},
     {file = "Cython-0.29.14-cp38-cp38-win_amd64.whl", hash = "sha256:a0f495a4fe5278aab278feee35e6102efecde5176a8a74dd28c28e3fc5c8d7c7"},
     {file = "Cython-0.29.14.tar.gz", hash = "sha256:e4d6bb8703d0319eb04b7319b12ea41580df44fd84d83ccda13ea463c6801414"},
+]
+dbfread = [
+    {file = "dbfread-2.0.7-py2.py3-none-any.whl", hash = "sha256:f604def58c59694fa0160d7be5d0b8d594467278d2bb6a47d46daf7162c84cec"},
+    {file = "dbfread-2.0.7.tar.gz", hash = "sha256:07c8a9af06ffad3f6f03e8fe91ad7d2733e31a26d2b72c4dd4cfbae07ee3b73d"},
 ]
 decorator = [
     {file = "decorator-4.4.1-py2.py3-none-any.whl", hash = "sha256:5d19b92a3c8f7f101c8dd86afd86b0f061a8ce4540ab8cd401fa2542756bce6d"},

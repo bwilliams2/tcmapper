@@ -53,7 +53,7 @@ declare global {
 }
 import Vue from "vue";
 import Landing from "@/components/Landing.vue";
-import Map from "@/components/Map.vue";
+import Map from "@/components/NewMap.vue";
 import { mapState } from "vuex";
 
 export default Vue.extend({
@@ -61,14 +61,14 @@ export default Vue.extend({
 
   components: {
     Landing,
-    Map
+    Map,
   },
 
   data: () => ({
     //
   }),
   computed: {
-    ...mapState(["addressInfo"])
-  }
+    ...mapState(["addressInfo"]),
+  },
 });
 </script>
