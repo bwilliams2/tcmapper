@@ -1,6 +1,6 @@
 <template>
   <l-map
-    style="height: 100%; width: 100%"
+    style="height: 100%; width: 100%;"
     :zoom="zoom"
     :center="center"
     @update:zoom="zoomUpdated"
@@ -28,16 +28,16 @@ export default Vue.extend({
   components: {
     LMap,
     LTileLayer,
-    LCircle
+    LCircle,
   },
   mounted() {
     this.center = [
       this.addressInfo.position.lat,
-      this.addressInfo.position.lng
+      this.addressInfo.position.lng,
     ];
     this.circle.center = [
       this.addressInfo.position.lat,
-      this.addressInfo.position.lng
+      this.addressInfo.position.lng,
     ];
   },
   data() {
@@ -49,12 +49,12 @@ export default Vue.extend({
       circle: {
         center: [47.41322, -1.0482],
         radius: 4500,
-        color: "red"
-      }
+        color: "red",
+      },
     };
   },
   computed: {
-    ...mapState(["addressInfo"])
+    ...mapState(["addressInfo"]),
   },
   methods: {
     zoomUpdated(zoom: number) {
@@ -65,7 +65,7 @@ export default Vue.extend({
     },
     boundsUpdated(bounds: any) {
       this.bounds = bounds;
-    }
-  }
+    },
+  },
 });
 </script>
