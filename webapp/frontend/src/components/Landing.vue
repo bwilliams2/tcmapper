@@ -72,7 +72,7 @@ export default Vue.extend({
     isLoading: false,
     search: null,
     entries: [],
-    descriptionLimit: 60
+    descriptionLimit: 60,
   }),
   // created() {
   //   this.updateSearch = debounce(this.updateSearch, 300);
@@ -82,7 +82,7 @@ export default Vue.extend({
   // },
   computed: {
     items(): string[] {
-      return this.entries.map(e => e.title);
+      return this.entries.map((e) => e.title);
     },
     address: {
       get() {
@@ -90,15 +90,15 @@ export default Vue.extend({
       },
       set(value) {
         return this.$store.commit("updateAddress", { address: value });
-      }
+      },
     },
-    ...mapState(["addressInfo"])
+    ...mapState(["addressInfo"]),
   },
   methods: {
     submitAddress() {
       // Instantiate a map and platform object:
       const platform = new window.H.service.Platform({
-        apikey: apiKey
+        apikey: apiKey,
       });
       // Get an instance of the search service:
       const service = platform.getSearchService();
@@ -108,7 +108,7 @@ export default Vue.extend({
           // Search query
           q: this.address,
           // Center of the search context
-          in: "circle:44.985207,-93.264622;r=50000"
+          in: "circle:44.985207,-93.264622;r=50000",
           // at: "44.985207,-93.264622"
         },
         (result: any) => {
@@ -116,7 +116,9 @@ export default Vue.extend({
             result.items[0],
             ...Object.keys(this.addressInfo)
           );
-          this.$store.dispatch("updateAddressInfo", addressInfo);
+          this.$store.dispatch("updateAddressInfo", addressInfo).then(() => {
+            this.$router.push({ path: "map" });
+          });
           // Assumption: ui is instantiated
           // Create an InfoBubble at the returned location
           // ui.addBubble(new H.ui.InfoBubble(position, {
@@ -131,7 +133,7 @@ export default Vue.extend({
         const target = e.target as HTMLInputElement;
         this.$store.dispatch("updateAddress", target.value);
       }
-    }
+    },
   },
   watch: {
     search(val) {
@@ -148,7 +150,7 @@ export default Vue.extend({
 
       // Instantiate a map and platform object:
       const platform = new window.H.service.Platform({
-        apikey: apiKey
+        apikey: apiKey,
       });
       // Get an instance of the search service:
       const service = platform.getSearchService();
@@ -164,7 +166,7 @@ export default Vue.extend({
           // Search query
           q: val,
           // Center of the search context
-          in: "circle:44.985207,-93.264622;r=50000"
+          in: "circle:44.985207,-93.264622;r=50000",
           // at: "44.985207,-93.264622"
         },
         (result: any) => {
@@ -178,7 +180,7 @@ export default Vue.extend({
         },
         alert
       );
-    }
-  }
+    },
+  },
 });
 </script>

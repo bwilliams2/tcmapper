@@ -33,12 +33,13 @@
       </v-btn>
     </v-app-bar>
     <v-content>
-      <template v-if="!addressInfo.title">
+      <router-view></router-view>
+      <!-- <template v-if="!addressInfo.title">
         <Landing />
       </template>
       <template v-if="addressInfo.title">
         <Map />
-      </template>
+      </template> -->
     </v-content>
   </v-app>
 </template>
@@ -52,17 +53,13 @@ declare global {
   }
 }
 import Vue from "vue";
-import Landing from "@/components/Landing.vue";
-import Map from "@/components/NewMap.vue";
 import { mapState } from "vuex";
 
 export default Vue.extend({
   name: "App",
 
-  components: {
-    Landing,
-    Map,
-  },
+  // components: {
+  // },
 
   data: () => ({
     //

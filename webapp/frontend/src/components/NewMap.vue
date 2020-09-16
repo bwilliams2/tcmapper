@@ -44,6 +44,8 @@ interface MapData {
   features: FeatureCollection;
 }
 
+type DataPoints = [number, number];
+
 export default Vue.extend({
   name: "DensityMap",
   mounted() {
@@ -142,16 +144,34 @@ export default Vue.extend({
       // feature.attr("d", path);
       const circleCoords = this.circle.center;
       const feature = this.svgGroup
-        .selectAll("path")
+        .selectAll("circle")
         .data([circleCoords])
-        .style("stroke", "black")
-        .style("opacity", 0.6)
+        .enter()
+        .append("circle")
+        .attr("cx", function (d: DataPoints) {
+          return map.latLngToLayerPoint(d).x;
+        })
+        .attr("cy", function (d: DataPoints) {
+          return map.latLngToLayerPoint(d).y;
+        })
+        .attr("r", 14)
         .style("fill", "red")
-        .attr("r", 20);
+        .attr("stroke", "red")
+        .attr("stroke-width", 3)
+        .attr("fill-opacity", 0.4);
 
       const svg = this.svg;
       const svgGroup = this.svgGroup;
+      const self = this;
       function update() {
+        self.svgGroup
+          .selectAll("circle")
+          .attr("cx", function (d: DataPoints) {
+            return map.latLngToLayerPoint(d).x;
+          })
+          .attr("cy", function (d: DataPoints) {
+            return map.latLngToLayerPoint(d).y;
+          });
         const bounds = path.bounds(collection);
         const topLeft = bounds[0];
         const bottomRight = bounds[1];
