@@ -3,11 +3,16 @@ import { HereAddress } from "./state";
 
 const rootActions = {
   updateAddress({ commit }: { commit: Commit }, address: string) {
-    commit("updateAddress", { address: address });
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        commit("updateAddress", { address: address });
+        resolve();
+      }, 1000);
+    });
   },
   updateAddressInfo({ commit }: { commit: Commit }, addressInfo: HereAddress) {
     commit("updateAddressInfo", { addressInfo: addressInfo });
-  }
+  },
 };
 
 export default rootActions;
