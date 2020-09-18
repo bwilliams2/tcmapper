@@ -15,7 +15,8 @@
             "intelliSenseMode": "clang-x64",
             "includePath": [
                 "${myDefaultIncludePath}"
-            ]
+            ],
+            "compileCommands": "${workspaceFolder}/tools/cShapeTools/build/compile_commands.json"
         }
     ],
     "version": 4
