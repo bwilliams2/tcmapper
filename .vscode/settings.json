@@ -10,5 +10,6 @@
     "python.testing.unittestEnabled": false,
     "python.testing.nosetestsEnabled": false,
     "python.testing.pytestEnabled": true,
-    "cmake.configureOnOpen": false
+    "cmake.configureOnOpen": false,
+    "python.dataScience.jupyterServerURI": "local"
 }

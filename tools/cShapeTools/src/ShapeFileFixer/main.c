@@ -48,18 +48,25 @@ void alterLongLat(char fpath[]) {
 
 
     int records = DBFGetRecordCount(dbfH);
-
+    int hasChanged = 0;
     int longLoc = DBFGetFieldIndex(dbfH, "LONGITUDE");
     if (longLoc == -1)
     {
         DBFAddField(dbfH, "LONGITUDE", FTDouble, 7, 6);
         int longLoc = DBFGetFieldIndex(dbfH, "LONGITUDE");
+        hasChanged = 1;
     }
     int latLoc = DBFGetFieldIndex(dbfH, "LATITUDE");
     if (latLoc == -1)
     {
         DBFAddField(dbfH, "LATITUDE", FTDouble, 7, 6);
         int latLoc = DBFGetFieldIndex(dbfH, "LATITUDE");
+        hasChanged = 1;
+    }
+    if (hasChanged)
+    {
+        DBFClose(dbfH);
+        DBFHandle dbfH = DBFOpen(fpath, "rb+");
     }
     for (i = 0; i < records; ++i) {
         SHPObject *currRecord = SHPReadObject(shpH, i);
