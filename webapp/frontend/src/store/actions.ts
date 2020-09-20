@@ -1,5 +1,5 @@
 import { Commit } from "vuex/types";
-import { HereAddress } from "./state";
+import rootState, { HereAddress } from "./state";
 
 const rootActions = {
   updateAddress({ commit }: { commit: Commit }, address: string) {
@@ -9,6 +9,9 @@ const rootActions = {
         resolve();
       }, 1000);
     });
+  },
+  resetAddress({ commit }: { commit: Commit }) {
+    commit("resetAddress");
   },
   updateAddressInfo({ commit }: { commit: Commit }, addressInfo: HereAddress) {
     commit("updateAddressInfo", { addressInfo: addressInfo });

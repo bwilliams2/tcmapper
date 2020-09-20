@@ -27,12 +27,12 @@ export interface HereAddress {
   distance: number | null;
 }
 
-export interface RootState {
+export interface RootStateType {
   address: string;
   addressInfo: HereAddress;
 }
 
-const rootState: RootState = {
+const rootState: RootStateType = {
   address: "",
   addressInfo: {
     title: "",
@@ -48,20 +48,20 @@ const rootState: RootState = {
       city: "",
       street: "",
       postalCode: "",
-      houseNumber: ""
+      houseNumber: "",
     },
     position: {
       lat: null,
-      lng: null
+      lng: null,
     },
     access: [
       {
         lat: null,
-        lng: null
-      }
+        lng: null,
+      },
     ],
-    distance: null
-  }
+    distance: null,
+  },
 };
 
 export default rootState;
