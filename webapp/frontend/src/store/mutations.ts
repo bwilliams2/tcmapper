@@ -1,12 +1,19 @@
-import { RootState, HereAddress } from "./state";
+import rootState, { RootStateType, HereAddress } from "./state";
 
 const mutations = {
-  updateAddress(state: RootState, payload: { address: string }) {
+  updateAddress(state: RootStateType, payload: { address: string }) {
     state.address = payload.address;
   },
-  updateAddressInfo(state: RootState, payload: { addressInfo: HereAddress }) {
+  resetAddress(state: RootStateType) {
+    state.address = rootState.address;
+    state.addressInfo = rootState.addressInfo;
+  },
+  updateAddressInfo(
+    state: RootStateType,
+    payload: { addressInfo: HereAddress }
+  ) {
     state.addressInfo = payload.addressInfo;
-  }
+  },
 };
 
 export default mutations;

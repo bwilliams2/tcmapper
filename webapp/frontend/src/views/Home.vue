@@ -2,6 +2,16 @@
   <div class="home">
     <v-app>
       <v-app-bar app color="primary" dark>
+        <template v-if="!addressInfo.title">
+          <v-btn
+            href="https://github.com/vuetifyjs/vuetify/releases/latest"
+            target="_blank"
+            text
+          >
+            <span class="mr-2">Latest Release</span>
+            <v-icon>mdi-open-in-new</v-icon>
+          </v-btn>
+        </template>
         <div class="d-flex align-center">
           <v-img
             alt="Vuetify Logo"
@@ -68,6 +78,11 @@ export default Vue.extend({
   }),
   computed: {
     ...mapState(["addressInfo"]),
+  },
+  methods: {
+    resetAddress() {
+      this.$store.dispatch("resetAddress");
+    },
   },
 });
 </script>
