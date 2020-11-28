@@ -11,6 +11,6 @@
     "python.testing.nosetestsEnabled": false,
     "python.testing.pytestEnabled": true,
     "cmake.configureOnOpen": false,
-    "python.dataScience.jupyterServerURI": "local",
-    "cmake.sourceDirectory": "${workspaceFolder}/tools/cShapeTools"
+    "cmake.sourceDirectory": "${workspaceFolder}/tools/cShapeTools",
+    "jupyter.jupyterServerType": "local"
 }
