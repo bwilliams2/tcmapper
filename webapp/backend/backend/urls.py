@@ -14,13 +14,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-from api.urls import views
+from django.urls import path, re_path
+from .apps.geoapi.urls import urlpatterns as api_urls
+from .apps.geoapi.views import index
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
-urlpatterns = [
-    path('', views.index, name='index'),
-]
+    path('', index, name='index'),
+    re_path('^api/', api_urls)
 ]
