@@ -2,15 +2,13 @@
   <div class="home">
     <v-app>
       <v-app-bar app color="primary" dark>
-        <template v-if="!addressInfo.title">
-          <v-btn
-            href="https://github.com/vuetifyjs/vuetify/releases/latest"
-            target="_blank"
-            text
-          >
-            <span class="mr-2">Latest Release</span>
-            <v-icon>mdi-open-in-new</v-icon>
-          </v-btn>
+        <template v-if="routeIsMap">
+          <router-link to="/" tag="v-btn" @click.native="resetAddress">
+            <v-btn>
+              <span class="mr-2">Reset Map</span>
+              <v-icon>mdi-open-in-new</v-icon>
+            </v-btn>
+          </router-link>
         </template>
         <div class="d-flex align-center">
           <v-img
@@ -78,6 +76,9 @@ export default Vue.extend({
   }),
   computed: {
     ...mapState(["addressInfo"]),
+    routeIsMap() {
+      return this.$route.includes("map");
+    },
   },
   methods: {
     resetAddress() {
