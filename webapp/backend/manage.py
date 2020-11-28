@@ -2,6 +2,13 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+from django.conf import settings
+
+
+# Add apps subdirectory
+print(settings.BASE_DIR)
+sys.path.insert(0, str(settings.BASE_DIR.joinpath("backend/apps")))
 
 
 def main():

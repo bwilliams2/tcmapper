@@ -15,11 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, re_path
-from .apps.geoapi.urls import urlpatterns as api_urls
-from .apps.geoapi.views import index
+from .site_apps.geoapi.urls import urlpatterns as api_urls
+from .site_apps.geoapi.views import index
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', index, name='index'),
-    re_path('^api/', api_urls)
+    # re_path('^api/', include(api_urls))
 ]
