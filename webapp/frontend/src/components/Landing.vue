@@ -1,7 +1,7 @@
 <template>
-  <v-container style="height: 100%;">
-    <v-row justify="center" align="center" style="height: 100%;">
-      <v-col cols="8" md="6">
+  <v-container style="height: 100%">
+    <v-row justify="center" align="center" style="height: 100%">
+      <v-col cols="8" md="10">
         <v-card>
           <v-card-text>
             <v-autocomplete

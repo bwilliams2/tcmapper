@@ -22,6 +22,7 @@
     "d3-geo": "^2.0.1",
     "debounce": "^1.2.0",
     "leaflet": "^1.6.0",
+    "leaflet.heat": "^0.2.0",
     "lodash": "^4.17.20",
     "npm-check-updates": "^5.0.0",
     "uuid": "^8.0.0",

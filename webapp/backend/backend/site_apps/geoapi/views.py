@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from django.conf import settings
+from pathlib import Path
 import uuid
 
 # Registers session cookie and gives template
@@ -8,5 +10,5 @@ def index(request):
     
     return render(
         request,
-        "../templates/index.html"
+        Path(settings.BASE_DIR).resolve().joinpath("backend/templates/index.html")
     )

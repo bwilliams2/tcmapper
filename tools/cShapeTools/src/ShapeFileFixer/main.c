@@ -11,6 +11,7 @@
 // Adds long lat to DBF file
 // long lat not in DBF for metro data set
 void alterLongLat(char fpath[]) {
+    printf("%s\n", fpath);
     DBFHandle dbfH = DBFOpen(fpath, "rb+");
     SHPHandle shpH = SHPOpen(fpath, "rb+");
     
@@ -50,24 +51,25 @@ void alterLongLat(char fpath[]) {
     int records = DBFGetRecordCount(dbfH);
     int hasChanged = 0;
     int longLoc = DBFGetFieldIndex(dbfH, "LONGITUDE");
+    printf("%d\n", longLoc);
     if (longLoc == -1)
     {
         DBFAddField(dbfH, "LONGITUDE", FTDouble, 7, 6);
-        int longLoc = DBFGetFieldIndex(dbfH, "LONGITUDE");
+        longLoc = DBFGetFieldIndex(dbfH, "LONGITUDE");
         hasChanged = 1;
     }
     int latLoc = DBFGetFieldIndex(dbfH, "LATITUDE");
+    printf("%d\n", latLoc);
     if (latLoc == -1)
     {
         DBFAddField(dbfH, "LATITUDE", FTDouble, 7, 6);
-        int latLoc = DBFGetFieldIndex(dbfH, "LATITUDE");
+        latLoc = DBFGetFieldIndex(dbfH, "LATITUDE");
         hasChanged = 1;
     }
-    if (hasChanged)
-    {
-        DBFClose(dbfH);
-        DBFHandle dbfH = DBFOpen(fpath, "rb+");
-    }
+    // if (hasChanged)
+    // {
+    DBFClose(dbfH);
+    DBFHandle dbfHW = DBFOpen(fpath, "rb+");
     for (i = 0; i < records; ++i) {
         SHPObject *currRecord = SHPReadObject(shpH, i);
         printf("\n");
@@ -84,15 +86,16 @@ void alterLongLat(char fpath[]) {
         newLong = b.lp.phi;
         newLat = b.lp.lam;
         printf("Longitude: %lf Latitude: %lf\n", newLong, newLat);
-        DBFWriteDoubleAttribute(dbfH, i, longLoc, newLong);
-        DBFWriteDoubleAttribute(dbfH, i, latLoc, newLat);
+        DBFWriteDoubleAttribute(dbfHW, i, longLoc, newLong);
+        DBFWriteDoubleAttribute(dbfHW, i, latLoc, newLat);
         // } 
     }
+    // }
 
     /* Clean up */
     proj_destroy (P);
     proj_context_destroy (C); /* may be omitted in the single threaded case */
-    DBFClose(dbfH);
+    DBFClose(dbfHW);
     SHPClose(shpH);
 }
 

@@ -9,11 +9,10 @@ Vue.use(VueRouter);
 const routes: Array<RouteConfig> = [
   {
     path: "/",
-    name: "Home",
     component: Home,
     children: [
-      { path: "", component: Landing },
-      { path: "/map", component: Map },
+      { path: "", component: Landing, name: "home" },
+      { path: "/map", component: Map, name: "map" },
     ],
   },
   {
