@@ -27,5 +27,6 @@ extensions = [
 
 setup(
     name="geotools",
+    version="0.0.1",
     ext_modules=cythonize(extensions),
 )

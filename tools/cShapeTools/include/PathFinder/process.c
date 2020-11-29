@@ -5,6 +5,56 @@
 #include <geodesic.h>
 #include "./process.h"
 
+void getBoundingBox(char *fname, double * boxCoordinates) {
+    PJ_CONTEXT *C;
+    PJ *P;
+    PJ* P_for_GIS;
+    PJ_COORD other;
+
+    DBFHandle dbfH = DBFOpen( fname, "r" );
+    double otherLong, otherLat;
+
+    int records = DBFGetRecordCount(dbfH);
+    int longLoc = DBFGetFieldIndex(dbfH, "LONGITUDE");
+    int latLoc = DBFGetFieldIndex(dbfH, "LATITUDE");
+
+
+    int i = 0;
+    otherLong = DBFReadDoubleAttribute(dbfH, i, longLoc);
+    otherLat = DBFReadDoubleAttribute(dbfH, i, latLoc);
+    double westBoundLong = otherLong;
+    double eastBoundLong = otherLong;
+    double northBoundLat = otherLat;
+    double southBoundLat = otherLat;
+    printf("Long int: %d; Lat int: %d\n", longLoc, latLoc);
+    printf("Long: %lf; Lat: %lf\n", otherLong, otherLat);
+
+    for (i = 1; i < records; ++i) {
+        otherLong = DBFReadDoubleAttribute(dbfH, i, longLoc);
+        otherLat = DBFReadDoubleAttribute(dbfH, i, latLoc);
+        if(otherLong == 0 || otherLat == 0) {
+            continue;
+        }
+        if(westBoundLong > otherLong) {
+            westBoundLong = otherLong;
+        }
+        if(eastBoundLong < otherLong) {
+            eastBoundLong = otherLong;
+        }
+        if(northBoundLat < otherLat) {
+            northBoundLat = otherLat;
+        }
+        if(southBoundLat > otherLat) {
+            southBoundLat = otherLat;
+        }
+    }
+    boxCoordinates[0] = westBoundLong;
+    boxCoordinates[1] = northBoundLat;
+    boxCoordinates[2] = eastBoundLong;
+    boxCoordinates[3] = southBoundLat;
+    DBFClose(dbfH);
+}
+
 void geoSearch(char *fname, double baseLat, double baseLong, int searchRadius, double * distances) 
 {
     PJ_CONTEXT *C;
@@ -46,6 +96,7 @@ void geoSearch(char *fname, double baseLat, double baseLong, int searchRadius, d
         // }
     }
     printf("Number of addresses within %d m is %d\n", searchRadius, n);
+    DBFClose(dbfH);
 }
 
 // void doSearch()

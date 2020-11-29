@@ -6,11 +6,11 @@ import fiona
 import numpy as np
 import pandas as pd
 
-from .distance_calc import get_distances
+from .distance_calc import get_distances, get_bounding_box
 
 def address_search(longitude: float, latitude: float, distance: float):
-    with path("backend", "data") as data_dir:
-        files = [bytes(Path(file).absolute()) for file in glob.glob(str(data_dir.joinpath("parcels/*.shp").absolute()))]
+    with path("geotools", "data") as data_dir:
+        files = [bytes(Path(file).absolute()) for file in glob.glob(str(data_dir.joinpath("new_parcels/*.shp").absolute()))]
     all_distances = np.array([]) 
     county_addresses = []
     for file in files:
@@ -33,3 +33,20 @@ def address_search(longitude: float, latitude: float, distance: float):
     data["DISTANCE"] = all_distances
     return data
 
+def get_metro_bounds():
+    with path("geotools", "data") as data_dir:
+        files = [bytes(Path(file).absolute()) for file in glob.glob(str(data_dir.joinpath("new_parcels/*.shp").absolute()))]
+    all_coords = []
+    for file in files:
+        coordinates = get_bounding_box(file)
+        all_coords.append(coordinates)
+    all_coords = np.vstack(all_coords)
+    westBoundLong = np.min(all_coords[:,0])
+    eastBoundLong = np.max(all_coords[:,2])
+    northBoundLat = np.max(all_coords[:,1])
+    southBoundLat = np.min(all_coords[:,3])
+    bounds = np.array([
+        [westBoundLong, southBoundLat],
+        [eastBoundLong, northBoundLat]
+    ])
+    return bounds
