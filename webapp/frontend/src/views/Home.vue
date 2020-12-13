@@ -42,6 +42,12 @@
         </v-btn> -->
       </v-app-bar>
       <v-main>
+        <v-overlay :value="overlay">
+          <v-progress-circular indeterminate size="64"></v-progress-circular>
+          <div :class="['text-h6']" v-bind:style="{ textAlign: 'center' }">
+            Calculating Stats
+          </div>
+        </v-overlay>
         <router-view></router-view>
         <!-- <template v-if="!addressInfo.title">
         <Landing />
@@ -78,6 +84,9 @@ export default Vue.extend({
     ...mapState(["addressInfo"]),
     routeIsMap() {
       return this.$route.name && this.$route?.name.includes("map");
+    },
+    overlay() {
+      return this.$store.state.ui.showLoadingOverlay;
     },
   },
   methods: {
