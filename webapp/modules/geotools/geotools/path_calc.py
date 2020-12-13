@@ -3,6 +3,7 @@ import glob
 from importlib.resources import path, contents
 
 import fiona
+from geotools.weighting import weighting_function
 import numpy as np
 import pandas as pd
 
@@ -32,6 +33,16 @@ def address_search(longitude: float, latitude: float, distance: float):
     data = pd.DataFrame(county_addresses)
     data["DISTANCE"] = all_distances
     return data
+
+def weighted_address_search(longitude: float, latitude: float, distance: float):
+    from geotools.weighting import weighting_function
+    data = address_search(longitude, latitude, distance)
+    d = weighting_function(data)
+    data["WEIGHT"] = d
+    return data
+
+
+
 
 def get_metro_bounds():
     with path("geotools", "data") as data_dir:

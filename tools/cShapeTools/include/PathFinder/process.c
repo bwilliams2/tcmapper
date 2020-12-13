@@ -72,7 +72,7 @@ void geoSearch(char *fname, double baseLat, double baseLong, int searchRadius, d
     int records = DBFGetRecordCount(dbfH);
     int longLoc = DBFGetFieldIndex(dbfH, "LONGITUDE");
     int latLoc = DBFGetFieldIndex(dbfH, "LATITUDE");
-    printf("Long int: %d; Lat int: %d\n", longLoc, latLoc);
+    // printf("Long int: %d; Lat int: %d\n", longLoc, latLoc);
     int effDateLoc = DBFGetFieldIndex(dbfH, "EFF_DATE");
     
     geod_init(&g, 6378137, 1/298.257223563);
@@ -95,7 +95,7 @@ void geoSearch(char *fname, double baseLat, double baseLong, int searchRadius, d
         //     n += 2;
         // }
     }
-    printf("Number of addresses within %d m is %d\n", searchRadius, n);
+    // printf("Number of addresses within %d m is %d\n", searchRadius, n);
     DBFClose(dbfH);
 }
 
