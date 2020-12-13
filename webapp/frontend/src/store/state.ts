@@ -1,3 +1,21 @@
+export type LocationDataItem = [number, number, number];
+
+export interface HistDataItem {
+  YEAR_BUILT: number;
+  USECLASS1: string;
+  COUNT: number;
+}
+
+export interface YearDataItem {
+  YEAR_BUILT: number;
+  COUNT: number;
+}
+
+export interface WeightDataItem {
+  YEAR_BUILT: number;
+  WEIGHT: number;
+}
+
 export interface HereAddress {
   title: string;
   id: string;
@@ -24,12 +42,20 @@ export interface HereAddress {
       lng: number | null;
     }
   ];
-  distance: number | null;
+}
+
+export interface PlotDataState {
+  locationData: LocationDataItem[];
+  histData: HistDataItem[];
+  yearData: YearDataItem[];
+  weightData: WeightDataItem[];
 }
 
 export interface RootStateType {
   address: string;
   addressInfo: HereAddress;
+  plotData: PlotDataState;
+  analysisDistance: number | null;
 }
 
 const rootState: RootStateType = {
@@ -60,8 +86,14 @@ const rootState: RootStateType = {
         lng: null,
       },
     ],
-    distance: null,
   },
+  plotData: {
+    locationData: [],
+    histData: [],
+    yearData: [],
+    weightData: [],
+  },
+  analysisDistance: 5000,
 };
 
 export default rootState;

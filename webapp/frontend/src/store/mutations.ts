@@ -1,4 +1,4 @@
-import rootState, { RootStateType, HereAddress } from "./state";
+import rootState, { RootStateType, HereAddress, PlotDataState } from "./state";
 
 const mutations = {
   updateAddress(state: RootStateType, payload: { address: string }) {
@@ -13,6 +13,9 @@ const mutations = {
     payload: { addressInfo: HereAddress }
   ) {
     state.addressInfo = payload.addressInfo;
+  },
+  updatePlotData(state: RootStateType, payload: { plotData: PlotDataState }) {
+    state.plotData = payload.plotData;
   },
 };
 
