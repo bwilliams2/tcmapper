@@ -49,13 +49,18 @@ export interface PlotDataState {
   histData: HistDataItem[];
   yearData: YearDataItem[];
   weightData: WeightDataItem[];
+  analysisDistance: number | null;
+}
+
+export interface UIState {
+  showLoadingOverlay: boolean;
 }
 
 export interface RootStateType {
   address: string;
   addressInfo: HereAddress;
   plotData: PlotDataState;
-  analysisDistance: number | null;
+  ui: UIState;
 }
 
 const rootState: RootStateType = {
@@ -92,8 +97,11 @@ const rootState: RootStateType = {
     histData: [],
     yearData: [],
     weightData: [],
+    analysisDistance: 5000,
   },
-  analysisDistance: 5000,
+  ui: {
+    showLoadingOverlay: false,
+  },
 };
 
 export default rootState;

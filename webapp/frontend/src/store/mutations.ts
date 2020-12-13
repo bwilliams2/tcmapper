@@ -14,6 +14,9 @@ const mutations = {
   ) {
     state.addressInfo = payload.addressInfo;
   },
+  updateShowLoadingOverlay(state: RootStateType, payload: boolean) {
+    state.ui.showLoadingOverlay = payload;
+  },
   updatePlotData(state: RootStateType, payload: { plotData: PlotDataState }) {
     state.plotData = payload.plotData;
   },

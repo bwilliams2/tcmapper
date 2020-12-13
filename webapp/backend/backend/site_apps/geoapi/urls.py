@@ -1,6 +1,6 @@
-from .urls import weight_search
+from .views import weight_search
 from django.urls import path, re_path
 
 urlpatterns = [
-    path("weight", weight_search),
+    re_path("^weight", weight_search),
 ]
