@@ -42,12 +42,6 @@
         </v-btn> -->
       </v-app-bar>
       <v-main>
-        <v-overlay :value="overlay">
-          <v-progress-circular indeterminate size="64"></v-progress-circular>
-          <div :class="['text-h6']" v-bind:style="{ textAlign: 'center' }">
-            Calculating Stats
-          </div>
-        </v-overlay>
         <router-view></router-view>
         <!-- <template v-if="!addressInfo.title">
         <Landing />
@@ -57,6 +51,12 @@
       </template> -->
       </v-main>
     </v-app>
+    <v-overlay :value="overlay">
+      <v-progress-circular indeterminate size="64"></v-progress-circular>
+      <div :class="['text-h6']" v-bind:style="{ textAlign: 'center' }">
+        Calculating Stats
+      </div>
+    </v-overlay>
   </div>
 </template>
 

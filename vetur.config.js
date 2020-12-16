@@ -1,3 +1,6 @@
 module.exports = {
-    default: [{ root: "./webapp/frontend"}]
+    projects: [
+        './webapp/frontend', // shorthand for only root.
+    ],
+
 }

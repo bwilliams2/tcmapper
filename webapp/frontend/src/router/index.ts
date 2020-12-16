@@ -2,7 +2,7 @@ import Vue from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
 import Home from "../views/Home.vue";
 import Landing from "@/components/Landing.vue";
-import Map from "@/components/NewMap.vue";
+import MapData from "@/components/MapData.vue";
 
 Vue.use(VueRouter);
 
@@ -12,7 +12,7 @@ const routes: Array<RouteConfig> = [
     component: Home,
     children: [
       { path: "", component: Landing, name: "home" },
-      { path: "/map", component: Map, name: "map" },
+      { path: "/map", component: MapData, name: "map" },
     ],
   },
   {
