@@ -32,7 +32,7 @@
         <v-icon>mdi-open-in-new</v-icon>
       </v-btn>
     </v-app-bar>
-    <v-main>
+    <v-main class="pt-2 pt-md-0">
       <router-view></router-view>
       <!-- <template v-if="!addressInfo.title">
         <Landing />

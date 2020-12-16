@@ -41,7 +41,7 @@ const rootActions = {
         commit("updatePlotData", {
           plotData: { locationData, histData, yearData, weightData },
         });
-        commit("showLoadingOverlay", false);
+        commit("updateShowLoadingOverlay", false);
       });
   },
 };

@@ -38,6 +38,6 @@ def weight_search(request):
         "locationData": json.dumps(location_data),
         "histData": json.dumps(histogram_data),
         "yearData": json.dumps(address_raw),
-        "weightdata": json.dumps(address_weight)
+        "weightData": json.dumps(address_weight)
     }
     return Response(return_obj)
