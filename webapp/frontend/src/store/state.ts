@@ -1,9 +1,7 @@
 export type LocationDataItem = [number, number, number];
 
-export interface HistDataItem {
+export interface HistDataItem extends Record<string, number> {
   YEAR_BUILT: number;
-  USECLASS1: string;
-  COUNT: number;
 }
 
 export interface YearDataItem {
