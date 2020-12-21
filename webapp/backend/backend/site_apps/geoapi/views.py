@@ -29,7 +29,7 @@ def weight_search(request):
     location_data = address_data[["LATITUDE", "LONGITUDE", "WEIGHT"]].values.tolist()
     histogram_data = address_data.groupby(["YEAR_BUILT", "USECLASS1"]).size()
     histogram_data.name = "COUNT"
-    histogram_data = histogram_data.reset_index().to_dict("records")
+    histogram_data = histogram_data.unstack().reset_index().fillna(0).to_dict("records")
     address_raw = address_data.groupby(["YEAR_BUILT"]).size()
     address_raw.name = "COUNT"
     address_raw = address_raw.reset_index().to_dict("records")
