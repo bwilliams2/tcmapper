@@ -47,7 +47,6 @@ export interface PlotDataState {
   histData: HistDataItem[];
   yearData: YearDataItem[];
   weightData: WeightDataItem[];
-  analysisDistance: number | null;
 }
 
 export interface UIState {
@@ -57,6 +56,7 @@ export interface UIState {
 export interface PlotControlsState {
   startYear: number;
   endYear: number;
+  analysisRange: number | null;
 }
 
 export interface RootStateType {
@@ -99,13 +99,13 @@ const rootState: RootStateType = {
   plotControls: {
     startYear: 2010,
     endYear: 2020,
+    analysisRange: 5000,
   },
   plotData: {
     locationData: [],
     histData: [],
     yearData: [],
     weightData: [],
-    analysisDistance: 5000,
   },
   ui: {
     showLoadingOverlay: false,
