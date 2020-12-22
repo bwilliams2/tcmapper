@@ -8,7 +8,7 @@
       <!-- Axes -->
       <g class="x-axis" :transform="`translate(0, ${height})`"></g>
       <g class="y-axis"></g>
-      <g class="bars"></g>
+      <g class="stacks"></g>
 
       <!-- Grids -->
       <!-- <g>
@@ -40,6 +40,7 @@ import "./barplot.css";
 import { HistDataItem, RootStateType } from "../../store/state";
 import { mapState } from "vuex";
 import * as d3 from "d3";
+import { SeriesPoint, stack } from "d3-shape";
 
 export interface Margins {
   left: number;
@@ -58,9 +59,14 @@ interface State {
   yearSums: Record<string, number>;
   barGroup: any;
   scales: {
-    x: d3.ScaleBand<string> | null;
+    x: d3.ScaleLinear<number, number, never> | null;
     y: d3.ScaleLinear<number, number, never> | null;
   };
+}
+
+interface AreaItem {
+  [index: number]: number;
+  key: string;
 }
 
 export default Vue.extend({
@@ -95,10 +101,6 @@ export default Vue.extend({
       default: function () {
         return [2010, 2020];
       },
-    },
-    chartType: {
-      type: String,
-      default: "bar",
     },
   },
   computed: {
@@ -173,14 +175,13 @@ export default Vue.extend({
           })
         ) * 1.2;
       this.scales.x = d3
-        .scaleBand()
+        .scaleLinear()
         .domain(
-          d3
-            .range(self.$props.yearRange[0], self.$props.yearRange[1] + 1)
-            .map((el) => `${el}`)
+          d3.extent(this.limitedData, function (d) {
+            return d.YEAR_BUILT;
+          }) as [number, number]
         )
-        .range([0, this.width])
-        .padding(0.2);
+        .range([0, this.width]);
       this.scales.y = d3
         .scaleLinear()
         .domain([0, yMax])
@@ -191,21 +192,16 @@ export default Vue.extend({
         return i % 2 === 0;
       }
       if (this.scales.x !== null && this.scales.y !== null) {
-        const xDomain = this.scales.x.domain();
-        const xTicks =
-          xDomain.length > 15 ? xDomain.filter(tickFilter) : xDomain;
         d3.select(".x-axis")
           //@ts-ignore
-          .call(
-            d3.axisBottom(this.scales.x).tickSizeOuter(0).tickValues(xTicks)
-          )
+          .call(d3.axisBottom(this.scales.x).tickSizeOuter(0))
           .selectAll(".tick line")
           .attr("stroke", "#000")
           .attr("stroke-opacity", "0.1");
 
         d3.select(".y-axis")
           //@ts-ignore
-          .call(d3.axisLeft(this.scales.y).ticks(8))
+          .call(d3.axisLeft(this.scales.y))
           .selectAll(".tick line")
           .attr("stroke", "#000")
           .attr("stroke-opacity", "0.1");
@@ -240,183 +236,108 @@ export default Vue.extend({
         //@ts-ignore
         .range(colorRange as string[]);
       //stack the data? --> stack per subgroup
-      const stackedData = d3.stack().keys(self.subgroups)(this.limitedData);
+      const stackedData = d3.stack<HistDataItem>().keys(self.subgroups)(
+        this.limitedData
+      );
       const t = d3.transition().duration(750).ease(d3.easeLinear) as any;
-      if (self.scales.x !== null && self.scales.y !== null) {
+      const xScale = self.scales.x;
+      const yScale = self.scales.y;
+      if (xScale && yScale) {
         // // Remove elements
-        let parents = d3.select(".bars").selectAll(".stacks").data(stackedData);
-
-        parents
-          .exit()
-          .selectAll(".stacks")
-          .selectAll("rect")
-          .transition(t)
-          .attr("x", 0)
-          .attr("y", this.height)
-          .attr("width", 0)
-          .attr("height", 0)
-          .remove();
-
-        parents.exit().transition(t).style("opacity", 0).remove();
-
-        const parentsEnter = parents
-          .enter()
-          .append("g")
-          .attr("class", "stacks")
-          .attr("fill", function (d: any): string {
-            //@ts-ignore
-            return color(d.key) as string;
+        const area = d3
+          .area<d3.SeriesPoint<HistDataItem>>()
+          .x(function (d) {
+            return xScale(d.data.YEAR_BUILT);
+          })
+          .y0(function (d) {
+            return yScale(d[0]);
+          })
+          //@ts-ignore
+          .y1(function (d) {
+            return yScale(d[1]);
           });
 
-        // parentsEnter
-        //   .selectAll("rect")
-        //   .data(function (d: any) {
-        //     return d;
-        //   })
-        //   .enter()
-        //   .append("rect")
-        //   .attr("x", 0)
-        //   .attr("y", this.height)
-        //   .attr("width", 0)
-        //   .attr("height", 0)
-        //   .transition(t)
-        //   .attr("x", function (d: any): number {
-        //     //@ts-ignore
-        //     return self.scales.x(d.data.YEAR_BUILT);
-        //   })
-        //   .attr("y", function (d: any) {
-        //     //@ts-ignore
-        //     return self.scales.y(d[1]);
-        //   })
-        //   .attr("height", function (d: any) {
-        //     //@ts-ignore
-        //     return self.scales.y(d[0]) - self.scales.y(d[1]);
-        //   })
-        //   .attr("width", self.scales.x.bandwidth());
+        const zeroArea = d3
+          .area<d3.SeriesPoint<HistDataItem>>()
+          .x(function (d) {
+            return 0;
+          })
+          .y0(function (d) {
+            return 0;
+          })
+          //@ts-ignore
+          .y1(function (d) {
+            return 0;
+          });
 
-        parents = parentsEnter.merge(parents as any) as any;
+        const areas = d3.select(".stacks").data(stackedData);
 
-        // const children = parents.select(".stacks");
-        const childRects = parents.selectAll("rect").data(function (d) {
-          return d;
-        });
-
-        childRects
+        areas
           .exit()
+          .selectAll("path")
           .transition(t)
-          .attr("x", 0)
-          .attr("y", this.height)
-          .attr("width", 0)
-          .attr("height", 0)
+          //@ts-ignore
+          .attr("d", zeroArea)
           .remove();
 
-        const childRectsEnter = childRects
+        areas
           .enter()
-          .append("rect")
-          .attr("x", 0)
-          .attr("y", this.height)
-          .attr("width", 0)
-          .attr("height", 0)
+          .selectAll("path")
+          .append("path")
+          //@ts-ignore
+          .style("fill", function (d) {
+            console.log(d.key);
+            return color(d.key);
+          })
+          //@ts-ignore
+          .attr("d", zeroArea)
           .on("mouseenter", function (event, d) {
+            const data = d as d3.Series<HistDataItem, string>;
             const mouse = d3.pointer(event);
+            const ind = d3.bisectLeft(
+              data.map((el) => el.data.YEAR_BUILT),
+              xScale.invert(mouse[0] + self.margins.left)
+            );
+            const year = data[ind].data.YEAR_BUILT;
             const target = tipCircle
-              .attr("cx", mouse[0] + self.margins.left)
-              .attr("cy", mouse[1] + self.margins.bottom - 40)
+              .attr("cx", xScale(year))
+              .attr("cy", yScale(data[ind][1]))
               .node();
-            //@ts-ignore
-            const parentNode = d3.select(this).node().parentNode;
-            //@ts-ignore
-            const key = d3.select(parentNode).datum().key;
             tip.html(
               "<span>" +
-                `Year: ${d.data.YEAR_BUILT}<br>${key}: ${d[1] - d[0]}` +
+                `Year: ${year}<br>${data.key}: ${data[ind][1] - data[ind][0]}` +
                 "</span>"
             );
             tip.show(d, target);
           })
           .on("mousemove", function (event, d) {
+            const data = d as d3.Series<HistDataItem, string>;
             const mouse = d3.pointer(event);
+            const ind = d3.bisectLeft(
+              data.map((el) => el.data.YEAR_BUILT),
+              xScale.invert(mouse[0] + self.margins.left)
+            );
+            const year = data[ind].data.YEAR_BUILT;
             const target = tipCircle
-              .attr("cx", mouse[0] + self.margins.left)
-              .attr("cy", mouse[1] + self.margins.bottom - 40)
+              .attr("cx", xScale(year))
+              .attr("cy", yScale(data[ind][1]))
               .node();
-            //@ts-ignore
-            const parentNode = d3.select(this).node().parentNode;
-            //@ts-ignore
-            const key = d3.select(parentNode).datum().key;
             tip.html(
               "<span>" +
-                `Year: ${d.data.YEAR_BUILT}<br>${key}: ${d[1] - d[0]}` +
+                `Year: ${year}<br>${data.key}: ${data[ind][1] - data[ind][0]}` +
                 "</span>"
             );
             tip.show(d, target);
           })
           .on("mouseout", tip.hide)
           .transition(t)
-          .attr("x", function (d: any): number {
-            //@ts-ignore
-            return self.scales.x(d.data.YEAR_BUILT);
-          })
-          .attr("y", function (d: any) {
-            //@ts-ignore
-            return self.scales.y(d[1]);
-          })
-          .attr("height", function (d: any) {
-            //@ts-ignore
-            return self.scales.y(d[0]) - self.scales.y(d[1]);
-          })
-          .attr("width", self.scales.x.bandwidth());
+          //@ts-ignore
+          .attr("d", area);
 
-        childRects
-          .transition(t)
-          .attr("x", function (d: any): number {
-            //@ts-ignore
-            return self.scales.x(d.data.YEAR_BUILT);
-          })
-          .attr("y", function (d: any) {
-            //@ts-ignore
-            return self.scales.y(d[1]);
-          })
-          .attr("height", function (d: any) {
-            //@ts-ignore
-            return self.scales.y(d[0]) - self.scales.y(d[1]);
-          })
-          .attr("width", self.scales.x.bandwidth());
-
-        // Add new bars
-        // parents
-        //   .enter()
-        //   .append("g")
-        //   .attr("fill", function (d: any): string {
-        //     //@ts-ignore
-        //     return color(d.key) as string;
-        //   })
-        //   .selectAll("rect")
-        //   .data(function (d: any) {
-        //     return d;
-        //   })
-        //   .enter()
-        //   .append("rect")
-        //   .attr("x", 0)
-        //   .attr("y", this.height)
-        //   .attr("width", 0)
-        //   .attr("height", 0)
-        //   .transition(t)
-        //   .attr("x", function (d: any): number {
-        //     //@ts-ignore
-        //     return self.scales.x(d.data.YEAR_BUILT);
-        //   })
-        //   .attr("y", function (d: any) {
-        //     //@ts-ignore
-        //     return self.scales.y(d[1]);
-        //   })
-        //   .attr("height", function (d: any) {
-        //     //@ts-ignore
-        //     return self.scales.y(d[0]) - self.scales.y(d[1]);
-        //   })
-        //   .attr("width", self.scales.x.bandwidth());
-
-        // Update curent bars
+        areas
+          .selectAll("path")
+          //@ts-ignore
+          .attr("d", area);
       }
     },
     initBarplot() {

@@ -20,6 +20,9 @@ const mutations = {
   updatePlotData(state: RootStateType, payload: { plotData: PlotDataState }) {
     state.plotData = payload.plotData;
   },
+  updateAnalysisRange(state: RootStateType, payload: number) {
+    state.plotControls.analysisRange = payload;
+  },
   updateStartYear(state: RootStateType, payload: number) {
     state.plotControls.startYear = payload;
   },

@@ -29,7 +29,33 @@ const rootActions = {
         params: {
           longitude: addressInfo.position.lng,
           latitude: addressInfo.position.lat,
-          radius: state.plotData.analysisDistance,
+          radius: state.plotControls.analysisRange,
+        },
+        timeout: 30000,
+      })
+      .then((res) => {
+        const locationData = JSON.parse(res.data.locationData);
+        const histData = JSON.parse(res.data.histData);
+        const yearData = JSON.parse(res.data.yearData);
+        const weightData = JSON.parse(res.data.weightData);
+        commit("updatePlotData", {
+          plotData: { locationData, histData, yearData, weightData },
+        });
+        commit("updateShowLoadingOverlay", false);
+      });
+  },
+  updateAnalysisRange(
+    { commit, state }: { commit: Commit; state: RootStateType },
+    newValue: number
+  ) {
+    commit("updateShowLoadingOverlay", true);
+    commit("updateAnalysisRange", newValue);
+    return axios
+      .get(`${API_URL}/api/weight`, {
+        params: {
+          longitude: state.addressInfo.position.lng,
+          latitude: state.addressInfo.position.lat,
+          radius: newValue,
         },
         timeout: 30000,
       })
