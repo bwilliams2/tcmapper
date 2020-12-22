@@ -54,9 +54,15 @@ export interface UIState {
   showLoadingOverlay: boolean;
 }
 
+export interface PlotControlsState {
+  startYear: number;
+  endYear: number;
+}
+
 export interface RootStateType {
   address: string;
   addressInfo: HereAddress;
+  plotControls: PlotControlsState;
   plotData: PlotDataState;
   ui: UIState;
 }
@@ -89,6 +95,10 @@ const rootState: RootStateType = {
         lng: null,
       },
     ],
+  },
+  plotControls: {
+    startYear: 2010,
+    endYear: 2020,
   },
   plotData: {
     locationData: [],

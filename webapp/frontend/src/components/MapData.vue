@@ -3,10 +3,8 @@
     <v-col sm="12" md="6">
       <new-map />
     </v-col>
-    <v-col sm="12" md="6">
-      <div id="barplotparent" v-bind:style="parentStyle">
-        <bar-plot :yearRange="yearRange"></bar-plot>
-      </div>
+    <v-col md="12" lg="6">
+      <bar-plot></bar-plot>
     </v-col>
   </v-row>
 </template>
@@ -15,7 +13,7 @@
 import Vue from "vue";
 import { mapState } from "vuex";
 import NewMap from "./NewMap.vue";
-import BarPlot from "./charts/BarPlot.vue";
+import BarPlot from "./barplot/BarPlotContainer.vue";
 
 interface State {
   yearRange: number[];

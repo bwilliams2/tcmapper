@@ -116,7 +116,9 @@ export default Vue.extend({
       });
       this.tileLayer.addTo(this.map);
       // @ts-ignore
-      L.heatLayer(this.$store.state.plotData.locationData).addTo(this.map);
+      L.heatLayer(this.$store.state.plotData.locationData, { max: 2020 }).addTo(
+        this.map
+      );
       // const parentDiv = document.getElementById("map");
       // if (parentDiv !== null) {
       //   this.svg = d3

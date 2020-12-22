@@ -8,6 +8,7 @@
       <!-- Axes -->
       <g class="x-axis" :transform="`translate(0, ${height})`"></g>
       <g class="y-axis"></g>
+      <g class="bars"></g>
 
       <!-- Grids -->
       <!-- <g>
@@ -50,6 +51,8 @@ interface State {
   height: number;
   margins: Margins;
   aspectRatio: number;
+  limitedData: HistDataItem[];
+  barGroup: any;
   scales: {
     x: d3.ScaleBand<string> | null;
     y: d3.ScaleLinear<number, number, never> | null;
@@ -70,6 +73,8 @@ export default Vue.extend({
       fullWidth: 0,
       width: 0,
       height: 0,
+      limitedData: [],
+      barGroup: null,
       scales: {
         x: null,
         y: null,
@@ -89,14 +94,7 @@ export default Vue.extend({
   },
   computed: {
     ...mapState({
-      limitedData: function (state) {
-        const { yearRange } = this.$props;
-        return (state as RootStateType).plotData.histData.filter(
-          (el: HistDataItem) =>
-            // typescript not parsing this correctly
-            el.YEAR_BUILT <= yearRange[1] && el.YEAR_BUILT >= yearRange[0]
-        );
-      },
+      histData: (state) => (state as RootStateType).plotData.histData,
       subgroups: function (state) {
         return Object.keys(
           (state as RootStateType).plotData.histData[0]
@@ -105,15 +103,33 @@ export default Vue.extend({
     }),
   },
   mounted() {
+    this.limitedData = this.histData.filter(
+      (el: HistDataItem) =>
+        // typescript not parsing this correctly
+        el.YEAR_BUILT <= this.$props.yearRange[1] &&
+        el.YEAR_BUILT >= this.$props.yearRange[0]
+    );
+    d3.select(".bars").append("g");
     this.initBarplot();
+  },
+  watch: {
+    yearRange: function (newValue, oldValue) {
+      this.limitedData = this.histData.filter(
+        (el: HistDataItem) =>
+          // typescript not parsing this correctly
+          el.YEAR_BUILT <= newValue[1] && el.YEAR_BUILT >= newValue[0]
+      );
+      this.initBarplot();
+    },
   },
   methods: {
     setSize() {
       const width = document.getElementById(`barplotparent`)?.clientWidth;
-      const height = document.getElementById(`barplotparent`)?.clientHeight;
+      // const height = document.getElementById(`barplotparent`)?.clientHeight;
       if (typeof width !== "number") {
         throw "parentDiv undefined";
       }
+      const height = width / this.aspectRatio;
       if (typeof height !== "number") {
         throw "parentDiv undefined";
       }
@@ -186,37 +202,147 @@ export default Vue.extend({
         .range(colorRange as string[]);
       //stack the data? --> stack per subgroup
       const stackedData = d3.stack().keys(self.subgroups)(this.limitedData);
-
+      const t = d3.transition().duration(750).ease(d3.easeLinear) as any;
       if (self.scales.x !== null && self.scales.y !== null) {
-        d3.select(".container")
-          .append("g")
-          .selectAll("g")
-          .data(stackedData)
+        // // Remove elements
+        let parents = d3.select(".bars").selectAll(".stacks").data(stackedData);
+
+        parents
+          .exit()
+          .selectAll(".stacks")
+          .selectAll("rect")
+          .transition(t)
+          .attr("x", 0)
+          .attr("y", this.height)
+          .attr("width", 0)
+          .attr("height", 0)
+          .remove();
+
+        parents.exit().transition(t).style("opacity", 0).remove();
+
+        const parentsEnter = parents
           .enter()
           .append("g")
-          .attr("fill", function (d): string {
+          .attr("class", "stacks")
+          .attr("fill", function (d: any): string {
             //@ts-ignore
             return color(d.key) as string;
-          })
-          .selectAll("rect")
-          .data(function (d) {
-            return d;
-          })
+          });
+
+        // parentsEnter
+        //   .selectAll("rect")
+        //   .data(function (d: any) {
+        //     return d;
+        //   })
+        //   .enter()
+        //   .append("rect")
+        //   .attr("x", 0)
+        //   .attr("y", this.height)
+        //   .attr("width", 0)
+        //   .attr("height", 0)
+        //   .transition(t)
+        //   .attr("x", function (d: any): number {
+        //     //@ts-ignore
+        //     return self.scales.x(d.data.YEAR_BUILT);
+        //   })
+        //   .attr("y", function (d: any) {
+        //     //@ts-ignore
+        //     return self.scales.y(d[1]);
+        //   })
+        //   .attr("height", function (d: any) {
+        //     //@ts-ignore
+        //     return self.scales.y(d[0]) - self.scales.y(d[1]);
+        //   })
+        //   .attr("width", self.scales.x.bandwidth());
+
+        parents = parentsEnter.merge(parents as any) as any;
+
+        // const children = parents.select(".stacks");
+        const childRects = parents.selectAll("rect").data(function (d) {
+          return d;
+        });
+
+        childRects
+          .exit()
+          .transition(t)
+          .attr("x", 0)
+          .attr("y", this.height)
+          .attr("width", 0)
+          .attr("height", 0)
+          .remove();
+
+        const childRectsEnter = childRects
           .enter()
           .append("rect")
-          .attr("x", function (d): number {
+          .attr("x", 0)
+          .attr("y", this.height)
+          .attr("width", 0)
+          .attr("height", 0)
+          .transition(t)
+          .attr("x", function (d: any): number {
             //@ts-ignore
             return self.scales.x(d.data.YEAR_BUILT);
           })
-          .attr("y", function (d) {
+          .attr("y", function (d: any) {
             //@ts-ignore
             return self.scales.y(d[1]);
           })
-          .attr("height", function (d) {
+          .attr("height", function (d: any) {
             //@ts-ignore
             return self.scales.y(d[0]) - self.scales.y(d[1]);
           })
           .attr("width", self.scales.x.bandwidth());
+
+        childRects
+          .transition(t)
+          .attr("x", function (d: any): number {
+            //@ts-ignore
+            return self.scales.x(d.data.YEAR_BUILT);
+          })
+          .attr("y", function (d: any) {
+            //@ts-ignore
+            return self.scales.y(d[1]);
+          })
+          .attr("height", function (d: any) {
+            //@ts-ignore
+            return self.scales.y(d[0]) - self.scales.y(d[1]);
+          })
+          .attr("width", self.scales.x.bandwidth());
+
+        // Add new bars
+        // parents
+        //   .enter()
+        //   .append("g")
+        //   .attr("fill", function (d: any): string {
+        //     //@ts-ignore
+        //     return color(d.key) as string;
+        //   })
+        //   .selectAll("rect")
+        //   .data(function (d: any) {
+        //     return d;
+        //   })
+        //   .enter()
+        //   .append("rect")
+        //   .attr("x", 0)
+        //   .attr("y", this.height)
+        //   .attr("width", 0)
+        //   .attr("height", 0)
+        //   .transition(t)
+        //   .attr("x", function (d: any): number {
+        //     //@ts-ignore
+        //     return self.scales.x(d.data.YEAR_BUILT);
+        //   })
+        //   .attr("y", function (d: any) {
+        //     //@ts-ignore
+        //     return self.scales.y(d[1]);
+        //   })
+        //   .attr("height", function (d: any) {
+        //     //@ts-ignore
+        //     return self.scales.y(d[0]) - self.scales.y(d[1]);
+        //   })
+        //   .attr("width", self.scales.x.bandwidth());
+
+        // Update curent bars
       }
     },
     initBarplot() {

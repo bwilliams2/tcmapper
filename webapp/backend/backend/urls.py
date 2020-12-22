@@ -21,5 +21,6 @@ from .site_apps.geoapi.views import index
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', index, name='index'),
+    path('map/', index, name='index'),
     re_path('^api/', include(api_urls))
 ]
