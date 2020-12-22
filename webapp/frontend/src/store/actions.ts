@@ -44,6 +44,12 @@ const rootActions = {
         commit("updateShowLoadingOverlay", false);
       });
   },
+  updateStartYear({ commit }: { commit: Commit }, newValue: number) {
+    commit("updateStartYear", newValue);
+  },
+  updateEndYear({ commit }: { commit: Commit }, newValue: number) {
+    commit("updateEndYear", newValue);
+  },
 };
 
 export default rootActions;

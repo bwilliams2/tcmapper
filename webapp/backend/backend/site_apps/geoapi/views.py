@@ -16,7 +16,7 @@ def index(request):
     
     return render(
         request,
-        Path(settings.BASE_DIR).resolve().joinpath("backend/templates/index.html")
+        "index.html"
     )
 
 @api_view(["GET"])
@@ -26,7 +26,8 @@ def weight_search(request):
     radius = float(request.query_params.get("radius"))
     address_data = weighted_address_search(longitude, latitude, radius)
     address_data = address_data.loc[address_data["YEAR_BUILT"] != 0]
-    location_data = address_data[["LATITUDE", "LONGITUDE", "WEIGHT"]].values.tolist()
+    # location_data = address_data[["LATITUDE", "LONGITUDE", "WEIGHT"]].values.tolist()
+    location_data = address_data[["LATITUDE", "LONGITUDE", "YEAR_BUILT"]].rename(columns={"YEAR_BUILT": "WEIGHT"}).values.tolist()
     histogram_data = address_data.groupby(["YEAR_BUILT", "USECLASS1"]).size()
     histogram_data.name = "COUNT"
     histogram_data = histogram_data.unstack().reset_index().fillna(0).to_dict("records")
