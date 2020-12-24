@@ -79,16 +79,13 @@
   "lint-staged": {
     "*.js": "eslint --cache --fix",
     "*.{ts,tsx}": [
-      "prettier --write --parser typescript",
-      "git add"
+      "prettier --write --parser typescript"
     ],
     "*.vue": [
-      "prettier --write --parser vue",
-      "git add"
+      "prettier --write --parser vue"
     ],
     "*.{ts,vue}": [
-      "vue-cli-service lint",
-      "git add"
+      "vue-cli-service lint"
     ]
   }
 }
