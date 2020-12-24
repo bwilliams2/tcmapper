@@ -1,4 +1,9 @@
-import rootState, { RootStateType, HereAddress, PlotDataState } from "./state";
+import rootState, {
+  RootStateType,
+  HereAddress,
+  PlotDataState,
+  MapTypes,
+} from "./state";
 
 const mutations = {
   updateAddress(state: RootStateType, payload: { address: string }) {
@@ -22,6 +27,9 @@ const mutations = {
   },
   updateAnalysisRange(state: RootStateType, payload: number) {
     state.plotControls.analysisRange = payload;
+  },
+  updateMapType(state: RootStateType, payload: MapTypes) {
+    state.plotControls.mapType = payload;
   },
   updateStartYear(state: RootStateType, payload: number) {
     state.plotControls.startYear = payload;

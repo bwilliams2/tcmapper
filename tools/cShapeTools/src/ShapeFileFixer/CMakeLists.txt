@@ -29,7 +29,8 @@ install(FILES ${LIB_INC_FILES} DESTINATION include)
 
 set(SOURCE_FILES main.c)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-
+# libm
+target_link_libraries(${PROJECT_NAME} m)
 
 target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}_LIB)
 

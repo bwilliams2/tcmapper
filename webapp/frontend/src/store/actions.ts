@@ -38,8 +38,9 @@ const rootActions = {
         const histData = JSON.parse(res.data.histData);
         const yearData = JSON.parse(res.data.yearData);
         const weightData = JSON.parse(res.data.weightData);
+        const features = JSON.parse(res.data.features);
         commit("updatePlotData", {
-          plotData: { locationData, histData, yearData, weightData },
+          plotData: { locationData, histData, yearData, weightData, features },
         });
         commit("updateShowLoadingOverlay", false);
       });
@@ -75,6 +76,9 @@ const rootActions = {
   },
   updateEndYear({ commit }: { commit: Commit }, newValue: number) {
     commit("updateEndYear", newValue);
+  },
+  updateMapType({ commit }: { commit: Commit }, newValue: number) {
+    commit("updateMapType", newValue);
   },
 };
 

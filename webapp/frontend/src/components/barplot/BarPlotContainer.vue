@@ -1,7 +1,10 @@
 <template>
   <v-container fluid>
     <v-row justify="end">
-      <v-col cols="4">
+      <v-col cols="3">
+        <v-select v-model="chart" :items="charts" label="Chart Type"></v-select>
+      </v-col>
+      <v-col cols="3">
         <v-select
           @input="updateRange"
           :value="analysisRange"
@@ -9,7 +12,7 @@
           label="Analysis Distance"
         ></v-select>
       </v-col>
-      <v-col cols="4">
+      <v-col cols="3">
         <v-autocomplete
           v-on:input="updateStartYear"
           :value="startYear"
@@ -17,7 +20,7 @@
           label="Start Year"
         ></v-autocomplete>
       </v-col>
-      <v-col cols="4">
+      <v-col cols="3">
         <v-autocomplete
           v-on:input="updateStartYear"
           :value="endYear"
@@ -28,8 +31,19 @@
     </v-row>
     <v-row class="fill-height">
       <v-col cols="12">
-        <div id="barplotparent" v-bind:style="parentStyle">
+        <div
+          id="barplotparent"
+          v-bind:style="parentStyle"
+          v-if="chart == 'bar'"
+        >
           <bar-plot :yearRange="yearRange"></bar-plot>
+        </div>
+        <div
+          id="areaplotparent"
+          v-bind:style="parentStyle"
+          v-if="chart == 'area'"
+        >
+          <area-plot :yearRange="yearRange"></area-plot>
         </div>
       </v-col>
     </v-row>
@@ -41,10 +55,13 @@ import { RootStateType } from "@/store/state";
 import Vue from "vue";
 import { mapState } from "vuex";
 import BarPlot from "./BarPlot.vue";
+import AreaPlot from "./AreaPlot.vue";
 import _ from "lodash";
 
 interface State {
   parentStyle: any;
+  chart: string;
+  charts: { text: string; value: string }[];
   ranges: { text: string; value: number }[];
 }
 
@@ -52,12 +69,18 @@ export default Vue.extend({
   name: "BarPlotContainer",
   components: {
     BarPlot,
+    AreaPlot,
   },
   data(): State {
     return {
       parentStyle: {
         width: "100%",
       },
+      chart: "bar",
+      charts: [
+        { text: "Bar Chart", value: "bar" },
+        { text: "Area Chart", value: "area" },
+      ],
       ranges: [
         { text: "1 km", value: 1000 },
         { text: "5 km", value: 5000 },

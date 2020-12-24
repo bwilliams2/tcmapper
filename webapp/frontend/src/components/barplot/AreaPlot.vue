@@ -9,6 +9,7 @@
       <g class="x-axis" :transform="`translate(0, ${height})`"></g>
       <g class="y-axis"></g>
       <g class="stacks"></g>
+      <g class="tooltip"></g>
 
       <!-- Grids -->
       <!-- <g>
@@ -127,7 +128,8 @@ export default Vue.extend({
       .attr("id", "tipcircle")
       .attr("cx", 0)
       .attr("cy", 0)
-      .attr("r", 0);
+      .attr("fille", "rgb(255,255,255)")
+      .attr("r", 5);
     this.initBarplot();
   },
   watch: {
@@ -153,7 +155,7 @@ export default Vue.extend({
       });
     },
     setSize() {
-      const width = document.getElementById(`barplotparent`)?.clientWidth;
+      const width = document.getElementById(`areaplotparent`)?.clientWidth;
       // const height = document.getElementById(`barplotparent`)?.clientHeight;
       if (typeof width !== "number") {
         throw "parentDiv undefined";
@@ -228,10 +230,10 @@ export default Vue.extend({
 
       //@ts-ignore
       const tip = d3tip().attr("class", "d3-tip").attr("z-index", 10000);
-      d3.select(".barplot").call(tip);
+      d3.select(".barplot").select(".tooltip").call(tip);
 
       const color = d3
-        .scaleOrdinal(d3.schemeSpectral)
+        .scaleOrdinal(d3.schemeRdYlBu)
         .domain(self.subgroups)
         //@ts-ignore
         .range(colorRange as string[]);
@@ -242,6 +244,38 @@ export default Vue.extend({
       const t = d3.transition().duration(750).ease(d3.easeLinear) as any;
       const xScale = self.scales.x;
       const yScale = self.scales.y;
+
+      function mouseAction(event: any, d: unknown) {
+        if (xScale && yScale) {
+          const data = d as d3.Series<HistDataItem, string>;
+          const mouse = d3.pointer(event);
+          const ind = d3.bisectLeft(
+            data.map((el) => el.data.YEAR_BUILT),
+            xScale.invert(mouse[0])
+          );
+          const x0 = xScale.invert(mouse[0]);
+          const d0 = data[ind - 1];
+          const d1 = data[ind];
+          const point =
+            x0 - d0.data.YEAR_BUILT > d1.data.YEAR_BUILT - x0 ? d1 : d0;
+          //@ts-ignore
+          const parentNode = d3.select(this).node().parentNode;
+          const year = point.data.YEAR_BUILT;
+          const target = tipCircle
+            .attr("cx", xScale(year) + self.margins.left)
+            .attr("cy", yScale(point[1]) + self.margins.top)
+            .node();
+          tip.html(
+            "<span>" +
+              `Year: ${year}<br>` +
+              `${data.key}: ${point[1] - point[0]}<br>` +
+              `Total: ${self.yearSums[year]}` +
+              "</span>"
+          );
+          tip.show(d, target);
+        }
+      }
+
       if (xScale && yScale) {
         // // Remove elements
         const area = d3
@@ -263,18 +297,16 @@ export default Vue.extend({
             return 0;
           })
           .y0(function (d) {
-            return 0;
+            return self.height;
           })
           //@ts-ignore
           .y1(function (d) {
-            return 0;
+            return self.height;
           });
 
-        const areas = d3.select(".stacks").data(stackedData);
-
+        const areas = d3.select(".stacks").selectAll("path").data(stackedData);
         areas
           .exit()
-          .selectAll("path")
           .transition(t)
           //@ts-ignore
           .attr("d", zeroArea)
@@ -282,62 +314,24 @@ export default Vue.extend({
 
         areas
           .enter()
-          .selectAll("path")
           .append("path")
           //@ts-ignore
-          .style("fill", function (d) {
-            console.log(d.key);
+          .style("fill", function (d: d3.Series<HistDataItem>) {
             return color(d.key);
           })
           //@ts-ignore
           .attr("d", zeroArea)
-          .on("mouseenter", function (event, d) {
-            const data = d as d3.Series<HistDataItem, string>;
-            const mouse = d3.pointer(event);
-            const ind = d3.bisectLeft(
-              data.map((el) => el.data.YEAR_BUILT),
-              xScale.invert(mouse[0] + self.margins.left)
-            );
-            const year = data[ind].data.YEAR_BUILT;
-            const target = tipCircle
-              .attr("cx", xScale(year))
-              .attr("cy", yScale(data[ind][1]))
-              .node();
-            tip.html(
-              "<span>" +
-                `Year: ${year}<br>${data.key}: ${data[ind][1] - data[ind][0]}` +
-                "</span>"
-            );
-            tip.show(d, target);
-          })
-          .on("mousemove", function (event, d) {
-            const data = d as d3.Series<HistDataItem, string>;
-            const mouse = d3.pointer(event);
-            const ind = d3.bisectLeft(
-              data.map((el) => el.data.YEAR_BUILT),
-              xScale.invert(mouse[0] + self.margins.left)
-            );
-            const year = data[ind].data.YEAR_BUILT;
-            const target = tipCircle
-              .attr("cx", xScale(year))
-              .attr("cy", yScale(data[ind][1]))
-              .node();
-            tip.html(
-              "<span>" +
-                `Year: ${year}<br>${data.key}: ${data[ind][1] - data[ind][0]}` +
-                "</span>"
-            );
-            tip.show(d, target);
-          })
+          // .on("mouseenter", mouseAction)
+          .on("mousemove", mouseAction)
           .on("mouseout", tip.hide)
           .transition(t)
           //@ts-ignore
           .attr("d", area);
 
         areas
-          .selectAll("path")
           //@ts-ignore
-          .attr("d", area);
+          .attr("d", area)
+          .on("mousemove", mouseAction);
       }
     },
     initBarplot() {

@@ -5,12 +5,16 @@
 <script lang="ts">
 import Vue from "vue";
 import L, { LatLngTuple, TileLayer, LatLngBounds } from "leaflet";
+//@ts-ignore
+import geojsonvt from "geojson-vt";
 // import { LMap, LTileLayer, LMarker, LCircle } from "vue2-leaflet";
 import { mapState } from "vuex";
 import * as d3 from "d3";
 import { GeoProjection } from "d3-geo";
 import { FeatureCollection } from "geojson";
 import "leaflet.heat";
+import "leaflet.vectorgrid";
+import { RootStateType } from "@/store/state";
 const apiKey = process.env.VUE_APP_HERE_API_KEY as string;
 
 interface Feature {
@@ -37,12 +41,7 @@ interface MapData {
   svgGroup: any;
   layers: any[];
   tileLayer: TileLayer | null;
-  circle: {
-    center: LatLngTuple;
-    radius: number;
-    color: string;
-  };
-  features: FeatureCollection;
+  currentLayer: TileLayer | null;
 }
 
 type DataPoints = [number, number];
@@ -51,28 +50,10 @@ export default Vue.extend({
   name: "DensityMap",
   mounted() {
     // this.initLayers();
-    this.center = [
-      this.addressInfo.position.lat,
-      this.addressInfo.position.lng,
-    ];
-    this.circle.center = [
-      this.addressInfo.position.lat,
-      this.addressInfo.position.lng,
-    ];
-    this.features.features = [
-      {
-        type: "Feature",
-        properties: [
-          {
-            name: "Address",
-          },
-        ],
-        geometry: {
-          type: "Point",
-          coordinates: this.center,
-        },
-      },
-    ];
+    const { lat, lng } = this.addressInfo.position;
+    if (lat && lng) {
+      this.center = [lat, lng];
+    }
     this.initMap();
   },
   data(): MapData {
@@ -86,19 +67,23 @@ export default Vue.extend({
       svgGroup: null,
       layers: [],
       tileLayer: null,
-      circle: {
-        center: [47.41322, -1.0482],
-        radius: 14,
-        color: "red",
-      },
-      features: {
-        type: "FeatureCollection",
-        features: [],
-      },
+      currentLayer: null,
     };
   },
   computed: {
-    ...mapState(["addressInfo"]),
+    ...mapState({
+      addressInfo: function (state: RootStateType) {
+        return state.addressInfo;
+      },
+      mapType: (state: RootStateType) => state.plotControls.mapType,
+      features: (state: RootStateType) => state.plotData.features,
+      locationData: (state: RootStateType) => state.plotData.locationData,
+    }),
+  },
+  watch: {
+    mapType: function () {
+      this.initLayers();
+    },
   },
   methods: {
     initMap() {
@@ -107,7 +92,7 @@ export default Vue.extend({
         zoom: this.zoom.start,
       });
       this.tileLayer = L.tileLayer(this.url, {
-        maxZoom: 18,
+        maxZoom: 15,
         attribution:
           "Map Tiles &copy; " +
           new Date().getFullYear() +
@@ -115,136 +100,62 @@ export default Vue.extend({
           '<a href="http://developer.here.com">HERE</a>',
       });
       this.tileLayer.addTo(this.map);
-      // @ts-ignore
-      L.heatLayer(this.$store.state.plotData.locationData, { max: 2020 }).addTo(
-        this.map
-      );
-      // const parentDiv = document.getElementById("map");
-      // if (parentDiv !== null) {
-      //   this.svg = d3
-      //     .select(this.map.getPanes().overlayPane)
-      //     .append("svg")
-      //     .attr("height", parentDiv.clientHeight)
-      //     .attr("width", parentDiv.clientWidth);
-      // }
-      // this.svgGroup = this.svg.append("g").attr("class", "leaflet-zoom-hide");
-      // this.updateLayers();
+      this.initLayers();
     },
-    // updateLayers() {
-    //   const map = this.map;
-    //   function projectPoint(this: any, x: number, y: number) {
-    //     const point = map.latLngToLayerPoint(new L.LatLng(y, x));
-    //     this.stream.point(point.x, point.y);
-    //   }
-    //   const transform = d3.geoTransform({ point: projectPoint });
-    //   const path = d3.geoPath().projection(transform);
-
-    //   const collection = this.features;
-
-    // const circleCoords = this.circle.center;
-    // const feature = this.svgGroup
-    //   .selectAll("circle")
-    //   .data([circleCoords])
-    //   .enter()
-    //   .append("circle")
-    //   .attr("cx", function (d: DataPoints) {
-    //     return map.latLngToLayerPoint(d).x;
-    //   })
-    //   .attr("cy", function (d: DataPoints) {
-    //     return map.latLngToLayerPoint(d).y;
-    //   })
-    //   .attr("r", this.circle.radius)
-    //   .style("fill", "red")
-    //   .attr("stroke", "red")
-    //   .attr("stroke-width", 3)
-    //   .attr("fill-opacity", 0.4);
-
-    //   const svg = this.svg;
-    //   const svgGroup = this.svgGroup;
-    //   const self = this;
-
-    //   const currentZoom = {
-    //     start: map.getZoom(),
-    //     end: map.getZoom(),
-    //   };
-    //   function update() {
-    //     self.svgGroup
-    //       .selectAll("circle")
-    //       .attr("cx", function (d: DataPoints) {
-    //         return map.latLngToLayerPoint(d).x;
-    //       })
-    //       .attr("cy", function (d: DataPoints) {
-    //         return map.latLngToLayerPoint(d).y;
-    //       });
-    //     const bounds = path.bounds(collection);
-    //     // let topLeft = bounds[0];
-    //     // let bottomRight = bounds[1];
-    //     currentZoom.end = map.getZoom();
-    //     const diff = currentZoom.start - currentZoom.end;
-    //     if (diff > 0) {
-    //       self.circle.radius = self.circle.radius / 2;
-    //     } else if (diff < 0) {
-    //       self.circle.radius = self.circle.radius * 2;
-    //     }
-    //     self.drawCircles([circleCoords]);
-    //     // If there is only one circle the bounds are defined by a single point
-    //     // Need to adjust for that here
-    //     // if (topLeft[0] === bottomRight[0]) {
-    //     //   topLeft = [topLeft[0] - 2 * circleRadius, topLeft[1] - 2 * circleRadius];
-    //     //   bottomRight = [bottomRight[0] + 2 * circleRadius, bottomRight[1] + 2 * circleRadius];
-    //     // }
-    //     // svg
-    //     //   .attr("height", bottomRight[0] - topLeft[0])
-    //     //   .attr("width", bottomRight[1] - topLeft[1])
-    //     //   .style("left", topLeft[0] + "px")
-    //     //   .style("top", topLeft[1] + "px");
-    //     // svgGroup.attr(
-    //     //   "transform",
-    //     //   "translate(" + -topLeft[0] + "," + -topLeft[1] + ")"
-    //     // );
-    //   }
-    //   map.on("zoomstart", function () {
-    //     currentZoom.start = map.getZoom();
-    //   });
-    //   // if (diff > 0) { circle.setRadius(circle.getRadius() * 2); } else if (diff < 0) { circle.setRadius(circle.getRadius() / 2); }
-    //   map.on("viewreset", update);
-    //   map.on("moveend", update);
-    //   update();
-    // },
-    // drawCircles(circleCoords: [number, number][]) {
-    //   const map = this.map;
-    //   const self = this;
-    //   this.svgGroup
-    //     .selectAll("circle")
-    //     .data(circleCoords)
-    //     .enter()
-    //     .append("circle")
-    //     .attr("cx", function (d: DataPoints) {
-    //       return map.latLngToLayerPoint(d).x;
-    //     })
-    //     .attr("cy", function (d: DataPoints) {
-    //       return map.latLngToLayerPoint(d).y;
-    //     })
-    //     .attr("r", self.circle.radius)
-    //     .style("fill", "red")
-    //     .attr("stroke", "red")
-    //     .attr("stroke-width", 3)
-    //     .attr("fill-opacity", 0.4);
-    //   this.svgGroup
-    //     .selectAll("circle")
-    //     .data(circleCoords)
-    //     .attr("r", self.circle.radius);
-    // },
-    // // initLayers() {},
-    // zoomUpdated(zoom: { start: number; end: number }) {
-    //   this.zoom = zoom;
-    // },
-    // centerUpdated(center: [number, number]) {
-    //   this.center = center;
-    // },
-    // boundsUpdated(bounds: any) {
-    //   this.bounds = bounds;
-    // },
+    initLayers() {
+      if (this.currentLayer) {
+        this.map.removeLayer(this.currentLayer);
+      }
+      if (this.mapType == "points") {
+        // @ts-ignore
+        this.currentLayer = L.heatLayer(this.locationData, { max: 2020 });
+        this.currentLayer?.addTo(this.map);
+        // console.log("in")
+      } else {
+        const geoJsonConstruct = {
+          type: "FeatureCollection",
+          features: this.features,
+        };
+        //@ts-ignore
+        this.currentLayer = L.vectorGrid.slicer(geoJsonConstruct, {
+          vectorTileLayerStyles: {
+            sliced: {
+              fillColor: "transparent",
+              color: "blue",
+              weight: 0.5,
+            },
+          },
+          maxZoom: 15,
+          // indexMaxZoom: 5, // max zoom in the initial tile index
+          // interactive: true,
+          // getFeatureId: function(feature) {
+          //     return feature.properties["cartodb_id"]
+          // }
+        });
+        this.currentLayer?.addTo(this.map);
+        // tileLayer.on('click', function(e) {
+        //   console.log(e);
+        //   if (e.layer.feature) {
+        //     var prop = e.layer.feature.properties;
+        //     //var latlng = [e.latlng.lat,e.latlng.lng];
+        //   } else {
+        //     var prop = e.layer.properties;
+        //     //var latlng = [Number(parcel.y),Number(parcel.x)];
+        //   }
+        //   //settimeout otherwise when map click fires it will override this color change
+        //   if (id != 0) {
+        //     tileLayer.setFeatureStyle(id, {
+        //       color: "blue",
+        //       weight: 0.5,
+        //     });
+        //   }
+        //   id = prop["cartodb_id"];
+        //   setTimeout(function () {
+        //     tileLayer.setFeatureStyle(id, { color: "red" }, 100);
+        //   });
+        // });
+      }
+    },
   },
 });
 </script>

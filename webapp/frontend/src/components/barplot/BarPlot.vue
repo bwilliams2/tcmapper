@@ -190,15 +190,15 @@ export default Vue.extend({
       function tickFilter(d: any, i: number) {
         return i % 2 === 0;
       }
-      if (this.scales.x !== null && this.scales.y !== null) {
-        const xDomain = this.scales.x.domain();
+      const xScale = this.scales.x;
+      const yScale = this.scales.y;
+      if (xScale && yScale) {
+        const xDomain = xScale.domain();
         const xTicks =
           xDomain.length > 15 ? xDomain.filter(tickFilter) : xDomain;
         d3.select(".x-axis")
           //@ts-ignore
-          .call(
-            d3.axisBottom(this.scales.x).tickSizeOuter(0).tickValues(xTicks)
-          )
+          .call(d3.axisBottom(xScale).tickSizeOuter(0).tickValues(xTicks))
           .selectAll(".tick line")
           .attr("stroke", "#000")
           .attr("stroke-opacity", "0.1");
@@ -227,7 +227,7 @@ export default Vue.extend({
       const tipCircle = d3.select(".barplot").select("#tipcircle");
       // color palette = one color per subgroup
       const colorRange = d3.range(0, self.subgroups.length + 1).map((el) => {
-        return d3.interpolateTurbo(el / self.subgroups.length);
+        return d3.interpolateRdYlBu(el / self.subgroups.length);
       });
 
       //@ts-ignore
@@ -235,13 +235,33 @@ export default Vue.extend({
       d3.select(".barplot").call(tip);
 
       const color = d3
-        .scaleOrdinal(d3.schemeSpectral)
+        .scaleOrdinal()
         .domain(self.subgroups)
         //@ts-ignore
         .range(colorRange as string[]);
       //stack the data? --> stack per subgroup
       const stackedData = d3.stack().keys(self.subgroups)(this.limitedData);
       const t = d3.transition().duration(750).ease(d3.easeLinear) as any;
+
+      function mouseAction(event: any, d: any) {
+        const mouse = d3.pointer(event);
+        const target = tipCircle
+          .attr("cx", mouse[0] + self.margins.left)
+          .attr("cy", mouse[1] + self.margins.bottom - 40)
+          .node();
+        //@ts-ignore
+        const parentNode = d3.select(this).node().parentNode;
+        //@ts-ignore
+        const key = d3.select(parentNode).datum().key;
+        tip.html(
+          "<span>" +
+            `Year: ${d.data.YEAR_BUILT}<br>` +
+            `${key}: ${d[1] - d[0]}<br>` +
+            `Total: ${self.yearSums[d.data.YEAR_BUILT]}` +
+            "</span>"
+        );
+        tip.show(d, target);
+      }
       if (self.scales.x !== null && self.scales.y !== null) {
         // // Remove elements
         let parents = d3.select(".bars").selectAll(".stacks").data(stackedData);
@@ -317,40 +337,8 @@ export default Vue.extend({
           .attr("y", this.height)
           .attr("width", 0)
           .attr("height", 0)
-          .on("mouseenter", function (event, d) {
-            const mouse = d3.pointer(event);
-            const target = tipCircle
-              .attr("cx", mouse[0] + self.margins.left)
-              .attr("cy", mouse[1] + self.margins.bottom - 40)
-              .node();
-            //@ts-ignore
-            const parentNode = d3.select(this).node().parentNode;
-            //@ts-ignore
-            const key = d3.select(parentNode).datum().key;
-            tip.html(
-              "<span>" +
-                `Year: ${d.data.YEAR_BUILT}<br>${key}: ${d[1] - d[0]}` +
-                "</span>"
-            );
-            tip.show(d, target);
-          })
-          .on("mousemove", function (event, d) {
-            const mouse = d3.pointer(event);
-            const target = tipCircle
-              .attr("cx", mouse[0] + self.margins.left)
-              .attr("cy", mouse[1] + self.margins.bottom - 40)
-              .node();
-            //@ts-ignore
-            const parentNode = d3.select(this).node().parentNode;
-            //@ts-ignore
-            const key = d3.select(parentNode).datum().key;
-            tip.html(
-              "<span>" +
-                `Year: ${d.data.YEAR_BUILT}<br>${key}: ${d[1] - d[0]}` +
-                "</span>"
-            );
-            tip.show(d, target);
-          })
+          .on("mouseenter", mouseAction)
+          .on("mousemove", mouseAction)
           .on("mouseout", tip.hide)
           .transition(t)
           .attr("x", function (d: any): number {
