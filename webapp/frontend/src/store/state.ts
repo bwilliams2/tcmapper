@@ -1,3 +1,5 @@
+import { GeoJSON } from "leaflet";
+
 export type LocationDataItem = [number, number, number];
 
 export interface HistDataItem extends Record<string, number> {
@@ -47,13 +49,16 @@ export interface PlotDataState {
   histData: HistDataItem[];
   yearData: YearDataItem[];
   weightData: WeightDataItem[];
+  features: GeoJSON.Feature[];
 }
 
 export interface UIState {
   showLoadingOverlay: boolean;
 }
 
+export type MapTypes = "parcels" | "points";
 export interface PlotControlsState {
+  mapType: MapTypes;
   startYear: number;
   endYear: number;
   analysisRange: number | null;
@@ -97,6 +102,7 @@ const rootState: RootStateType = {
     ],
   },
   plotControls: {
+    mapType: "points",
     startYear: 2010,
     endYear: 2020,
     analysisRange: 5000,
@@ -106,6 +112,7 @@ const rootState: RootStateType = {
     histData: [],
     yearData: [],
     weightData: [],
+    features: [],
   },
   ui: {
     showLoadingOverlay: false,

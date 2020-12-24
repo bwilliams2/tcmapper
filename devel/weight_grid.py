@@ -14,7 +14,7 @@ class Weight:
 
 
 def worker(row, q):
-    address_data = address_search(row[0], row[1], 5000)
+    address_data, features = address_search(row[0], row[1], 5000)
     if len(address_data) > 5:
         weights = np.sum(weighting_function(address_data))
         q.put(Weight(row[0], row[1], weights))

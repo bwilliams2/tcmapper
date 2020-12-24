@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <proj.h>
 #include <shapefil.h>
+#include "../../include/ShapeFileFixer/shpgeo.h"
 #include "../../include/PathFinder/process.h"
 
 #define BOOL char
@@ -23,6 +25,7 @@ void alterLongLat(char fpath[]) {
     PJ *P;
     PJ* P_for_GIS;
     PJ_COORD a, b;
+    PT  Centrd; 
     
     C = proj_context_create();
 
@@ -54,7 +57,7 @@ void alterLongLat(char fpath[]) {
     printf("%d\n", longLoc);
     if (longLoc == -1)
     {
-        DBFAddField(dbfH, "LONGITUDE", FTDouble, 7, 6);
+        DBFAddField(dbfH, "LONGITUDE", FTDouble, 11, 7);
         longLoc = DBFGetFieldIndex(dbfH, "LONGITUDE");
         hasChanged = 1;
     }
@@ -62,7 +65,7 @@ void alterLongLat(char fpath[]) {
     printf("%d\n", latLoc);
     if (latLoc == -1)
     {
-        DBFAddField(dbfH, "LATITUDE", FTDouble, 7, 6);
+        DBFAddField(dbfH, "LATITUDE", FTDouble, 11, 7);
         latLoc = DBFGetFieldIndex(dbfH, "LATITUDE");
         hasChanged = 1;
     }
@@ -76,19 +79,27 @@ void alterLongLat(char fpath[]) {
         printf("Vertices: %d\n", currRecord -> nVertices);
         printf("x: %lf\n", currRecord->dfXMin);
         printf("y: %lf\n", currRecord->dfYMin);
-        currLong = currRecord->dfXMin;
-        currLat = currRecord->dfYMin;
+
+        Centrd = SHPCentrd_2d ( currRecord ); 
+
+        if (currRecord -> nVertices == 1) {
+            currLong = currRecord->dfXMin;
+            currLat = currRecord->dfYMin;
+        } else {
+            currLong = Centrd.x;
+            currLat = Centrd.y;
+        }
 
         SHPDestroyObject(currRecord);
+        printf("Longitude: %lf Latitude: %lf\n", currLong, currLat);
 
         a = proj_coord (currLong, currLat, 0, 0);
         b = proj_trans (P, PJ_FWD, a);
-        newLong = b.lp.phi;
-        newLat = b.lp.lam;
+        newLong = roundf(b.lp.phi*10000000) / 10000000;
+        newLat = roundf(b.lp.lam*10000000) / 10000000;
         printf("Longitude: %lf Latitude: %lf\n", newLong, newLat);
         DBFWriteDoubleAttribute(dbfHW, i, longLoc, newLong);
         DBFWriteDoubleAttribute(dbfHW, i, latLoc, newLat);
-        // } 
     }
     // }
 

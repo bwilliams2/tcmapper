@@ -7,7 +7,7 @@ from pathlib import Path
 import uuid
 import json
 
-from geotools.path_calc import weighted_address_search
+from geotools.path_calc import weighted_parcel_address_search
 
 # Registers session cookie and gives template
 def index(request):
@@ -24,7 +24,7 @@ def weight_search(request):
     longitude = float(request.query_params.get("longitude"))
     latitude = float(request.query_params.get("latitude"))
     radius = float(request.query_params.get("radius"))
-    address_data = weighted_address_search(longitude, latitude, radius)
+    address_data, features = weighted_parcel_address_search(longitude, latitude, radius)
     address_data = address_data.loc[address_data["YEAR_BUILT"] != 0]
     # location_data = address_data[["LATITUDE", "LONGITUDE", "WEIGHT"]].values.tolist()
     location_data = address_data[["LATITUDE", "LONGITUDE", "YEAR_BUILT"]].rename(columns={"YEAR_BUILT": "WEIGHT"}).values.tolist()
@@ -39,6 +39,7 @@ def weight_search(request):
         "locationData": json.dumps(location_data),
         "histData": json.dumps(histogram_data),
         "yearData": json.dumps(address_raw),
-        "weightData": json.dumps(address_weight)
+        "weightData": json.dumps(address_weight),
+        "features": json.dumps(features),
     }
     return Response(return_obj)
