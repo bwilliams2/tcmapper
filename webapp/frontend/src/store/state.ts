@@ -6,11 +6,6 @@ export interface HistDataItem extends Record<string, number> {
   YEAR_BUILT: number;
 }
 
-export interface YearDataItem {
-  YEAR_BUILT: number;
-  COUNT: number;
-}
-
 export interface WeightDataItem {
   YEAR_BUILT: number;
   WEIGHT: number;
@@ -44,12 +39,14 @@ export interface HereAddress {
   ];
 }
 
+export type FeatureItem = GeoJSON.Feature<GeoJSON.Polygon, HistDataItem>;
+
 export interface PlotDataState {
   locationData: LocationDataItem[];
   histData: HistDataItem[];
-  yearData: YearDataItem[];
+  yearData: Record<number, number>;
   weightData: WeightDataItem[];
-  features: GeoJSON.Feature[];
+  features: FeatureItem[];
 }
 
 export interface UIState {
@@ -110,7 +107,7 @@ const rootState: RootStateType = {
   plotData: {
     locationData: [],
     histData: [],
-    yearData: [],
+    yearData: {},
     weightData: [],
     features: [],
   },

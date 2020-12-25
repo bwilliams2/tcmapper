@@ -22,7 +22,7 @@
       </v-col>
       <v-col cols="3">
         <v-autocomplete
-          v-on:input="updateStartYear"
+          v-on:input="updateEndYear"
           :value="endYear"
           :items="endYears"
           label="End Year"
