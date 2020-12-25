@@ -33,7 +33,7 @@ def weight_search(request):
     histogram_data = histogram_data.unstack().reset_index().fillna(0).to_dict("records")
     address_raw = address_data.groupby(["YEAR_BUILT"]).size()
     address_raw.name = "COUNT"
-    address_raw = address_raw.reset_index().to_dict("records")
+    address_raw = address_raw.to_dict()
     address_weight = address_data.groupby("YEAR_BUILT")["WEIGHT"].sum().reset_index().to_dict(orient="records")
     return_obj = {
         "locationData": json.dumps(location_data),

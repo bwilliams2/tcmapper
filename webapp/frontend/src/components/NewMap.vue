@@ -14,7 +14,7 @@ import { GeoProjection } from "d3-geo";
 import { FeatureCollection } from "geojson";
 import "leaflet.heat";
 import "leaflet.vectorgrid";
-import { RootStateType } from "@/store/state";
+import { RootStateType, FeatureItem } from "@/store/state";
 const apiKey = process.env.VUE_APP_HERE_API_KEY as string;
 
 interface Feature {
@@ -42,6 +42,8 @@ interface MapData {
   layers: any[];
   tileLayer: TileLayer | null;
   currentLayer: TileLayer | null;
+  selectedFeatures: FeatureItem[];
+  selectedLocations: [number, number, number][];
 }
 
 type DataPoints = [number, number];
@@ -54,6 +56,7 @@ export default Vue.extend({
     if (lat && lng) {
       this.center = [lat, lng];
     }
+    this.filterFeatures();
     this.initMap();
   },
   data(): MapData {
@@ -68,6 +71,8 @@ export default Vue.extend({
       layers: [],
       tileLayer: null,
       currentLayer: null,
+      selectedFeatures: [],
+      selectedLocations: [],
     };
   },
   computed: {
@@ -78,14 +83,33 @@ export default Vue.extend({
       mapType: (state: RootStateType) => state.plotControls.mapType,
       features: (state: RootStateType) => state.plotData.features,
       locationData: (state: RootStateType) => state.plotData.locationData,
+      yearData: (state: RootStateType) => state.plotData.yearData,
+      yearRange: (state: RootStateType) => [
+        state.plotControls.startYear,
+        state.plotControls.endYear,
+      ],
     }),
   },
   watch: {
     mapType: function () {
       this.initLayers();
     },
+    yearRange: function () {
+      this.filterFeatures();
+      this.initLayers();
+    },
   },
   methods: {
+    filterFeatures() {
+      this.selectedFeatures = this.features.filter(
+        (el) =>
+          el.properties.YEAR_BUILT <= this.yearRange[1] &&
+          el.properties.YEAR_BUILT >= this.yearRange[0]
+      );
+      this.selectedLocations = this.locationData.filter(
+        (el) => el[2] <= this.yearRange[1] && el[2] >= this.yearRange[0]
+      );
+    },
     initMap() {
       this.map = L.map("map", {
         center: this.center,
@@ -103,26 +127,42 @@ export default Vue.extend({
       this.initLayers();
     },
     initLayers() {
+      const color = d3
+        .scaleSequential(d3.interpolateRdYlBu)
+        .domain(this.yearRange);
+      //@ts-ignore
       if (this.currentLayer) {
         this.map.removeLayer(this.currentLayer);
       }
       if (this.mapType == "points") {
         // @ts-ignore
-        this.currentLayer = L.heatLayer(this.locationData, { max: 2020 });
+        this.currentLayer = L.heatLayer(this.selectedLocations, {
+          max: this.yearRange[1],
+        });
         this.currentLayer?.addTo(this.map);
         // console.log("in")
       } else {
         const geoJsonConstruct = {
           type: "FeatureCollection",
-          features: this.features,
+          features: this.selectedFeatures,
         };
         //@ts-ignore
         this.currentLayer = L.vectorGrid.slicer(geoJsonConstruct, {
           vectorTileLayerStyles: {
-            sliced: {
-              fillColor: "transparent",
-              color: "blue",
-              weight: 0.5,
+            sliced: function (properties: any) {
+              //@ts-ignore
+              const parcelColor = d3
+                .color(color(properties.YEAR_BUILT))
+                .formatHex();
+              return {
+                //@ts-ignore
+                fill: true,
+                fillColor: parcelColor,
+                fillOpacity: 0.7,
+                color: "black",
+                opacity: 0.3,
+                weight: 0.5,
+              };
             },
           },
           maxZoom: 15,

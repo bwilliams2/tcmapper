@@ -57,7 +57,6 @@ interface State {
   margins: Margins;
   aspectRatio: number;
   limitedData: HistDataItem[];
-  yearSums: Record<string, number>;
   barGroup: any;
   scales: {
     x: d3.ScaleLinear<number, number, never> | null;
@@ -80,7 +79,6 @@ export default Vue.extend({
         top: 10,
         bottom: 20,
       },
-      yearSums: {},
       aspectRatio: 1.4,
       fullWidth: 0,
       width: 0,
@@ -112,6 +110,7 @@ export default Vue.extend({
           (state as RootStateType).plotData.histData[0]
         ).filter((el) => el !== "YEAR_BUILT");
       },
+      yearSums: (state) => (state as RootStateType).plotData.yearData,
     }),
   },
   mounted() {
@@ -121,7 +120,6 @@ export default Vue.extend({
         el.YEAR_BUILT <= this.$props.yearRange[1] &&
         el.YEAR_BUILT >= this.$props.yearRange[0]
     );
-    this.setYearSums(this.histData);
     d3.select(".barplot")
       .append("g")
       .append("circle")
@@ -141,19 +139,8 @@ export default Vue.extend({
       );
       this.initBarplot();
     },
-    histData: function (newValue) {
-      this.setYearSums(newValue);
-    },
   },
   methods: {
-    setYearSums(newValue: HistDataItem[]) {
-      newValue.forEach((el: HistDataItem) => {
-        this.yearSums[el.YEAR_BUILT] = Object.entries(el)
-          .filter((val) => val[0] !== "YEAR_BUILT")
-          .map((val) => val[1])
-          .reduce((a, b) => a + b, 0);
-      });
-    },
     setSize() {
       const width = document.getElementById(`areaplotparent`)?.clientWidth;
       // const height = document.getElementById(`barplotparent`)?.clientHeight;
