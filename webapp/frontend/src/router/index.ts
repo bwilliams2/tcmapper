@@ -13,6 +13,7 @@ const routes: Array<RouteConfig> = [
     children: [
       { path: "", component: Landing, name: "home" },
       { path: "/map", component: MapData, name: "map" },
+      // { path: "", component: MapData, name: "home" },
     ],
   },
   {

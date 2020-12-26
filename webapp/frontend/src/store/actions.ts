@@ -31,7 +31,7 @@ const rootActions = {
           latitude: addressInfo.position.lat,
           radius: state.plotControls.analysisRange,
         },
-        timeout: 30000,
+        timeout: 50000,
       })
       .then((res) => {
         const locationData = JSON.parse(res.data.locationData);
@@ -54,6 +54,44 @@ const rootActions = {
         commit("updateShowLoadingOverlay", false);
       });
   },
+  updatePlotData({ commit, state }: { commit: Commit; state: RootStateType }) {
+    commit("updateShowLoadingOverlay", true);
+    const lat = state.plotControls.latLng[0];
+    const lng = state.plotControls.latLng[1];
+    if (lat && lng) {
+      return axios
+        .get(`${API_URL}/api/weight`, {
+          params: {
+            longitude: lng,
+            latitude: lat,
+            radius: state.plotControls.analysisRange,
+          },
+          timeout: 50000,
+        })
+        .then((res) => {
+          const locationData = JSON.parse(res.data.locationData);
+          const histData = JSON.parse(res.data.histData);
+          const yearData = JSON.parse(res.data.yearData);
+          const weightData = JSON.parse(res.data.weightData);
+          const features = JSON.parse(res.data.features);
+          const useClasses = JSON.parse(res.data.useClasses);
+          commit("updatePlotData", {
+            plotData: {
+              locationData,
+              histData,
+              yearData,
+              weightData,
+              features,
+              useClasses,
+            },
+          });
+          commit("updateSelectedUseClasses", useClasses);
+          commit("updateShowLoadingOverlay", false);
+        });
+    } else {
+      commit("updateShowLoadingOverlay", false);
+    }
+  },
   updateAnalysisRange(
     { commit, state }: { commit: Commit; state: RootStateType },
     newValue: number
@@ -67,7 +105,7 @@ const rootActions = {
           latitude: state.addressInfo.position.lat,
           radius: newValue,
         },
-        timeout: 30000,
+        timeout: 50000,
       })
       .then((res) => {
         const locationData = JSON.parse(res.data.locationData);
@@ -89,6 +127,9 @@ const rootActions = {
         commit("updateSelectedUseClasses", useClasses);
         commit("updateShowLoadingOverlay", false);
       });
+  },
+  updateLatLng({ commit }: { commit: Commit }, newLatLng: [number, number]) {
+    commit("updateLatLng", newLatLng);
   },
   updateSelectedUseClasses({ commit }: { commit: Commit }, newValue: string[]) {
     commit("updateSelectedUseClasses", newValue);

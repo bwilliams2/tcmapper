@@ -4,7 +4,7 @@
 
 <script lang="ts">
 import Vue, { PropType } from "vue";
-import L, { LatLngTuple, TileLayer, LatLngBounds } from "leaflet";
+import L, { LatLngTuple, TileLayer, LatLngBounds, Circle } from "leaflet";
 //@ts-ignore
 import geojsonvt from "geojson-vt";
 // import { LMap, LTileLayer, LMarker, LCircle } from "vue2-leaflet";
@@ -47,7 +47,7 @@ interface MapData {
 type DataPoints = [number, number];
 
 export default Vue.extend({
-  name: "DensityMap",
+  name: "OverlayMap",
   mounted() {
     // this.initLayers();
     const { lat, lng } = this.addressInfo.position;
@@ -68,7 +68,7 @@ export default Vue.extend({
     return {
       url: `https://2.base.maps.ls.hereapi.com/maptile/2.1/maptile/newest/normal.day/{z}/{x}/{y}/512/png8?apiKey=${apiKey}&ppi=320`,
       zoom: { start: 12, end: 12 },
-      center: [47.41322, -1.219482],
+      center: [44.98752, -93.248841],
       bounds: null,
       map: null,
       svg: null,
@@ -83,8 +83,10 @@ export default Vue.extend({
       addressInfo: function (state: RootStateType) {
         return state.addressInfo;
       },
+      latLng: (state: RootStateType) => state.plotControls.latLng,
       selectedUseClasses: (state: RootStateType) =>
         state.plotControls.selectedUseClasses,
+      analysisRange: (state: RootStateType) => state.plotControls.analysisRange,
       mapType: (state: RootStateType) => state.plotControls.mapType,
       features: (state: RootStateType) => state.plotData.features,
       locationData: (state: RootStateType) => state.plotData.locationData,
@@ -124,6 +126,10 @@ export default Vue.extend({
       this.initLayers();
     },
     initLayers() {
+      const self = this;
+      this.map.panTo(
+        new L.LatLng(this.latLng[0] as number, this.latLng[1] as number)
+      );
       const color = d3
         .scaleSequential(d3.interpolateRdYlBu)
         .domain(this.yearRange);
