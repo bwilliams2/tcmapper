@@ -20,14 +20,14 @@
               </v-container>
             </div>
             <div :style="{ height: '80vh' }">
-              <new-map
+              <overlay-map
                 :selectedFeatures="selectedFeatures"
                 :selectedLocations="selectedLocations"
               />
             </div>
           </div>
         </v-col>
-        <v-col md="12" lg="6">
+        <v-col md="12" lg="6" v-if="histData.length > 0">
           <bar-plot :limitedData="limitedData"></bar-plot>
         </v-col>
       </v-row>
@@ -39,7 +39,7 @@
 import Vue from "vue";
 import _ from "lodash";
 import { mapState } from "vuex";
-import NewMap from "./NewMap.vue";
+import OverlayMap from "./OverlayMap.vue";
 import BarPlot from "./barplot/BarPlotContainer.vue";
 import {
   MapTypes,
@@ -62,7 +62,7 @@ interface State {
 export default Vue.extend({
   name: "Home",
   components: {
-    NewMap,
+    OverlayMap,
     BarPlot,
   },
   data(): State {
@@ -101,6 +101,7 @@ export default Vue.extend({
       mapType: function (state: RootStateType) {
         return state.plotControls.mapType;
       },
+      latLng: (state: RootStateType) => state.plotControls.latLng,
       selectedUseClasses: (state: RootStateType) =>
         state.plotControls.selectedUseClasses,
       features: (state: RootStateType) => state.plotData.features,

@@ -112,7 +112,7 @@ export default Vue.extend({
     ...mapState({
       years: function (state: RootStateType) {
         const years = state.plotData.histData.map((el) => el.YEAR_BUILT);
-        return _.range(Math.min(...years), Math.max(...years)).reverse();
+        return years.sort();
       },
       endYears: function (state: RootStateType) {
         const years = state.plotData.histData.map((el) => el.YEAR_BUILT);

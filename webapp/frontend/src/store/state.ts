@@ -61,7 +61,8 @@ export interface PlotControlsState {
   mapType: MapTypes;
   startYear: number;
   endYear: number;
-  analysisRange: number | null;
+  analysisRange: number;
+  latLng: [null, null] | [number, number];
 }
 
 export interface ComputedPlotDataState {
@@ -113,6 +114,7 @@ const rootState: RootStateType = {
     startYear: 2010,
     endYear: 2020,
     analysisRange: 5000,
+    latLng: [null, null],
   },
   computedPlotData: {
     selectedLocationData: [],
