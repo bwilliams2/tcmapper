@@ -39,9 +39,18 @@ const rootActions = {
         const yearData = JSON.parse(res.data.yearData);
         const weightData = JSON.parse(res.data.weightData);
         const features = JSON.parse(res.data.features);
+        const useClasses = JSON.parse(res.data.useClasses);
         commit("updatePlotData", {
-          plotData: { locationData, histData, yearData, weightData, features },
+          plotData: {
+            locationData,
+            histData,
+            yearData,
+            weightData,
+            features,
+            useClasses,
+          },
         });
+        commit("updateSelectedUseClasses", useClasses);
         commit("updateShowLoadingOverlay", false);
       });
   },
@@ -65,11 +74,24 @@ const rootActions = {
         const histData = JSON.parse(res.data.histData);
         const yearData = JSON.parse(res.data.yearData);
         const weightData = JSON.parse(res.data.weightData);
+        const features = JSON.parse(res.data.features);
+        const useClasses = JSON.parse(res.data.useClasses);
         commit("updatePlotData", {
-          plotData: { locationData, histData, yearData, weightData },
+          plotData: {
+            locationData,
+            histData,
+            yearData,
+            weightData,
+            features,
+            useClasses,
+          },
         });
+        commit("updateSelectedUseClasses", useClasses);
         commit("updateShowLoadingOverlay", false);
       });
+  },
+  updateSelectedUseClasses({ commit }: { commit: Commit }, newValue: string[]) {
+    commit("updateSelectedUseClasses", newValue);
   },
   updateStartYear({ commit }: { commit: Commit }, newValue: number) {
     commit("updateStartYear", newValue);

@@ -51,7 +51,7 @@
       </template> -->
       </v-main>
     </v-app>
-    <v-overlay :value="overlay">
+    <v-overlay :value="overlay" :style="{ zIndex: 1000 }">
       <v-progress-circular indeterminate size="64"></v-progress-circular>
       <div :class="['text-h6']" v-bind:style="{ textAlign: 'center' }">
         Calculating Stats

@@ -38,7 +38,7 @@ import Vue, { PropType } from "vue";
 //@ts-ignore
 import { tip as d3tip } from "d3-v6-tip";
 import "./barplot.css";
-import { HistDataItem, RootStateType } from "../../store/state";
+import { HistDataItem, RootStateType } from "@/store/state";
 import { mapState } from "vuex";
 import * as d3 from "d3";
 import { SeriesPoint, stack } from "d3-shape";
@@ -56,7 +56,6 @@ interface State {
   height: number;
   margins: Margins;
   aspectRatio: number;
-  limitedData: HistDataItem[];
   barGroup: any;
   scales: {
     x: d3.ScaleLinear<number, number, never> | null;
@@ -83,7 +82,6 @@ export default Vue.extend({
       fullWidth: 0,
       width: 0,
       height: 0,
-      limitedData: [],
       barGroup: null,
       scales: {
         x: null,
@@ -95,15 +93,17 @@ export default Vue.extend({
     // histData: {
     //   type: Array as PropType<HistDataItem[]>,
     // },
+    limitedData: {
+      type: Array as PropType<HistDataItem[]>,
+    },
     yearRange: {
       type: Array as PropType<number[]>,
-      default: function () {
-        return [2010, 2020];
-      },
     },
   },
   computed: {
     ...mapState({
+      selectedUseClasses: (state) =>
+        (state as RootStateType).plotControls.selectedUseClasses,
       histData: (state) => (state as RootStateType).plotData.histData,
       subgroups: function (state) {
         return Object.keys(
@@ -114,12 +114,6 @@ export default Vue.extend({
     }),
   },
   mounted() {
-    this.limitedData = this.histData.filter(
-      (el: HistDataItem) =>
-        // typescript not parsing this correctly
-        el.YEAR_BUILT <= this.$props.yearRange[1] &&
-        el.YEAR_BUILT >= this.$props.yearRange[0]
-    );
     d3.select(".barplot")
       .append("g")
       .append("circle")
@@ -129,16 +123,6 @@ export default Vue.extend({
       .attr("fille", "rgb(255,255,255)")
       .attr("r", 5);
     this.initBarplot();
-  },
-  watch: {
-    yearRange: function (newValue, oldValue) {
-      this.limitedData = this.histData.filter(
-        (el: HistDataItem) =>
-          // typescript not parsing this correctly
-          el.YEAR_BUILT <= newValue[1] && el.YEAR_BUILT >= newValue[0]
-      );
-      this.initBarplot();
-    },
   },
   methods: {
     setSize() {

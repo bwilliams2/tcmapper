@@ -4,6 +4,15 @@
       <v-col cols="3">
         <v-select v-model="chart" :items="charts" label="Chart Type"></v-select>
       </v-col>
+      <!-- <v-col cols="9">
+        <v-select
+          @input="updateSelectedUseClasses"
+          :value="selectedUseClasses"
+          :items="useClasses"
+          multiple
+          label="Use Class"
+        ></v-select>
+      </v-col> -->
       <v-col cols="3">
         <v-select
           @input="updateRange"
@@ -36,14 +45,20 @@
           v-bind:style="parentStyle"
           v-if="chart == 'bar'"
         >
-          <bar-plot :yearRange="yearRange"></bar-plot>
+          <bar-plot
+            :limitedData="limitedData"
+            :yearRange="yearRange"
+          ></bar-plot>
         </div>
         <div
           id="areaplotparent"
           v-bind:style="parentStyle"
           v-if="chart == 'area'"
         >
-          <area-plot :yearRange="yearRange"></area-plot>
+          <area-plot
+            :limitedData="limitedData"
+            :yearRange="yearRange"
+          ></area-plot>
         </div>
       </v-col>
     </v-row>
@@ -51,11 +66,11 @@
 </template>
 
 <script lang="ts">
-import { RootStateType } from "@/store/state";
-import Vue from "vue";
+import Vue, { PropType } from "vue";
 import { mapState } from "vuex";
 import BarPlot from "./BarPlot.vue";
 import AreaPlot from "./AreaPlot.vue";
+import { HistDataItem, RootStateType } from "@/store/state";
 import _ from "lodash";
 
 interface State {
@@ -88,6 +103,11 @@ export default Vue.extend({
       ],
     };
   },
+  props: {
+    limitedData: {
+      type: Array as PropType<HistDataItem[]>,
+    },
+  },
   computed: {
     ...mapState({
       years: function (state: RootStateType) {
@@ -104,6 +124,9 @@ export default Vue.extend({
           }))
           .reverse();
       },
+      useClasses: (state: RootStateType) => state.plotData.useClasses,
+      selectedUseClasses: (state: RootStateType) =>
+        state.plotControls.selectedUseClasses,
       analysisRange: (state: RootStateType) => state.plotControls.analysisRange,
       startYear: (state: RootStateType) => state.plotControls.startYear,
       endYear: (state: RootStateType) => state.plotControls.endYear,
@@ -114,6 +137,9 @@ export default Vue.extend({
     }),
   },
   methods: {
+    updateSelectedUseClasses(newValue: string[]) {
+      this.$store.dispatch("updateSelectedUseClasses", newValue);
+    },
     updateRange(newValue: number) {
       this.$store.dispatch("updateAnalysisRange", newValue);
     },
