@@ -26,6 +26,7 @@ def weight_search(request):
     radius = float(request.query_params.get("radius"))
     address_data, features = weighted_parcel_address_search(longitude, latitude, radius)
     address_data = address_data.loc[address_data["YEAR_BUILT"] != 0]
+    use_classes = address_data["USECLASS1"].unique().tolist()
     # location_data = address_data[["LATITUDE", "LONGITUDE", "WEIGHT"]].values.tolist()
     location_data = address_data[["LATITUDE", "LONGITUDE", "YEAR_BUILT"]].rename(columns={"YEAR_BUILT": "WEIGHT"}).values.tolist()
     histogram_data = address_data.groupby(["YEAR_BUILT", "USECLASS1"]).size()
@@ -41,5 +42,6 @@ def weight_search(request):
         "yearData": json.dumps(address_raw),
         "weightData": json.dumps(address_weight),
         "features": json.dumps(features),
+        "useClasses": json.dumps(use_classes),
     }
     return Response(return_obj)

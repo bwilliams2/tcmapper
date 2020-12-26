@@ -2,8 +2,9 @@ import { GeoJSON } from "leaflet";
 
 export type LocationDataItem = [number, number, number];
 
-export interface HistDataItem extends Record<string, number> {
+export interface HistDataItem extends Record<string, number | string> {
   YEAR_BUILT: number;
+  USECLASS1: string;
 }
 
 export interface WeightDataItem {
@@ -47,6 +48,7 @@ export interface PlotDataState {
   yearData: Record<number, number>;
   weightData: WeightDataItem[];
   features: FeatureItem[];
+  useClasses: string[];
 }
 
 export interface UIState {
@@ -55,10 +57,16 @@ export interface UIState {
 
 export type MapTypes = "parcels" | "points";
 export interface PlotControlsState {
+  selectedUseClasses: string[];
   mapType: MapTypes;
   startYear: number;
   endYear: number;
   analysisRange: number | null;
+}
+
+export interface ComputedPlotDataState {
+  selectedLocationData: LocationDataItem[];
+  selectedHistData: HistDataItem[];
 }
 
 export interface RootStateType {
@@ -66,6 +74,7 @@ export interface RootStateType {
   addressInfo: HereAddress;
   plotControls: PlotControlsState;
   plotData: PlotDataState;
+  computedPlotData: ComputedPlotDataState;
   ui: UIState;
 }
 
@@ -99,10 +108,15 @@ const rootState: RootStateType = {
     ],
   },
   plotControls: {
+    selectedUseClasses: [],
     mapType: "points",
     startYear: 2010,
     endYear: 2020,
     analysisRange: 5000,
+  },
+  computedPlotData: {
+    selectedLocationData: [],
+    selectedHistData: [],
   },
   plotData: {
     locationData: [],
@@ -110,6 +124,7 @@ const rootState: RootStateType = {
     yearData: {},
     weightData: [],
     features: [],
+    useClasses: [],
   },
   ui: {
     showLoadingOverlay: false,

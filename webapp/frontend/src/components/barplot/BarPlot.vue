@@ -49,13 +49,12 @@ export interface Margins {
 }
 
 interface State {
+  hasMounted: boolean;
   fullWidth: number;
   width: number;
   height: number;
   margins: Margins;
   aspectRatio: number;
-  limitedData: HistDataItem[];
-  yearSums: Record<string, number>;
   barGroup: any;
   scales: {
     x: d3.ScaleBand<string> | null;
@@ -67,18 +66,17 @@ export default Vue.extend({
   name: "BarPlot",
   data(): State {
     return {
+      hasMounted: false,
       margins: {
         left: 50,
         right: 20,
         top: 10,
         bottom: 20,
       },
-      yearSums: {},
       aspectRatio: 1.4,
       fullWidth: 0,
       width: 0,
       height: 0,
-      limitedData: [],
       barGroup: null,
       scales: {
         x: null,
@@ -87,23 +85,18 @@ export default Vue.extend({
     };
   },
   props: {
-    // histData: {
-    //   type: Array as PropType<HistDataItem[]>,
-    // },
+    limitedData: {
+      type: Array as PropType<HistDataItem[]>,
+    },
     yearRange: {
       type: Array as PropType<number[]>,
-      default: function () {
-        return [2010, 2020];
-      },
-    },
-    chartType: {
-      type: String,
-      default: "bar",
     },
   },
   computed: {
     ...mapState({
-      histData: (state) => (state as RootStateType).plotData.histData,
+      yearSums: (state) => (state as RootStateType).plotData.yearData,
+      selectedUseClasses: (state) =>
+        (state as RootStateType).plotControls.selectedUseClasses,
       subgroups: function (state) {
         return Object.keys(
           (state as RootStateType).plotData.histData[0]
@@ -112,43 +105,30 @@ export default Vue.extend({
     }),
   },
   mounted() {
-    this.limitedData = this.histData.filter(
-      (el: HistDataItem) =>
-        // typescript not parsing this correctly
-        el.YEAR_BUILT <= this.$props.yearRange[1] &&
-        el.YEAR_BUILT >= this.$props.yearRange[0]
-    );
-    this.setYearSums(this.histData);
-    d3.select(".barplot")
-      .append("g")
-      .append("circle")
-      .attr("id", "tipcircle")
-      .attr("cx", 0)
-      .attr("cy", 0)
-      .attr("r", 0);
-    this.initBarplot();
+    this.setMount();
   },
   watch: {
-    yearRange: function (newValue, oldValue) {
-      this.limitedData = this.histData.filter(
-        (el: HistDataItem) =>
-          // typescript not parsing this correctly
-          el.YEAR_BUILT <= newValue[1] && el.YEAR_BUILT >= newValue[0]
-      );
-      this.initBarplot();
-    },
-    histData: function (newValue) {
-      this.setYearSums(newValue);
+    limitedData: function () {
+      if (this.hasMounted) {
+        this.initBarplot();
+      } else {
+        this.setMount();
+      }
     },
   },
   methods: {
-    setYearSums(newValue: HistDataItem[]) {
-      newValue.forEach((el: HistDataItem) => {
-        this.yearSums[el.YEAR_BUILT] = Object.entries(el)
-          .filter((val) => val[0] !== "YEAR_BUILT")
-          .map((val) => val[1])
-          .reduce((a, b) => a + b, 0);
-      });
+    setMount() {
+      if (this.limitedData.length > 0) {
+        d3.select(".barplot")
+          .append("g")
+          .append("circle")
+          .attr("id", "tipcircle")
+          .attr("cx", 0)
+          .attr("cy", 0)
+          .attr("r", 0);
+        this.initBarplot();
+        this.hasMounted = true;
+      }
     },
     setSize() {
       const width = document.getElementById(`barplotparent`)?.clientWidth;
@@ -240,6 +220,7 @@ export default Vue.extend({
         //@ts-ignore
         .range(colorRange as string[]);
       //stack the data? --> stack per subgroup
+      //@ts-ignore
       const stackedData = d3.stack().keys(self.subgroups)(this.limitedData);
       const t = d3.transition().duration(750).ease(d3.easeLinear) as any;
 

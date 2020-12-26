@@ -28,6 +28,9 @@ const mutations = {
   updateAnalysisRange(state: RootStateType, payload: number) {
     state.plotControls.analysisRange = payload;
   },
+  updateSelectedUseClasses(state: RootStateType, payload: string[]) {
+    state.plotControls.selectedUseClasses = payload;
+  },
   updateMapType(state: RootStateType, payload: MapTypes) {
     state.plotControls.mapType = payload;
   },

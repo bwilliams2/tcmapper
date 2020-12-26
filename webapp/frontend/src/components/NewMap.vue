@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import Vue, { PropType } from "vue";
 import L, { LatLngTuple, TileLayer, LatLngBounds } from "leaflet";
 //@ts-ignore
 import geojsonvt from "geojson-vt";
@@ -42,8 +42,6 @@ interface MapData {
   layers: any[];
   tileLayer: TileLayer | null;
   currentLayer: TileLayer | null;
-  selectedFeatures: FeatureItem[];
-  selectedLocations: [number, number, number][];
 }
 
 type DataPoints = [number, number];
@@ -56,8 +54,15 @@ export default Vue.extend({
     if (lat && lng) {
       this.center = [lat, lng];
     }
-    this.filterFeatures();
     this.initMap();
+  },
+  props: {
+    selectedFeatures: {
+      type: Array as PropType<FeatureItem[]>,
+    },
+    selectedLocations: {
+      type: Array as PropType<[number, number, number][]>,
+    },
   },
   data(): MapData {
     return {
@@ -71,8 +76,6 @@ export default Vue.extend({
       layers: [],
       tileLayer: null,
       currentLayer: null,
-      selectedFeatures: [],
-      selectedLocations: [],
     };
   },
   computed: {
@@ -80,6 +83,8 @@ export default Vue.extend({
       addressInfo: function (state: RootStateType) {
         return state.addressInfo;
       },
+      selectedUseClasses: (state: RootStateType) =>
+        state.plotControls.selectedUseClasses,
       mapType: (state: RootStateType) => state.plotControls.mapType,
       features: (state: RootStateType) => state.plotData.features,
       locationData: (state: RootStateType) => state.plotData.locationData,
@@ -94,22 +99,14 @@ export default Vue.extend({
     mapType: function () {
       this.initLayers();
     },
-    yearRange: function () {
-      this.filterFeatures();
+    selectedLocations: function () {
+      this.initLayers();
+    },
+    selectedFeatures: function () {
       this.initLayers();
     },
   },
   methods: {
-    filterFeatures() {
-      this.selectedFeatures = this.features.filter(
-        (el) =>
-          el.properties.YEAR_BUILT <= this.yearRange[1] &&
-          el.properties.YEAR_BUILT >= this.yearRange[0]
-      );
-      this.selectedLocations = this.locationData.filter(
-        (el) => el[2] <= this.yearRange[1] && el[2] >= this.yearRange[0]
-      );
-    },
     initMap() {
       this.map = L.map("map", {
         center: this.center,
@@ -173,27 +170,6 @@ export default Vue.extend({
           // }
         });
         this.currentLayer?.addTo(this.map);
-        // tileLayer.on('click', function(e) {
-        //   console.log(e);
-        //   if (e.layer.feature) {
-        //     var prop = e.layer.feature.properties;
-        //     //var latlng = [e.latlng.lat,e.latlng.lng];
-        //   } else {
-        //     var prop = e.layer.properties;
-        //     //var latlng = [Number(parcel.y),Number(parcel.x)];
-        //   }
-        //   //settimeout otherwise when map click fires it will override this color change
-        //   if (id != 0) {
-        //     tileLayer.setFeatureStyle(id, {
-        //       color: "blue",
-        //       weight: 0.5,
-        //     });
-        //   }
-        //   id = prop["cartodb_id"];
-        //   setTimeout(function () {
-        //     tileLayer.setFeatureStyle(id, { color: "red" }, 100);
-        //   });
-        // });
       }
     },
   },
