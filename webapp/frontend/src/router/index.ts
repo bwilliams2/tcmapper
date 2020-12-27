@@ -1,8 +1,8 @@
 import Vue from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
 import Home from "../views/Home.vue";
-import Landing from "@/components/Landing.vue";
-import MapData from "@/components/MapData.vue";
+import Landing from "@/components/landing/Landing.vue";
+import MapData from "@/components/mapplot/MapData.vue";
 
 Vue.use(VueRouter);
 

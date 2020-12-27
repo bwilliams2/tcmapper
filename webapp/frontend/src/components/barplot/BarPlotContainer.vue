@@ -108,11 +108,20 @@ export default Vue.extend({
       type: Array as PropType<HistDataItem[]>,
     },
   },
+  mounted() {
+    if (this.endYear > this.years[0]) {
+      this.$store.dispatch("updateEndYear", this.years[0]);
+    }
+  },
   computed: {
     ...mapState({
       years: function (state: RootStateType) {
         const years = state.plotData.histData.map((el) => el.YEAR_BUILT);
-        return years.sort();
+        const sortYears = _.range(
+          Math.min(...years),
+          Math.max(...years) + 1
+        ).reverse();
+        return sortYears;
       },
       endYears: function (state: RootStateType) {
         const years = state.plotData.histData.map((el) => el.YEAR_BUILT);

@@ -10,8 +10,9 @@
                   <v-col cols="3">
                     <v-btn
                       class="mr-5"
-                      @click.native="submitLatLng()"
+                      @click.native="submitLatLng"
                       :disabled="!latLng[0]"
+                      :style="{ float: 'right' }"
                       >Calculate Stats</v-btn
                     >
                   </v-col>
@@ -61,7 +62,7 @@ export default Vue.extend({
       },
       buttonContainer: {
         position: "absolute",
-        top: "15px",
+        top: "10px",
         width: "100%",
         zIndex: 1000,
         float: "right",

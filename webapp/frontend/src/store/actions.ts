@@ -143,6 +143,9 @@ const rootActions = {
   updateMapType({ commit }: { commit: Commit }, newValue: number) {
     commit("updateMapType", newValue);
   },
+  resetAnalysis({ commit }: { commit: Commit }) {
+    commit("resetAnalysis");
+  },
 };
 
 export default rootActions;

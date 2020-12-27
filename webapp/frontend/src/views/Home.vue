@@ -91,7 +91,7 @@ export default Vue.extend({
   },
   methods: {
     resetAddress() {
-      this.$store.dispatch("resetAddress");
+      this.$store.dispatch("resetAnalysis");
     },
   },
 });
