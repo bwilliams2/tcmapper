@@ -40,7 +40,7 @@ import Vue from "vue";
 import _ from "lodash";
 import { mapState } from "vuex";
 import OverlayMap from "./OverlayMap.vue";
-import BarPlot from "./barplot/BarPlotContainer.vue";
+import BarPlot from "./BarPlotContainer.vue";
 import {
   MapTypes,
   RootStateType,
