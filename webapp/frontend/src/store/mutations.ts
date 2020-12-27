@@ -9,9 +9,11 @@ const mutations = {
   updateAddress(state: RootStateType, payload: { address: string }) {
     state.address = payload.address;
   },
-  resetAddress(state: RootStateType) {
+  resetAnalysis(state: RootStateType) {
     state.address = rootState.address;
     state.addressInfo = rootState.addressInfo;
+    state.plotControls = rootState.plotControls;
+    state.plotData = rootState.plotData;
   },
   updateAddressInfo(
     state: RootStateType,

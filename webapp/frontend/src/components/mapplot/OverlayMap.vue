@@ -127,16 +127,33 @@ export default Vue.extend({
     },
     initLayers() {
       const self = this;
+
+      // Set center to latLng
       this.map.panTo(
         new L.LatLng(this.latLng[0] as number, this.latLng[1] as number)
       );
-      const color = d3
-        .scaleSequential(d3.interpolateRdYlBu)
-        .domain(this.yearRange);
+
       //@ts-ignore
+
+      // Define popup for parcel map
+      function popup(e: any) {
+        L.popup()
+          .setContent(e.layer.properties.foo_variable)
+          .setLatLng(e.latlng)
+          .openOn(self.map);
+      }
+
+      // Remove current overlay layer if it exists already
       if (this.currentLayer) {
         this.map.removeLayer(this.currentLayer);
       }
+
+      // Set color scheme for parcel map
+      const color = d3
+        .scaleSequential(d3.interpolateRdYlBu)
+        .domain(this.yearRange);
+
+      // Determine type of overlay
       if (this.mapType == "points") {
         // @ts-ignore
         this.currentLayer = L.heatLayer(this.selectedLocations, {
@@ -145,6 +162,7 @@ export default Vue.extend({
         this.currentLayer?.addTo(this.map);
         // console.log("in")
       } else {
+        // Construct GEOJson FeatureCollection
         const geoJsonConstruct = {
           type: "FeatureCollection",
           features: this.selectedFeatures,
@@ -175,6 +193,7 @@ export default Vue.extend({
           //     return feature.properties["cartodb_id"]
           // }
         });
+        this.currentLayer?.on("click", popup);
         this.currentLayer?.addTo(this.map);
       }
     },

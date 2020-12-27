@@ -68,8 +68,8 @@
 <script lang="ts">
 import Vue, { PropType } from "vue";
 import { mapState } from "vuex";
-import BarPlot from "./BarPlot.vue";
-import AreaPlot from "./AreaPlot.vue";
+import BarPlot from "@/components/barplot/BarPlot.vue";
+import AreaPlot from "@/components/barplot/AreaPlot.vue";
 import { HistDataItem, RootStateType } from "@/store/state";
 import _ from "lodash";
 
