@@ -40,6 +40,19 @@ export interface HereAddress {
   ];
 }
 
+export interface GrowthItemPoint {
+  USECLASS1: string;
+  YEAR_BUILT: number;
+  Total: number;
+  New: number;
+  Rates: number;
+}
+
+export interface GrowthItem {
+  id: string;
+  points: GrowthItemPoint[];
+}
+
 export type FeatureItem = GeoJSON.Feature<GeoJSON.Polygon, HistDataItem>;
 
 export interface PlotDataState {
@@ -49,6 +62,7 @@ export interface PlotDataState {
   weightData: WeightDataItem[];
   features: FeatureItem[];
   useClasses: string[];
+  growthData: GrowthItem[];
 }
 
 export interface UIState {
@@ -127,6 +141,7 @@ const rootState: RootStateType = {
     weightData: [],
     features: [],
     useClasses: [],
+    growthData: [],
   },
   ui: {
     showLoadingOverlay: false,

@@ -28,7 +28,10 @@
           </div>
         </v-col>
         <v-col md="12" lg="6" v-if="histData.length > 0">
-          <bar-plot :limitedData="limitedData"></bar-plot>
+          <bar-plot
+            :limitedData="limitedData"
+            :limitedGrowthData="limitedGrowthData"
+          ></bar-plot>
         </v-col>
       </v-row>
     </v-container>
@@ -46,6 +49,7 @@ import {
   RootStateType,
   FeatureItem,
   HistDataItem,
+  GrowthItem,
 } from "@/store/state";
 
 interface State {
@@ -57,6 +61,7 @@ interface State {
   selectedFeatures: FeatureItem[];
   selectedLocations: [number, number, number][];
   limitedData: HistDataItem[];
+  limitedGrowthData: GrowthItem[];
 }
 
 export default Vue.extend({
@@ -94,6 +99,7 @@ export default Vue.extend({
       selectedFeatures: [],
       selectedLocations: [],
       limitedData: [],
+      limitedGrowthData: [],
     };
   },
   computed: {
@@ -106,6 +112,7 @@ export default Vue.extend({
         state.plotControls.selectedUseClasses,
       features: (state: RootStateType) => state.plotData.features,
       histData: (state: RootStateType) => state.plotData.histData,
+      growthData: (state: RootStateType) => state.plotData.growthData,
       locationData: (state: RootStateType) => state.plotData.locationData,
       yearData: (state: RootStateType) => state.plotData.yearData,
       yearRange: (state: RootStateType) => [
@@ -139,6 +146,16 @@ export default Vue.extend({
           return _.pick(el, ["YEAR_BUILT", ...classes]);
         });
       this.limitedData = limitedData as HistDataItem[];
+      const limitedGrowthData = this.growthData.map((el) => {
+        return {
+          id: el.id,
+          points: el.points.filter(
+            (point) =>
+              point.YEAR_BUILT <= years[1] && point.YEAR_BUILT >= years[0]
+          ),
+        };
+      });
+      this.limitedGrowthData = limitedGrowthData;
     },
     filterFeatures(years: number[], classes: string[]) {
       this.selectedFeatures = this.features.filter(

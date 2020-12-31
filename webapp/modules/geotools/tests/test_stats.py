@@ -5,3 +5,4 @@ def test_growth_rates():
     lat, lng = [45.147762, -93.134160]
     address_data, features = parcel_address_search(lng, lat, 5000)
     class_rates = growth_rates(address_data)
+    d = 5
