@@ -39,11 +39,13 @@ const rootActions = {
         const yearData = JSON.parse(res.data.yearData);
         const weightData = JSON.parse(res.data.weightData);
         const features = JSON.parse(res.data.features);
+        const growthData = JSON.parse(res.data.growthData);
         const useClasses = JSON.parse(res.data.useClasses);
         commit("updatePlotData", {
           plotData: {
             locationData,
             histData,
+            growthData,
             yearData,
             weightData,
             features,

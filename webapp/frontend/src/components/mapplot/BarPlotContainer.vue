@@ -60,6 +60,16 @@
             :yearRange="yearRange"
           ></area-plot>
         </div>
+        <div
+          id="growthplotparent"
+          v-bind:style="parentStyle"
+          v-if="chart == 'growth'"
+        >
+          <growth-plot
+            :limitedData="limitedGrowthData"
+            :yearRange="yearRange"
+          ></growth-plot>
+        </div>
       </v-col>
     </v-row>
   </v-container>
@@ -70,7 +80,8 @@ import Vue, { PropType } from "vue";
 import { mapState } from "vuex";
 import BarPlot from "@/components/barplot/BarPlot.vue";
 import AreaPlot from "@/components/barplot/AreaPlot.vue";
-import { HistDataItem, RootStateType } from "@/store/state";
+import GrowthPlot from "@/components/barplot/GrowthPlot.vue";
+import { HistDataItem, RootStateType, GrowthItem } from "@/store/state";
 import _ from "lodash";
 
 interface State {
@@ -85,6 +96,7 @@ export default Vue.extend({
   components: {
     BarPlot,
     AreaPlot,
+    GrowthPlot,
   },
   data(): State {
     return {
@@ -95,6 +107,7 @@ export default Vue.extend({
       charts: [
         { text: "Bar Chart", value: "bar" },
         { text: "Area Chart", value: "area" },
+        { text: "Growth Chart", value: "growth" },
       ],
       ranges: [
         { text: "1 km", value: 1000 },
@@ -106,6 +119,9 @@ export default Vue.extend({
   props: {
     limitedData: {
       type: Array as PropType<HistDataItem[]>,
+    },
+    limitedGrowthData: {
+      type: Array as PropType<GrowthItem[]>,
     },
   },
   mounted() {

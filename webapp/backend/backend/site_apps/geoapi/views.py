@@ -8,6 +8,7 @@ import uuid
 import json
 
 from geotools.path_calc import weighted_parcel_address_search
+from geotools.stats import growth_rates
 
 # Registers session cookie and gives template
 def index(request):
@@ -25,6 +26,7 @@ def weight_search(request):
     latitude = float(request.query_params.get("latitude"))
     radius = float(request.query_params.get("radius"))
     address_data, features = weighted_parcel_address_search(longitude, latitude, radius)
+    growth_data = growth_rates(address_data)
     address_data = address_data.loc[address_data["YEAR_BUILT"] != 0]
     use_classes = address_data["USECLASS1"].unique().tolist()
     # location_data = address_data[["LATITUDE", "LONGITUDE", "WEIGHT"]].values.tolist()
@@ -39,6 +41,7 @@ def weight_search(request):
     return_obj = {
         "locationData": json.dumps(location_data),
         "histData": json.dumps(histogram_data),
+        "growthData": json.dumps(growth_data),
         "yearData": json.dumps(address_raw),
         "weightData": json.dumps(address_weight),
         "features": json.dumps(features),
