@@ -1,32 +1,26 @@
 <template>
-  <v-card outlined elevation="7" :style="cardStyle">
-    <v-container fluid>
-      <v-row>
-        <v-col xs="12">
-          <div :style="containerStyle">
-            <div :style="buttonContainer">
-              <v-container fluid>
-                <v-row justify="end">
-                  <v-col cols="3">
-                    <v-btn
-                      class="mr-5"
-                      @click.native="submitLatLng"
-                      :disabled="!latLng[0]"
-                      :style="{ float: 'right' }"
-                      >Calculate Stats</v-btn
-                    >
-                  </v-col>
-                </v-row>
-              </v-container>
-            </div>
-            <div :style="{ height: '80vh' }">
-              <search-map />
-            </div>
-          </div>
-        </v-col>
-      </v-row>
-    </v-container>
-  </v-card>
+  <!-- <v-card outlined elevation="7" :style="cardStyle"> -->
+  <div :style="containerStyle">
+    <div :style="buttonContainer">
+      <v-container fluid>
+        <v-row justify="end">
+          <v-col cols="3">
+            <v-btn
+              class="mr-5"
+              @click.native="submitLatLng"
+              :disabled="!latLng[0]"
+              :style="{ float: 'right' }"
+              >Calculate Stats</v-btn
+            >
+          </v-col>
+        </v-row>
+      </v-container>
+    </div>
+    <div :style="mapContainer">
+      <search-map />
+    </div>
+  </div>
+  <!-- </v-card> -->
 </template>
 
 <script lang="ts">
@@ -45,8 +39,8 @@ import {
 interface State {
   buttonContainer: any;
   parentStyle: any;
-  containerStyle: any;
   cardStyle: any;
+  mapContainer: any;
 }
 
 export default Vue.extend({
@@ -60,17 +54,17 @@ export default Vue.extend({
         // padding: "10px",
         margin: "15px",
       },
+      mapContainer: {
+        position: "absolute",
+        height: "100%",
+        width: "100%",
+      },
       buttonContainer: {
         position: "absolute",
         top: "10px",
         width: "100%",
         zIndex: 1000,
         float: "right",
-      },
-      containerStyle: {
-        position: "relative",
-        width: "100%",
-        height: "80vh",
       },
       parentStyle: {
         width: "100%",
@@ -85,6 +79,13 @@ export default Vue.extend({
       },
       latLng: (state: RootStateType) => state.plotControls.latLng,
     }),
+    containerStyle() {
+      return {
+        position: "relative",
+        width: "100%",
+        height: window.innerHeight - 64 + "px",
+      };
+    },
   },
   methods: {
     submitLatLng() {
