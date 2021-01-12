@@ -1,5 +1,40 @@
 <template>
-  <v-card outlined elevation="7" :style="cardStyle">
+  <div :style="containerStyle">
+    <div :style="buttonContainer">
+      <v-container fluid>
+        <v-row justify="end">
+          <v-col cols="3">
+            <v-select
+              :items="mapTypes"
+              :value="mapType"
+              label="Overlay"
+              @input="updateMapType"
+              solo
+            ></v-select>
+          </v-col>
+        </v-row>
+      </v-container>
+    </div>
+    <div :style="mapContainer">
+      <overlay-map
+        :selectedFeatures="selectedFeatures"
+        :selectedLocations="selectedLocations"
+      />
+    </div>
+    <div :style="plotContainer">
+      <v-container fluid>
+        <v-row>
+          <v-col md="12" lg="6" v-if="histData.length > 0">
+            <bar-plot
+              :limitedData="limitedData"
+              :limitedGrowthData="limitedGrowthData"
+            ></bar-plot>
+          </v-col>
+        </v-row>
+      </v-container>
+    </div>
+  </div>
+  <!-- <v-card outlined elevation="7" :style="cardStyle">
     <v-container fluid>
       <v-row>
         <v-col sm="12" md="6">
@@ -35,7 +70,7 @@
         </v-col>
       </v-row>
     </v-container>
-  </v-card>
+  </v-card> -->
 </template>
 
 <script lang="ts">
@@ -54,8 +89,8 @@ import {
 
 interface State {
   buttonContainer: any;
+  mapContainer: any;
   parentStyle: any;
-  containerStyle: any;
   cardStyle: any;
   mapTypes: { text: string; value: string }[];
   selectedFeatures: FeatureItem[];
@@ -76,6 +111,11 @@ export default Vue.extend({
         // padding: "10px",
         margin: "15px",
       },
+      mapContainer: {
+        position: "absolute",
+        height: "100%",
+        width: "100%",
+      },
       mapTypes: [
         { text: "Heatmap", value: "points" },
         { text: "Parcels", value: "parcel" },
@@ -83,14 +123,10 @@ export default Vue.extend({
       buttonContainer: {
         position: "absolute",
         top: "15px",
+        left: "15px",
         width: "100%",
         zIndex: 1000,
         float: "right",
-      },
-      containerStyle: {
-        position: "relative",
-        width: "100%",
-        height: "80vh",
       },
       parentStyle: {
         width: "100%",
@@ -120,6 +156,23 @@ export default Vue.extend({
         state.plotControls.endYear,
       ],
     }),
+    containerStyle() {
+      return {
+        position: "relative",
+        width: "100%",
+        height: window.innerHeight - 64 + "px",
+      };
+    },
+    plotContainer() {
+      return {
+        position: "absolute",
+        top: "20px",
+        left: window.innerWidth * 0.55 + "px",
+        width: window.innerWidth * 0.45,
+        height: window.innerHeight - 64 + "px",
+        padding: "20px",
+      };
+    },
   },
   mounted() {
     this.filterData(this.yearRange, this.selectedUseClasses);
