@@ -40,6 +40,7 @@ interface State {
   buttonContainer: any;
   parentStyle: any;
   cardStyle: any;
+  containerStyle: any;
   mapContainer: any;
 }
 
@@ -66,6 +67,11 @@ export default Vue.extend({
         zIndex: 1000,
         float: "right",
       },
+      containerStyle: {
+        position: "relative",
+        width: "100%",
+        height: "90%",
+      },
       parentStyle: {
         width: "100%",
         height: "90%",
@@ -79,15 +85,18 @@ export default Vue.extend({
       },
       latLng: (state: RootStateType) => state.plotControls.latLng,
     }),
-    containerStyle() {
-      return {
-        position: "relative",
-        width: "100%",
-        height: window.innerHeight - 64 + "px",
-      };
-    },
+  },
+  mounted() {
+    window.addEventListener("resize", this.handleResize);
+    this.handleResize();
+  },
+  beforeDestroy() {
+    window.removeEventListener("resize", this.handleResize);
   },
   methods: {
+    handleResize() {
+      this.containerStyle.height = window.innerHeight - 64 + "px";
+    },
     submitLatLng() {
       this.$store
         .dispatch("updatePlotData")
