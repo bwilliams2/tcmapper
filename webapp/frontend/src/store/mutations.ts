@@ -3,6 +3,7 @@ import rootState, {
   HereAddress,
   PlotDataState,
   MapTypes,
+  genRootState,
 } from "./state";
 
 const mutations = {
@@ -10,10 +11,11 @@ const mutations = {
     state.address = payload.address;
   },
   resetAnalysis(state: RootStateType) {
-    state.address = rootState.address;
-    state.addressInfo = rootState.addressInfo;
-    state.plotControls = rootState.plotControls;
-    state.plotData = rootState.plotData;
+    // state.address = rootState.address;
+    // state.addressInfo = rootState.addressInfo;
+    // state.plotControls = rootState.plotControls;
+    // state.plotData = rootState.plotData;
+    state.plotControls.latLng = [null, null];
   },
   updateAddressInfo(
     state: RootStateType,

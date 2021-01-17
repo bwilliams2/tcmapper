@@ -1,19 +1,28 @@
 <template>
   <div :style="containerStyle">
     <div :style="buttonContainer">
-      <v-container fluid>
-        <v-row justify="end">
-          <v-col cols="3">
-            <v-select
-              :items="mapTypes"
-              :value="mapType"
-              label="Overlay"
-              @input="updateMapType"
-              solo
-            ></v-select>
-          </v-col>
-        </v-row>
-      </v-container>
+      <v-card outlined elevation="3">
+        <v-select
+          :items="mapTypes"
+          :value="mapType"
+          label="Map Overlay"
+          @input="updateMapType"
+          :style="{
+            marginLeft: '10px',
+            marginRight: '10px',
+            marginTop: '10px',
+            marginBottom: '-10px',
+          }"
+        ></v-select>
+      </v-card>
+    </div>
+    <div :style="plotContainer">
+      <v-card outlined elevation="3">
+        <bar-plot
+          :limitedData="limitedData"
+          :limitedGrowthData="limitedGrowthData"
+        ></bar-plot>
+      </v-card>
     </div>
     <div :style="mapContainer">
       <overlay-map
@@ -21,56 +30,7 @@
         :selectedLocations="selectedLocations"
       />
     </div>
-    <div :style="plotContainer">
-      <v-container fluid>
-        <v-row>
-          <v-col md="12" lg="6" v-if="histData.length > 0">
-            <bar-plot
-              :limitedData="limitedData"
-              :limitedGrowthData="limitedGrowthData"
-            ></bar-plot>
-          </v-col>
-        </v-row>
-      </v-container>
-    </div>
   </div>
-  <!-- <v-card outlined elevation="7" :style="cardStyle">
-    <v-container fluid>
-      <v-row>
-        <v-col sm="12" md="6">
-          <div :style="containerStyle">
-            <div :style="buttonContainer">
-              <v-container fluid>
-                <v-row justify="end">
-                  <v-col cols="3">
-                    <v-select
-                      :items="mapTypes"
-                      :value="mapType"
-                      label="Overlay"
-                      @input="updateMapType"
-                      solo
-                    ></v-select>
-                  </v-col>
-                </v-row>
-              </v-container>
-            </div>
-            <div :style="{ height: '80vh' }">
-              <overlay-map
-                :selectedFeatures="selectedFeatures"
-                :selectedLocations="selectedLocations"
-              />
-            </div>
-          </div>
-        </v-col>
-        <v-col md="12" lg="6" v-if="histData.length > 0">
-          <bar-plot
-            :limitedData="limitedData"
-            :limitedGrowthData="limitedGrowthData"
-          ></bar-plot>
-        </v-col>
-      </v-row>
-    </v-container>
-  </v-card> -->
 </template>
 
 <script lang="ts">
@@ -97,6 +57,8 @@ interface State {
   selectedLocations: [number, number, number][];
   limitedData: HistDataItem[];
   limitedGrowthData: GrowthItem[];
+  containerStyle: any;
+  plotContainer: any;
 }
 
 export default Vue.extend({
@@ -122,15 +84,31 @@ export default Vue.extend({
       ],
       buttonContainer: {
         position: "absolute",
-        top: "15px",
-        left: "15px",
-        width: "100%",
+        top: "5px",
+        left: "50px",
+        width: "250px",
         zIndex: 1000,
-        float: "right",
+        // float: "right",
       },
       parentStyle: {
         width: "100%",
         height: "90%",
+      },
+      containerStyle: {
+        position: "relative",
+        width: "100%",
+        height: "100%",
+      },
+      plotContainer: {
+        position: "absolute",
+        top: "20px",
+        zIndex: 1000,
+        // backgroundColor: "rgb(255,255,255, 0.8)",
+        right: "20px",
+        left: "200px",
+        // width: window.innerWidth * 0.35,
+        height: "200px",
+        padding: "20px",
       },
       selectedFeatures: [],
       selectedLocations: [],
@@ -156,27 +134,15 @@ export default Vue.extend({
         state.plotControls.endYear,
       ],
     }),
-    containerStyle() {
-      return {
-        position: "relative",
-        width: "100%",
-        height: window.innerHeight - 64 + "px",
-      };
-    },
-    plotContainer() {
-      return {
-        position: "absolute",
-        top: "20px",
-        left: window.innerWidth * 0.55 + "px",
-        width: window.innerWidth * 0.45,
-        height: window.innerHeight - 64 + "px",
-        padding: "20px",
-      };
-    },
   },
   mounted() {
     this.filterData(this.yearRange, this.selectedUseClasses);
     this.filterFeatures(this.yearRange, this.selectedUseClasses);
+    window.addEventListener("resize", this.handleResize);
+    this.handleResize();
+  },
+  beforeDestroy() {
+    window.removeEventListener("resize", this.handleResize);
   },
   watch: {
     yearRange: function (newValue) {
@@ -223,6 +189,11 @@ export default Vue.extend({
     },
     updateMapType(newValue: MapTypes) {
       this.$store.dispatch("updateMapType", newValue);
+    },
+    handleResize() {
+      this.containerStyle.height = window.innerHeight - 64 + "px";
+      this.plotContainer.left = window.innerWidth * 0.55 + "px";
+      this.plotContainer.height = window.innerHeight - 64 + "px";
     },
   },
 });
