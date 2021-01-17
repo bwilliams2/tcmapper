@@ -10,7 +10,6 @@
           :style="{
             marginLeft: '10px',
             marginRight: '10px',
-            marginTop: '10px',
             marginBottom: '-10px',
           }"
         ></v-select>
@@ -84,8 +83,8 @@ export default Vue.extend({
       ],
       buttonContainer: {
         position: "absolute",
-        top: "5px",
-        left: "50px",
+        top: "10px",
+        left: "60px",
         width: "250px",
         zIndex: 1000,
         // float: "right",
@@ -165,15 +164,17 @@ export default Vue.extend({
           return _.pick(el, ["YEAR_BUILT", ...classes]);
         });
       this.limitedData = limitedData as HistDataItem[];
-      const limitedGrowthData = this.growthData.map((el) => {
-        return {
-          id: el.id,
-          points: el.points.filter(
-            (point) =>
-              point.YEAR_BUILT <= years[1] && point.YEAR_BUILT >= years[0]
-          ),
-        };
-      });
+      const limitedGrowthData = this.growthData
+        .filter((el) => classes.includes(el.id))
+        .map((el) => {
+          return {
+            id: el.id,
+            points: el.points.filter(
+              (point) =>
+                point.YEAR_BUILT <= years[1] && point.YEAR_BUILT >= years[0]
+            ),
+          };
+        });
       this.limitedGrowthData = limitedGrowthData;
     },
     filterFeatures(years: number[], classes: string[]) {
@@ -193,7 +194,10 @@ export default Vue.extend({
     handleResize() {
       this.containerStyle.height = window.innerHeight - 64 + "px";
       this.plotContainer.left = window.innerWidth * 0.55 + "px";
-      this.plotContainer.height = window.innerHeight - 64 + "px";
+      this.plotContainer.height = window.innerHeight - 64 - 60 + "px";
+    },
+    resetAnalysis() {
+      this.$store.dispatch("resetAnalysis");
     },
   },
 });

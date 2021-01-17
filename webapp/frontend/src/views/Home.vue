@@ -2,28 +2,22 @@
   <div class="home">
     <v-app>
       <v-app-bar app color="primary" dark>
+        <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+
         <v-container :style="{ zIndex: 10001 }">
           <v-row no-gutters>
-            <v-col cols="2">
+            <v-col cols="4">
               <div
                 :style="{
                   fontSize: 'x-large',
                   fontWeight: 'bold',
                 }"
               >
-                TC Mapper
+                TC Address Mapper
               </div>
             </v-col>
           </v-row>
         </v-container>
-        <template v-if="routeIsMap">
-          <router-link to="/" tag="v-btn" @click.native="resetAnalysis">
-            <v-btn>
-              <v-icon>mdi-arrow-left-bold</v-icon>
-              <span class="mr-2">Reset Map</span>
-            </v-btn>
-          </router-link>
-        </template>
         <div class="d-flex align-center">
           <!-- <v-img
             alt="Vuetify Logo"
@@ -51,6 +45,27 @@
           <v-icon>mdi-open-in-new</v-icon>
         </v-btn>
       </v-app-bar>
+      <v-navigation-drawer v-model="drawer" absolute bottom temporary>
+        <v-list nav dense>
+          <v-list-item-group
+            v-model="group"
+            active-class="deep-purple--text text--accent-4"
+          >
+            <v-list-item>
+              <v-list-item-title>Foo</v-list-item-title>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-title>Bar</v-list-item-title>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-title>Fizz</v-list-item-title>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-title>Buzz</v-list-item-title>
+            </v-list-item>
+          </v-list-item-group>
+        </v-list>
+      </v-navigation-drawer>
       <v-main>
         <router-view></router-view>
         <!-- <template v-if="!addressInfo.title">
@@ -83,23 +98,22 @@ import Vue from "vue";
 import { mapState } from "vuex";
 import _ from "lodash";
 
+interface State {
+  drawer: boolean;
+  selectStyle: any;
+}
+
 export default Vue.extend({
   name: "Home",
-
-  // components: {
-  // },
-
-  data: () => ({
-    ranges: [
-      { text: "1 km", value: 1000 },
-      { text: "5 km", value: 5000 },
-      { text: "10 km", value: 10000 },
-    ],
-    selectStyle: {
-      paddingTop: "25px",
-      marginRight: "10px",
-    },
-  }),
+  data(): State {
+    return {
+      drawer: false,
+      selectStyle: {
+        paddingTop: "25px",
+        marginRight: "10px",
+      },
+    };
+  },
   computed: {
     ...mapState({
       years: function (state: RootStateType) {

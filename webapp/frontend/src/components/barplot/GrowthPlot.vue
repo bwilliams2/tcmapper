@@ -4,15 +4,38 @@
     :height="height + margins.top + margins.bottom"
     class="growthplot"
   >
-    <g class="container" :transform="`translate(${margins.left + 3}, ${10})`">
+    <g
+      class="container"
+      :width="`${width}`"
+      :height="`${height}`"
+      :transform="`translate(${margins.left + 3}, ${10})`"
+    >
       <!-- Axes -->
       <g class="x-axis" :transform="`translate(0, ${height})`"></g>
       <g class="y-axis"></g>
+      <g class="x-axis-label">
+        <text
+          :transform="`translate(${width / 2}, ${height + margins.top + 30})`"
+          :style="{ textAnchor: 'middle' }"
+        >
+          Year Built
+        </text>
+      </g>
+      <g class="y-axis-label">
+        <text
+          :transform="`rotate(-90)`"
+          :y="`${0 - margins.left + 10}`"
+          :x="`${0 - height / 2}`"
+          :style="{ textAnchor: 'middle' }"
+        >
+          Annual Growth Rate
+        </text>
+      </g>
       <g class="tooltip"></g>
       <g class="clippingmask">
         <g class="brush"></g>
-        <g class="ylines"></g>
         <g class="ypoints"></g>
+        <g class="ylines"></g>
       </g>
 
       <!-- Grids -->
@@ -91,8 +114,8 @@ export default Vue.extend({
       margins: {
         left: 50,
         right: 20,
-        top: 10,
-        bottom: 20,
+        top: 0,
+        bottom: 40,
       },
       minMax: {
         xMin: 0,
@@ -105,7 +128,7 @@ export default Vue.extend({
       brush: null,
       clippingMask: null,
       hasMounted: false,
-      aspectRatio: 1.4,
+      aspectRatio: 1.2,
       fullWidth: 0,
       width: 0,
       height: 0,
@@ -143,8 +166,11 @@ export default Vue.extend({
   mounted() {
     this.setMount();
   },
+  beforeDestroy() {
+    window.removeEventListener("resize", this.handleResize);
+  },
   watch: {
-    limitedGrowthData: function () {
+    limitedData: function () {
       if (this.hasMounted) {
         this.initGrowthPlot();
       } else {
@@ -153,6 +179,9 @@ export default Vue.extend({
     },
   },
   methods: {
+    handleResize() {
+      this.initGrowthPlot(100);
+    },
     setMount() {
       if (this.limitedData.length > 0) {
         this.initGrowthPlot();
@@ -320,7 +349,7 @@ export default Vue.extend({
           .select(".ylines")
           .selectAll("path")
           .data<GrowthItem>(this.limitedData, function (d) {
-            return (d as GrowthItem).id;
+            return (d as GrowthItem).id.replace(/\W/g, "_");
           });
         lines
           .exit()
@@ -378,7 +407,7 @@ export default Vue.extend({
           .select(".ypoints")
           .selectAll(".circlegroup")
           .data<GrowthItem>(this.limitedData, function (d) {
-            return (d as GrowthItem).id;
+            return (d as GrowthItem).id.replace(/\W/g, "_");
           });
 
         parents
@@ -387,7 +416,8 @@ export default Vue.extend({
           .transition(t)
           .attr("cx", 0)
           .attr("cy", self.height)
-          .attr("r", 0);
+          .attr("r", 0)
+          .remove();
 
         const parentsEnter = parents
           .enter()
@@ -442,7 +472,7 @@ export default Vue.extend({
       this.initLines(50);
       this.initPoints(50);
     },
-    initGrowthPlot() {
+    initGrowthPlot(transDur = 750) {
       this.setSize();
       this.setScales();
       this.setAxes();
@@ -450,8 +480,8 @@ export default Vue.extend({
 
       this.initBrush();
       this.initColors();
-      this.initLines();
-      this.initPoints();
+      this.initLines(transDur);
+      this.initPoints(transDur);
     },
   },
 });
