@@ -4,11 +4,35 @@
     :height="height + margins.top + margins.bottom"
     class="barplot"
   >
-    <g class="container" :transform="`translate(${margins.left + 3}, ${10})`">
+    <g
+      class="container"
+      :width="`${width}`"
+      :height="`${height}`"
+      :transform="`translate(${margins.left + 3}, ${margins.top})`"
+    >
       <!-- Axes -->
       <g class="x-axis" :transform="`translate(0, ${height})`"></g>
       <g class="y-axis"></g>
       <g class="bars"></g>
+      <g class="x-axis-label">
+        <text
+          :transform="`translate(${width / 2}, ${height + margins.top + 30})`"
+          :style="{ textAnchor: 'middle' }"
+        >
+          Year Built
+        </text>
+      </g>
+      <g class="y-axis-label">
+        <text
+          :transform="`rotate(-90)`"
+          :y="`${0 - margins.left + 10}`"
+          :x="`${0 - height / 2}`"
+          :style="{ textAnchor: 'middle' }"
+        >
+          Annual Units
+        </text>
+      </g>
+      <!-- <g><circle id="tipcircle"></circle></g> -->
 
       <!-- Grids -->
       <!-- <g>
@@ -70,10 +94,10 @@ export default Vue.extend({
       margins: {
         left: 50,
         right: 20,
-        top: 10,
-        bottom: 20,
+        top: 0,
+        bottom: 40,
       },
-      aspectRatio: 1.4,
+      aspectRatio: 1.2,
       fullWidth: 0,
       width: 0,
       height: 0,
@@ -106,6 +130,10 @@ export default Vue.extend({
   },
   mounted() {
     this.setMount();
+    window.addEventListener("resize", this.handleResize);
+  },
+  beforeDestroy() {
+    window.removeEventListener("resize", this.handleResize);
   },
   watch: {
     limitedData: function () {
@@ -117,12 +145,16 @@ export default Vue.extend({
     },
   },
   methods: {
+    handleResize() {
+      this.initBarplot(100);
+    },
     setMount() {
       if (this.limitedData.length > 0) {
         d3.select(".barplot")
           .append("g")
           .append("circle")
           .attr("id", "tipcircle")
+          .style("z-index", 0)
           .attr("cx", 0)
           .attr("cy", 0)
           .attr("r", 0);
@@ -202,7 +234,7 @@ export default Vue.extend({
           .attr("stroke-opacity", "0.1");
       }
     },
-    initBars() {
+    initBars(transDur = 750) {
       const self = this;
       const tipCircle = d3.select(".barplot").select("#tipcircle");
       // color palette = one color per subgroup
@@ -221,14 +253,18 @@ export default Vue.extend({
         .range(colorRange as string[]);
       //stack the data? --> stack per subgroup
       //@ts-ignore
-      const stackedData = d3.stack().keys(self.subgroups)(this.limitedData);
-      const t = d3.transition().duration(750).ease(d3.easeLinear) as any;
+      const stackedData = d3
+        .stack()
+        .keys(self.subgroups)(this.limitedData)
+        .filter((el) => self.selectedUseClasses.includes(el.key));
+      const t = d3.transition().duration(transDur).ease(d3.easeLinear) as any;
 
       function mouseAction(event: any, d: any) {
         const mouse = d3.pointer(event);
         const target = tipCircle
           .attr("cx", mouse[0] + self.margins.left)
-          .attr("cy", mouse[1] + self.margins.bottom - 40)
+          .attr("cy", mouse[1] + self.margins.bottom - 50)
+          .attr("r", 0)
           .node();
         //@ts-ignore
         const parentNode = d3.select(this).node().parentNode;
@@ -245,24 +281,29 @@ export default Vue.extend({
       }
       if (self.scales.x !== null && self.scales.y !== null) {
         // // Remove elements
-        let parents = d3.select(".bars").selectAll(".stacks").data(stackedData);
+        let parents = d3
+          .select(".bars")
+          .selectAll(".stacks")
+          .data(stackedData, function (d: any) {
+            return d.key.replace(/\W/g, "_");
+          });
 
+        const parentsExit = parents.exit();
         parents
           .exit()
-          .selectAll(".stacks")
-          .selectAll("rect")
-          .transition(t)
+          // .transition(t)
           .attr("x", 0)
           .attr("y", this.height)
           .attr("width", 0)
           .attr("height", 0)
           .remove();
 
-        parents.exit().transition(t).style("opacity", 0).remove();
-
         const parentsEnter = parents
           .enter()
           .append("g")
+          .attr("id", function (d) {
+            return "stacks-" + d.key.replace(/\W/g, "_");
+          })
           .attr("class", "stacks")
           .attr("fill", function (d: any): string {
             //@ts-ignore
@@ -298,9 +339,17 @@ export default Vue.extend({
         parents = parentsEnter.merge(parents as any) as any;
 
         // const children = parents.select(".stacks");
-        const childRects = parents.selectAll("rect").data(function (d) {
-          return d;
-        });
+        const childRects = parents.selectAll("rect").data(
+          function (d) {
+            return d.map((el: any) => {
+              el.key = d.key.replace(/\W/g, "_");
+              return el;
+            });
+          },
+          function (d: any) {
+            return d.key.replace(/\W/g, "_") + "-" + d.data.YEAR_BUILT;
+          }
+        );
 
         childRects
           .exit()
@@ -314,11 +363,14 @@ export default Vue.extend({
         const childRectsEnter = childRects
           .enter()
           .append("rect")
+          .attr("id", function (d) {
+            return "stackes-" + d.key + "-" + d.data.YEAR_BUILT;
+          })
           .attr("x", 0)
           .attr("y", this.height)
           .attr("width", 0)
           .attr("height", 0)
-          .on("mouseenter", mouseAction)
+          // .on("mouseenter", mouseAction)
           .on("mousemove", mouseAction)
           .on("mouseout", tip.hide)
           .transition(t)
@@ -388,11 +440,11 @@ export default Vue.extend({
         // Update curent bars
       }
     },
-    initBarplot() {
+    initBarplot(transDur = 750) {
       this.setSize();
       this.setScales();
       this.setAxes();
-      this.initBars();
+      this.initBars(transDur);
     },
   },
 });

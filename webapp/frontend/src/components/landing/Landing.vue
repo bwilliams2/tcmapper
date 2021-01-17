@@ -89,6 +89,7 @@ export default Vue.extend({
   mounted() {
     window.addEventListener("resize", this.handleResize);
     this.handleResize();
+    this.$store.dispatch("resetAnalysis");
   },
   beforeDestroy() {
     window.removeEventListener("resize", this.handleResize);

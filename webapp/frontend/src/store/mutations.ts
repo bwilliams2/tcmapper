@@ -27,7 +27,9 @@ const mutations = {
     state.ui.showLoadingOverlay = payload;
   },
   updatePlotData(state: RootStateType, payload: { plotData: PlotDataState }) {
-    state.plotData = payload.plotData;
+    const { plotData } = payload;
+    plotData.useClasses = plotData.useClasses.sort();
+    state.plotData = plotData;
   },
   updateAnalysisRange(state: RootStateType, payload: number) {
     state.plotControls.analysisRange = payload;
@@ -36,7 +38,7 @@ const mutations = {
     state.plotControls.latLng = payload;
   },
   updateSelectedUseClasses(state: RootStateType, payload: string[]) {
-    state.plotControls.selectedUseClasses = payload;
+    state.plotControls.selectedUseClasses = payload.sort();
   },
   updateMapType(state: RootStateType, payload: MapTypes) {
     state.plotControls.mapType = payload;

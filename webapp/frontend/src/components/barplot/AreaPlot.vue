@@ -4,10 +4,34 @@
     :height="height + margins.top + margins.bottom"
     class="barplot"
   >
-    <g class="container" :transform="`translate(${margins.left + 3}, ${10})`">
+    <g
+      class="container"
+      :width="`${width}`"
+      :height="`${height}`"
+      :transform="`translate(${margins.left + 3}, ${10})`"
+    >
       <!-- Axes -->
       <g class="x-axis" :transform="`translate(0, ${height})`"></g>
       <g class="y-axis"></g>
+      <g class="x-axis-label">
+        <text
+          :transform="`translate(${width / 2}, ${height + margins.top + 30})`"
+          :style="{ textAnchor: 'middle' }"
+        >
+          Year Built
+        </text>
+      </g>
+      <g class="y-axis-label">
+        <text
+          :transform="`rotate(-90)`"
+          :y="`${0 - margins.left + 10}`"
+          :x="`${0 - height / 2}`"
+          :style="{ textAnchor: 'middle' }"
+        >
+          Annual Units
+        </text>
+      </g>
+
       <g class="stacks"></g>
       <g class="tooltip"></g>
 
@@ -56,6 +80,7 @@ interface State {
   height: number;
   margins: Margins;
   aspectRatio: number;
+  hasMounted: boolean;
   barGroup: any;
   scales: {
     x: d3.ScaleLinear<number, number, never> | null;
@@ -75,14 +100,15 @@ export default Vue.extend({
       margins: {
         left: 50,
         right: 20,
-        top: 10,
-        bottom: 20,
+        top: 0,
+        bottom: 40,
       },
-      aspectRatio: 1.4,
+      aspectRatio: 1.2,
       fullWidth: 0,
       width: 0,
       height: 0,
       barGroup: null,
+      hasMounted: false,
       scales: {
         x: null,
         y: null,
@@ -114,17 +140,41 @@ export default Vue.extend({
     }),
   },
   mounted() {
-    d3.select(".barplot")
-      .append("g")
-      .append("circle")
-      .attr("id", "tipcircle")
-      .attr("cx", 0)
-      .attr("cy", 0)
-      .attr("fille", "rgb(255,255,255)")
-      .attr("r", 5);
-    this.initBarplot();
+    if (this.hasMounted) {
+      this.initBarplot();
+    } else {
+      this.setMount();
+    }
+  },
+  beforeDestroy() {
+    window.removeEventListener("resize", this.handleResize);
+  },
+  watch: {
+    limitedData: function () {
+      if (this.hasMounted) {
+        this.initBarplot();
+      } else {
+        this.setMount();
+      }
+    },
   },
   methods: {
+    handleResize() {
+      this.initBarplot(100);
+    },
+    setMount() {
+      d3.select(".barplot")
+        .append("g")
+        .append("circle")
+        .attr("id", "tipcircle")
+        .attr("cx", 0)
+        .attr("cy", 0)
+        .attr("fill", "rgb(255,255,255)")
+        .attr("opacity", 0)
+        .attr("r", 5);
+      this.initBarplot();
+      window.addEventListener("resize", this.handleResize);
+    },
     setSize() {
       const width = document.getElementById(`areaplotparent`)?.clientWidth;
       // const height = document.getElementById(`barplotparent`)?.clientHeight;
@@ -167,7 +217,12 @@ export default Vue.extend({
       if (this.scales.x !== null && this.scales.y !== null) {
         d3.select(".x-axis")
           //@ts-ignore
-          .call(d3.axisBottom(this.scales.x).tickSizeOuter(0))
+          .call(
+            d3
+              .axisBottom(this.scales.x)
+              .tickSizeOuter(0)
+              .tickFormat(d3.format(""))
+          )
           .selectAll(".tick line")
           .attr("stroke", "#000")
           .attr("stroke-opacity", "0.1");
@@ -191,7 +246,7 @@ export default Vue.extend({
           .attr("stroke-opacity", "0.1");
       }
     },
-    initBars() {
+    initBars(transDur = 750) {
       const self = this;
       const tipCircle = d3.select(".barplot").select("#tipcircle");
       // color palette = one color per subgroup
@@ -209,10 +264,11 @@ export default Vue.extend({
         //@ts-ignore
         .range(colorRange as string[]);
       //stack the data? --> stack per subgroup
-      const stackedData = d3.stack<HistDataItem>().keys(self.subgroups)(
-        this.limitedData
-      );
-      const t = d3.transition().duration(750).ease(d3.easeLinear) as any;
+      const stackedData = d3
+        .stack<HistDataItem>()
+        .keys(self.subgroups)(this.limitedData)
+        .filter((el) => self.selectedUseClasses.includes(el.key));
+      const t = d3.transition().duration(transDur).ease(d3.easeLinear) as any;
       const xScale = self.scales.x;
       const yScale = self.scales.y;
 
@@ -275,7 +331,12 @@ export default Vue.extend({
             return self.height;
           });
 
-        const areas = d3.select(".stacks").selectAll("path").data(stackedData);
+        const areas = d3
+          .select(".stacks")
+          .selectAll("path")
+          .data(stackedData, function (d: any) {
+            return d.key.replace(/\W/g, "_");
+          });
         areas
           .exit()
           .transition(t)
@@ -286,6 +347,9 @@ export default Vue.extend({
         areas
           .enter()
           .append("path")
+          .attr("id", function (d) {
+            return "area-" + d.key.replace(/\W/g, "_");
+          })
           //@ts-ignore
           .style("fill", function (d: d3.Series<HistDataItem>) {
             return color(d.key);
@@ -294,22 +358,25 @@ export default Vue.extend({
           .attr("d", zeroArea)
           // .on("mouseenter", mouseAction)
           .on("mousemove", mouseAction)
-          .on("mouseout", tip.hide)
+          .on("mouseout", function () {
+            tip.hide();
+          })
           .transition(t)
           //@ts-ignore
           .attr("d", area);
 
         areas
           //@ts-ignore
+          .transition(transDur)
           .attr("d", area)
           .on("mousemove", mouseAction);
       }
     },
-    initBarplot() {
+    initBarplot(transDur = 750) {
       this.setSize();
       this.setScales();
       this.setAxes();
-      this.initBars();
+      this.initBars(transDur);
     },
   },
 });

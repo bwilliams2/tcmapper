@@ -144,7 +144,7 @@ export default Vue.extend({
         opacity: 0.4,
         weight: 5,
         fill: false,
-        radius: self.analysisRange,
+        radius: self.analysisRange * 1.01,
       });
       this.circleLayer.addTo(this.map);
       this.initLayers();
