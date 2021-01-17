@@ -42,6 +42,7 @@ interface MapData {
   layers: any[];
   tileLayer: TileLayer | null;
   currentLayer: TileLayer | null;
+  circleLayer: Circle | null;
 }
 
 type DataPoints = [number, number];
@@ -76,6 +77,7 @@ export default Vue.extend({
       layers: [],
       tileLayer: null,
       currentLayer: null,
+      circleLayer: null,
     };
   },
   computed: {
@@ -123,22 +125,41 @@ export default Vue.extend({
           '<a href="http://developer.here.com">HERE</a>',
       });
       this.tileLayer.addTo(this.map);
+      const centerLatLng = new L.LatLng(
+        this.latLng[0] as number,
+        this.latLng[1] as number
+      );
+      const centerPoint = this.map.latLngToContainerPoint(centerLatLng);
+      const offset = this.map.getSize().x * 0.2;
+      centerPoint.x += offset;
+
+      // Set center to latLng
+      this.map.panTo(this.map.layerPointToLatLng(centerPoint));
+      // Calculate the offset
+      // Then move the map
+      this.map.panBy(new L.Point(-offset, 0), { animate: false });
+      const self = this;
+      this.circleLayer = L.circle(centerLatLng, {
+        color: "red",
+        opacity: 0.4,
+        weight: 5,
+        fill: false,
+        radius: self.analysisRange,
+      });
+      this.circleLayer.addTo(this.map);
       this.initLayers();
     },
     initLayers() {
       const self = this;
-
-      // Set center to latLng
-      this.map.panTo(
-        new L.LatLng(this.latLng[0] as number, this.latLng[1] as number)
-      );
 
       //@ts-ignore
 
       // Define popup for parcel map
       function popup(e: any) {
         L.popup()
-          .setContent(e.layer.properties.foo_variable)
+          .setContent(
+            `<span>USECLASS: ${e.layer.properties.USECLASS1}</span><br><span>YEAR_BUILT: ${e.layer.properties.YEAR_BUILT}</span>`
+          )
           .setLatLng(e.latlng)
           .openOn(self.map);
       }
@@ -179,22 +200,23 @@ export default Vue.extend({
                 //@ts-ignore
                 fill: true,
                 fillColor: parcelColor,
-                fillOpacity: 0.7,
+                fillOpacity: 0.8,
                 color: "black",
-                opacity: 0.3,
+                opacity: 0.9,
                 weight: 0.5,
               };
             },
           },
           maxZoom: 15,
           // indexMaxZoom: 5, // max zoom in the initial tile index
-          // interactive: true,
+          interactive: true,
           // getFeatureId: function(feature) {
           //     return feature.properties["cartodb_id"]
           // }
         });
-        this.currentLayer?.on("click", popup);
+        this.tileLayer?.setOpacity(0.7);
         this.currentLayer?.addTo(this.map);
+        this.currentLayer?.on("click", popup);
       }
     },
   },

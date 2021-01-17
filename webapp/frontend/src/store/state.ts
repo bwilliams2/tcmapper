@@ -93,7 +93,7 @@ export interface RootStateType {
   ui: UIState;
 }
 
-const rootState: RootStateType = {
+const genRootState = (): RootStateType => ({
   address: "",
   addressInfo: {
     title: "",
@@ -146,6 +146,6 @@ const rootState: RootStateType = {
   ui: {
     showLoadingOverlay: false,
   },
-};
-
-export default rootState;
+});
+export { genRootState };
+export default genRootState();

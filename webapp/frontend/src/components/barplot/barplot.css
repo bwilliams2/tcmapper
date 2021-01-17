@@ -5,6 +5,7 @@
   background: rgba(0, 0, 0, 1.0);
   color: #fff;
   border-radius: 2px;
+  z-index: 100000;
 }
 
 /* Creates a small triangle extender for the tooltip */
