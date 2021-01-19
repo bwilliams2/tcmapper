@@ -2,6 +2,7 @@ import { Commit } from "vuex/types";
 import axios from "axios";
 import { API_URL } from "../utils/misc";
 import rootState, { HereAddress, PlotDataState, RootStateType } from "./state";
+import { json } from "d3";
 
 const updatePlotData = async (
   commit: Commit,
@@ -42,6 +43,18 @@ const updatePlotData = async (
     });
 };
 
+const getMetroCounties = async (commit: Commit) => {
+  return axios
+    .get(`${API_URL}/api/counties`, {
+      timeout: 50000,
+    })
+    .then((res) => {
+      const counties = JSON.parse(res.data.counties);
+      commit("updateMetroCounties", counties);
+      // commit("updateShowLoadingOverlay", false);
+    });
+};
+
 const rootActions = {
   updateAddress({ commit }: { commit: Commit }, address: string) {
     return new Promise<void>((resolve) => {
@@ -67,6 +80,10 @@ const rootActions = {
     const lng = state.plotControls.latLng[1];
     const radius = state.plotControls.analysisRange;
     return updatePlotData(commit, lng as number, lat as number, radius);
+  },
+  async updateMetroCounties({ commit }: { commit: Commit }) {
+    // commit("updateShowLoadingOverlay", true);
+    return getMetroCounties(commit);
   },
   async updatePlotData({
     commit,

@@ -255,7 +255,7 @@ export default Vue.extend({
       //@ts-ignore
       const stackedData = d3
         .stack()
-        .keys(self.subgroups)(this.limitedData)
+        .keys(self.subgroups)(this.limitedData as any)
         .filter((el) => self.selectedUseClasses.includes(el.key));
       const t = d3.transition().duration(transDur).ease(d3.easeLinear) as any;
 
@@ -291,10 +291,14 @@ export default Vue.extend({
         const parentsExit = parents.exit();
         parents
           .exit()
-          // .transition(t)
-          .attr("x", 0)
-          .attr("y", this.height)
-          .attr("width", 0)
+          .selectAll("rect")
+          .transition(t)
+          // .attr("x", 0)
+          .attr("y", function (d: any) {
+            //@ts-ignore
+            return self.scales.y(d[0]);
+          })
+          // .attr("width", 0)
           .attr("height", 0)
           .remove();
 
@@ -360,24 +364,32 @@ export default Vue.extend({
           .attr("height", 0)
           .remove();
 
-        const childRectsEnter = childRects
+        const initialY = (d: any) => {
+          if (!this.hasMounted) {
+            return this.height;
+          } else {
+            //@ts-ignore
+            return self.scales.y(d[0]);
+          }
+        };
+
+        childRects
           .enter()
           .append("rect")
           .attr("id", function (d) {
             return "stackes-" + d.key + "-" + d.data.YEAR_BUILT;
           })
-          .attr("x", 0)
-          .attr("y", this.height)
-          .attr("width", 0)
+          .attr("x", function (d: any): number {
+            //@ts-ignore
+            return self.scales.x(d.data.YEAR_BUILT);
+          })
+          .attr("y", initialY)
+          .attr("width", self.scales.x.bandwidth())
           .attr("height", 0)
           // .on("mouseenter", mouseAction)
           .on("mousemove", mouseAction)
           .on("mouseout", tip.hide)
           .transition(t)
-          .attr("x", function (d: any): number {
-            //@ts-ignore
-            return self.scales.x(d.data.YEAR_BUILT);
-          })
           .attr("y", function (d: any) {
             //@ts-ignore
             return self.scales.y(d[1]);
@@ -385,8 +397,7 @@ export default Vue.extend({
           .attr("height", function (d: any) {
             //@ts-ignore
             return self.scales.y(d[0]) - self.scales.y(d[1]);
-          })
-          .attr("width", self.scales.x.bandwidth());
+          });
 
         childRects
           .transition(t)

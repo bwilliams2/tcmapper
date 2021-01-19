@@ -63,6 +63,7 @@ export interface PlotDataState {
   features: FeatureItem[];
   useClasses: string[];
   growthData: GrowthItem[];
+  counties: GeoJSON.FeatureCollection<GeoJSON.Polygon, any> | null;
 }
 
 export interface UIState {
@@ -142,6 +143,7 @@ const genRootState = (): RootStateType => ({
     features: [],
     useClasses: [],
     growthData: [],
+    counties: null,
   },
   ui: {
     showLoadingOverlay: false,

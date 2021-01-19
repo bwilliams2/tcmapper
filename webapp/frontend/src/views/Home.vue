@@ -39,29 +39,27 @@
         </div>
 
         <v-spacer></v-spacer>
-
-        <v-btn href="https://github.com/vuetifyjs/vuetify/releases/latest" text>
-          <span class="mr-2">About</span>
-          <v-icon>mdi-open-in-new</v-icon>
-        </v-btn>
       </v-app-bar>
-      <v-navigation-drawer v-model="drawer" absolute bottom temporary>
+      <v-navigation-drawer
+        v-model="drawer"
+        absolute
+        bottom
+        temporary
+        :style="{ zIndex: 10000 }"
+      >
         <v-list nav dense>
           <v-list-item-group
             v-model="group"
             active-class="deep-purple--text text--accent-4"
           >
             <v-list-item>
-              <v-list-item-title>Foo</v-list-item-title>
+              <v-list-item-title>Home</v-list-item-title>
             </v-list-item>
             <v-list-item>
-              <v-list-item-title>Bar</v-list-item-title>
+              <v-list-item-title>Analysis</v-list-item-title>
             </v-list-item>
             <v-list-item>
-              <v-list-item-title>Fizz</v-list-item-title>
-            </v-list-item>
-            <v-list-item>
-              <v-list-item-title>Buzz</v-list-item-title>
+              <v-list-item-title>About</v-list-item-title>
             </v-list-item>
           </v-list-item-group>
         </v-list>

@@ -6,6 +6,7 @@ __pycache__/
 # C extensions
 *.so
 
+.env*
 devel/*.csv
 /devel/waze_password.txt
 devel/data

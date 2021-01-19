@@ -42,6 +42,7 @@ interface MapData {
   layers: any[];
   tileLayer: TileLayer | null;
   circleLayer: Circle | null;
+  countyLayer: TileLayer | null;
 }
 
 type DataPoints = [number, number];
@@ -50,7 +51,11 @@ export default Vue.extend({
   name: "SearchMap",
   mounted() {
     // this.initLayers();
-    this.initMap();
+    if (this.counties === null) {
+      this.$store.dispatch("updateMetroCounties").then(() => this.initMap());
+    } else {
+      this.initMap();
+    }
   },
   beforeDestroy() {
     this.map.off();
@@ -59,7 +64,7 @@ export default Vue.extend({
   data(): MapData {
     return {
       url: `https://2.base.maps.ls.hereapi.com/maptile/2.1/maptile/newest/normal.day/{z}/{x}/{y}/512/png8?apiKey=${apiKey}&ppi=320`,
-      zoom: { start: 12, end: 12 },
+      zoom: { start: 10, end: 12 },
       center: [44.98752, -93.248841],
       bounds: null,
       map: null,
@@ -68,6 +73,7 @@ export default Vue.extend({
       layers: [],
       tileLayer: null,
       circleLayer: null,
+      countyLayer: null,
     };
   },
   computed: {
@@ -76,6 +82,7 @@ export default Vue.extend({
         return state.plotControls.latLng;
       },
       analysisRange: (state: RootStateType) => state.plotControls.analysisRange,
+      counties: (state: RootStateType) => state.plotData.counties,
     }),
   },
   methods: {
@@ -97,6 +104,31 @@ export default Vue.extend({
     },
     initLayers() {
       const self = this;
+
+      //@ts-ignore
+      this.countyLayer = L.vectorGrid.slicer(self.counties, {
+        vectorTileLayerStyles: {
+          sliced: function (properties: any) {
+            //@ts-ignore
+            return {
+              //@ts-ignore
+              fill: true,
+              fillColor: "black",
+              fillOpacity: 0.08,
+              color: "black",
+              opacity: 0,
+              weight: 0.5,
+            };
+          },
+        },
+        maxZoom: 15,
+        // indexMaxZoom: 5, // max zoom in the initial tile index
+        interactive: true,
+        // getFeatureId: function(feature) {
+        //     return feature.properties["cartodb_id"]
+        // }
+      });
+      this.countyLayer?.addTo(this.map);
       function getLatLng(e: any) {
         const latLng = [e.latlng.lat, e.latlng.lng] as [number, number];
         if (self.circleLayer) {
@@ -112,7 +144,7 @@ export default Vue.extend({
         self.$store.dispatch("updateLatLng", latLng);
         console.log("Lat, Lon : " + e.latlng.lat + ", " + e.latlng.lng);
       }
-      this.map.on("click", getLatLng);
+      this.countyLayer?.on("click", getLatLng);
     },
   },
 });

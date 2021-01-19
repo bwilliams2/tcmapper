@@ -216,11 +216,13 @@ export default Vue.extend({
       }
       if (this.scales.x !== null && this.scales.y !== null) {
         d3.select(".x-axis")
-          //@ts-ignore
           .call(
+            //@ts-ignore
             d3
               .axisBottom(this.scales.x)
+              //@ts-ignore
               .tickSizeOuter(0)
+              //@ts-ignore
               .tickFormat(d3.format(""))
           )
           .selectAll(".tick line")
