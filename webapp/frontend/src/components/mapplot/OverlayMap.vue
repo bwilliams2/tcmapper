@@ -57,6 +57,10 @@ export default Vue.extend({
     }
     this.initMap();
   },
+  beforeDestroy() {
+    this.map.off();
+    this.map.remove();
+  },
   props: {
     selectedFeatures: {
       type: Array as PropType<FeatureItem[]>,
@@ -97,6 +101,7 @@ export default Vue.extend({
         state.plotControls.startYear,
         state.plotControls.endYear,
       ],
+      counties: (state: RootStateType) => state.plotData.counties,
     }),
   },
   watch: {
@@ -137,7 +142,7 @@ export default Vue.extend({
       this.map.panTo(this.map.layerPointToLatLng(centerPoint));
       // Calculate the offset
       // Then move the map
-      this.map.panBy(new L.Point(-offset, 0), { animate: false });
+      // this.map.panBy(new L.Point(-offset, 0), { animate: false });
       const self = this;
       this.circleLayer = L.circle(centerLatLng, {
         color: "red",

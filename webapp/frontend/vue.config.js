@@ -7,7 +7,7 @@ module.exports = {
       ? "/static/dist/"
       : "http://localhost:8080",
   outputDir: "../backend/static/dist",
-  indexPath: "../templates/base-vue.html", // relative to outputDir!
+  indexPath: "../../templates/base-vue.html", // relative to outputDir!
 
   chainWebpack: (config) => {
     /*

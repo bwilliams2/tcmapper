@@ -16,6 +16,9 @@ const mutations = {
     // state.plotControls = rootState.plotControls;
     // state.plotData = rootState.plotData;
     state.plotControls.latLng = [null, null];
+    state.plotControls.endYear = rootState.plotControls.endYear;
+    state.plotControls.startYear = rootState.plotControls.startYear;
+    state.plotControls.analysisRange = rootState.plotControls.analysisRange;
   },
   updateAddressInfo(
     state: RootStateType,
@@ -29,7 +32,13 @@ const mutations = {
   updatePlotData(state: RootStateType, payload: { plotData: PlotDataState }) {
     const { plotData } = payload;
     plotData.useClasses = plotData.useClasses.sort();
-    state.plotData = plotData;
+    state.plotData = { ...state.plotData, ...payload.plotData };
+  },
+  updateMetroCounties(
+    state: RootStateType,
+    payload: PlotDataState["counties"]
+  ) {
+    state.plotData.counties = payload;
   },
   updateAnalysisRange(state: RootStateType, payload: number) {
     state.plotControls.analysisRange = payload;

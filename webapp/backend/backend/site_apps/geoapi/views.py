@@ -8,6 +8,7 @@ import uuid
 import json
 
 from geotools.path_calc import weighted_parcel_address_search
+from geotools.misc import get_metro_counties
 from geotools.stats import growth_rates
 
 # Registers session cookie and gives template
@@ -21,10 +22,16 @@ def index(request):
     )
 
 @api_view(["GET"])
+def metro_counties(request):
+    return Response({"counties": json.dumps(get_metro_counties())})
+
+
+@api_view(["GET"])
 def weight_search(request):
     longitude = float(request.query_params.get("longitude"))
     latitude = float(request.query_params.get("latitude"))
     radius = float(request.query_params.get("radius"))
+    counties = get_metro_counties()
     address_data, features = weighted_parcel_address_search(longitude, latitude, radius)
     growth_data = growth_rates(address_data)
     address_data = address_data.loc[address_data["YEAR_BUILT"] != 0]
@@ -46,5 +53,6 @@ def weight_search(request):
         "weightData": json.dumps(address_weight),
         "features": json.dumps(features),
         "useClasses": json.dumps(use_classes),
+        "counties": json.dumps(counties),
     }
     return Response(return_obj)
