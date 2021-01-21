@@ -6,6 +6,8 @@ __pycache__/
 # C extensions
 *.so
 
+postgis/data
+postgis/postgis-data
 .env*
 devel/*.csv
 /devel/waze_password.txt
