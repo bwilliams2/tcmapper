@@ -6,6 +6,7 @@ __pycache__/
 *.gz
 # C extensions
 *.so
+*.tar.bz2
 
 postgis/data
 postgis/postgis-data
