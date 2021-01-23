@@ -1,3 +1,4 @@
+#! /bin/sh
 if [ "$DATABASE" = "postgres" ]
 then
     echo "Waiting for postgres..."
@@ -8,8 +9,9 @@ then
 
     echo "PostgreSQL started"
 fi
-
+ls /webapp/backend
+cd /webapp/backend
 python manage.py flush --no-input
 python manage.py migrate
 
-gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --settings
+gunicorn backend.wsgi:application --bind 0.0.0.0:8000

@@ -11,7 +11,7 @@ import pandas as pd
 import json
 
 
-from .distance_calc import get_distances, get_bounding_box
+# from .distance_calc import get_distances, get_bounding_box
 
 def create_geojson(row):
     # Only keep columns used in fronted. Will need to update if more are needed
@@ -34,18 +34,22 @@ def _postgis_address_search(longitude: float, latitude:float, distance:float):
     host = os.getenv("POSTGRES_HOST")
     port = os.getenv("POSTGRES_PORT")
 
-    connection = psycopg2.connect(f"dbname='{dbname}' user='{user}' password='{password}' host='{host}' port='{port}'")
-    cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    gg1 = f"'SRID=4326;POINT({longitude} {latitude})'::geography"
-    cursor.execute(f"SELECT *, ST_Distance({gg1}, p.geom_c) as distance, ST_AsGeoJSON(p.geom) as parcel, ST_AsText(p.geom_c) as center FROM parcels p WHERE ST_DWithin(p.geom_c, {gg1}, {distance})")
-    d = cursor.fetchall()
-    connection.close()
-    data = pd.DataFrame(d).drop(columns=["geom", "geom_c", "parcel"])
-    lon_lat = data["center"].str.replace("POINT\(", "").str.replace(")", "").str.split(" ", expand=True)
-    data["LONGITUDE"] = lon_lat.iloc[:, 0].astype(float)
-    data["LATITUDE"] = lon_lat.iloc[:, 1].astype(float)
-    data.columns = [col.upper() for col in data.columns]
-    county_addresses = [create_geojson(row) for row in d]
+    try:
+        connection = psycopg2.connect(f"dbname='{dbname}' user='{user}' password='{password}' host='{host}' port='{port}'")
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        gg1 = f"'SRID=4326;POINT({longitude} {latitude})'::geography"
+        cursor.execute(f"SELECT *, ST_Distance({gg1}, p.geom_c) as distance, ST_AsGeoJSON(p.geom) as parcel, ST_AsText(p.geom_c) as center FROM parcels p WHERE ST_DWithin(p.geom_c, {gg1}, {distance})")
+        d = cursor.fetchall()
+        data = pd.DataFrame(d).drop(columns=["geom", "geom_c", "parcel"])
+        lon_lat = data["center"].str.replace("POINT\(", "").str.replace(")", "").str.split(" ", expand=True)
+        data["LONGITUDE"] = lon_lat.iloc[:, 0].astype(float)
+        data["LATITUDE"] = lon_lat.iloc[:, 1].astype(float)
+        data.columns = [col.upper() for col in data.columns]
+        county_addresses = [create_geojson(row) for row in d]
+    finally:
+        if (connection):
+            cursor.close()
+            connection.close()
     return data, county_addresses
     
 

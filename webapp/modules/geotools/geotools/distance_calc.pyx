@@ -2,7 +2,7 @@ import numpy as np
 cimport numpy as np
 
 
-cdef extern from "/home/bryce/code/commute/tools/cShapeTools/include/PathFinder/process.c":
+cdef extern from "../../../tools/cShapeTools/include/PathFinder/process.c":
     void geoSearch(char * fname, double baseLong, double baseLat, int searchRadius, double * distances)
     void getBoundingBox(char * fname, double * boxCoordinates)
 

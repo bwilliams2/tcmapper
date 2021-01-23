@@ -17,7 +17,10 @@ services:
       - db
   
   db:
-    image: postgres:12.0-alpine
+    build:
+      context: ./webapp
+      dockerfile: Dockerfile
+      target: DB
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
