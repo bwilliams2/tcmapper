@@ -2,6 +2,7 @@ FROM node:14.15-buster-slim AS Client
 WORKDIR /webapp/frontend
 COPY frontend/package.json ./package.json
 RUN mkdir -p /webapp/backend/templates
+RUN mkdir -p /webapp/backend/static
 RUN npm install
 COPY frontend .
 RUN npm run build
@@ -34,4 +35,5 @@ COPY --from=Client /webapp/backend/static /webapp/backend/static
 WORKDIR /webapp/modules
 COPY modules .
 RUN pip install -e /webapp/modules/geotools
+EXPOSE 8000
 ENTRYPOINT ["/webapp/backend/entrypoint.sh"]

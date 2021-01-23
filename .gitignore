@@ -7,6 +7,7 @@ __pycache__/
 # C extensions
 *.so
 *.tar.bz2
+webapp/letsencrypt
 
 postgis/data
 postgis/postgis-data

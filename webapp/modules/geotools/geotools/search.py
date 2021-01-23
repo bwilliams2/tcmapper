@@ -10,7 +10,7 @@ def polygon_search(polygon_wkt: str):
     password = os.getenv("POSTGRES_PASSWORD")
     host = os.getenv("POSTGRES_HOST")
     port = os.getenv("POSTGRES_PORT")
-
+    connection = None
     try:
         connection = psycopg2.connect(f"dbname='{dbname}' user='{user}' password='{password}' host='{host}' port='{port}'")
         cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)

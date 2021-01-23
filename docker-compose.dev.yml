@@ -1,7 +1,7 @@
 version: '3.7'
 
 services:
-  web:
+  django:
     build:
       context: ./webapp
       dockerfile: Dockerfile
@@ -9,8 +9,18 @@ services:
     volumes:
       - static_volume:/webapp/backend/static
       # - media_volume:/home/app/web/mediafiles
-    ports:
-      - 8000:8000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.web.rule=Host(`tcmapper.localhost`)"
+      - "traefik.http.middlewares.redirect-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.app-http.entrypoints=web"
+      - "traefik.http.routers.app-http.rule=Host(`tcmapper.localhost`)"
+      - "traefik.http.routers.app-http.middlewares=redirect-https@docker"
+      - "traefik.http.routers.app-https.rule=Host(`tcmapper.localhost`)"
+      - "traefik.http.routers.app-https.entrypoints=websecure"
+      - "traefik.http.routers.app-https.tls.certresolver=myresolver"
+    expose:
+      - 8000
     env_file:
       - ./.env.dev
     depends_on:
@@ -26,36 +36,83 @@ services:
       - 5432:5432
     env_file:
       - ./.env.dev.db
-
-  nginx-proxy:
-    container_name: nginx-proxy
-    build: ./webapp/nginx
-    restart: always
+  
+  traefik:
+    image: "traefik:v2.4"
+    container_name: "traefik"
+    command:
+      # - "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.myresolver.acme.email=me@bwilliams.dev"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     ports:
-      - 443:443
-      - 80:80
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
     volumes:
-      - static_volume:/webapp/backend/static
-      # - media_volume:/home/app/web/mediafiles
-      - certs:/etc/nginx/certs
-      - html:/usr/share/nginx/html
-      - vhost:/etc/nginx/vhost.d
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-    depends_on:
-      - web
+      - "./letsencrypt:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    labels:
+      # Redirect all HTTP to HTTPS permanently
+      - traefik.http.routers.http_catchall.rule=HostRegexp(`{any:.+}`)
+      - traefik.http.routers.http_catchall.entrypoints=web
+      - traefik.http.routers.http_catchall.middlewares=https_redirect
+      - traefik.http.middlewares.https_redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.https_redirect.redirectscheme.permanent=true
 
-  nginx-proxy-letsencrypt:
-    image: jrcs/letsencrypt-nginx-proxy-companion
-    env_file:
-      - .env.dev.proxy-companion
+  static:
+    # nginx config
+    image: nginx
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - certs:/etc/nginx/certs
-      - html:/usr/share/nginx/html
-      - vhost:/etc/nginx/vhost.d
-      - acme:/etc/acme.sh
-    depends_on:
-      - nginx-proxy
+      - static_volume:/static:ro
+    container_name: static-files
+    restart: unless-stopped
+    # networks:
+    #     - traefik
+    depends_on: 
+      - django
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.static-http.entrypoints=web"
+      # - "traefik.http.routers.static-http.entrypoints=websecure"
+      - "traefik.http.routers.static-http.rule=Host(`tcmapper.localhost`) && PathPrefix(`/static`)" 
+      # - "traefik.http.routers.static-http.tls.certresolver=myresolver"  
+
+  # nginx-proxy:
+  #   container_name: nginx-proxy
+  #   build: ./webapp/nginx
+  #   restart: always
+  #   ports:
+  #     - 443:443
+  #     - 80:80
+  #   volumes:
+  #     - static_volume:/static
+  #     # - media_volume:/home/app/web/mediafiles
+  #     - certs:/etc/nginx/certs
+  #     - html:/usr/share/nginx/html
+  #     - vhost:/etc/nginx/vhost.d
+  #     - /var/run/docker.sock:/tmp/docker.sock:ro
+  #   depends_on:
+  #     - web
+
+  # nginx-proxy-letsencrypt:
+  #   image: jrcs/letsencrypt-nginx-proxy-companion
+  #   env_file:
+  #     - .env.dev.proxy-companion
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #     - certs:/etc/nginx/certs
+  #     - html:/usr/share/nginx/html
+  #     - vhost:/etc/nginx/vhost.d
+  #     - acme:/etc/acme.sh
+  #   depends_on:
+  #     - nginx-proxy
 
 volumes:
   postgres_data:
