@@ -1,3 +1,9 @@
+# aws stuff
+aws
+
+# postgis backups
+/webapp/postgis/csvs
+/letsencrypt
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

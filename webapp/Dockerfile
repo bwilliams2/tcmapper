@@ -5,7 +5,7 @@ RUN mkdir -p /webapp/backend/templates
 RUN mkdir -p /webapp/backend/static
 RUN npm install
 COPY frontend .
-RUN npm run build
+RUN npm run build && ls -R /webapp/backend/static
 
 
 
@@ -31,9 +31,13 @@ RUN chmod +x ./entrypoint.sh
 
 COPY --from=Client /webapp/backend/templates/base-vue.html /webapp/backend/templates/base-vue.html
 COPY --from=Client /webapp/backend/static /webapp/backend/static
+RUN ls -R /webapp/backend/static && chmod -R 777 /webapp/backend/static
 
 WORKDIR /webapp/modules
 COPY modules .
 RUN pip install -e /webapp/modules/geotools
 EXPOSE 8000
 ENTRYPOINT ["/webapp/backend/entrypoint.sh"]
+
+FROM nginx as nginx
+COPY --from=Client /webapp/backend/static /usr/share/nginx/html/static

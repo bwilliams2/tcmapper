@@ -1,0 +1,90 @@
+#debug = true
+
+logLevel = "ERROR" #DEBUG, INFO, WARN, ERROR, FATAL, PANIC
+InsecureSkipVerify = true
+defaultEntryPoints = ["https", "http"]
+
+# web interface
+[api]
+  entryPoint = "traefik"
+  dashboard = true
+
+# defaultMiddlewares = ["redirect"]
+
+# Force HTTPS
+[entryPoints]
+  [entryPoints.web]
+    address = ":80"
+  [entryPoints.web-secure]
+    address = ":443"
+  [entryPoints.traefik]
+    address = ":8080"
+    [entryPoints.traefik.auth]
+      [entryPoints.traefik.auth.basic]
+        usersFile = "/shared/.htpasswd"
+  [entryPoints.https]
+    address = ":443"
+    compress = true
+    [entryPoints.https.tls]
+      minVersion = "VersionTLS13"
+      cipherSuites = [
+        "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+        "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+        "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+      ]
+
+[file]
+  watch = true
+  filename = "/etc/traefik/rules.toml"
+
+# Let's encrypt configuration
+[acme]
+  email = "bwilliams2@email.com" #any email id will work
+  storage="/etc/traefik/acme/acme.json"
+  entryPoint = "https"
+  acmeLogging=true
+  tlschallenge=true
+  caserver="https://acme-staging-v02.api.letsencrypt.org/directory"
+  onDemand = false #create certificate when container is created
+  # caServer = "https://acme-v02.api.letsencrypt.org/directory"
+
+  [[acme.domains]]
+    main = "*.bmwilliams.us"
+    sans = ["bmwilliams.us"]
+
+[http]
+    # Redirect to https
+    [http.middlewares]
+      [http.middlewares.https_redirect.redirectScheme]
+        scheme = "https"
+        permanent = true
+      [http.middlewares.redirect-https.redirectSchem]
+        scheme = "https"
+
+    [http.routers]
+      [http.routers.http_catchall]
+        rule = "HostRegexp(`{any:.+}`)"
+        entrypoints = "web"
+        middlewares = "https_redirect"
+      [http.routers.app-http]
+        rule = "Host(`tcmapper.bwilliams.dev`)"
+        middlewares = "redirect-https"
+        entrypoints = "web"
+      [http.routers.app-https]
+        rule = "Host(`tcmapper.bwilliams.dev`)"
+        service = "django"
+        entrypoints = "websecure"
+        [http.routers.app-https.tls]
+          certresolver="myresolver"
+
+      #  [http.routers.my-router]
+      #     rule = "Host(`www.example.com`)"
+      #     service = "phx"
+      #     entryPoints = ["web-secure"]
+      #  [http.routers.my-router.tls]
+      #     certResolver = "sample"
+
+    [http.services]
+      [http.services.django.loadBalancer]
+        [[http.services.django.loadBalancer.server]]
+          port = "8000"
