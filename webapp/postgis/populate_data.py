@@ -1,6 +1,7 @@
 # Populate docker postgis database
 # pscopg2 connection, replace *** and *** with your values
 import psycopg2
+import re
 import fiona
 from tqdm import tqdm
 from pathlib import Path
@@ -53,72 +54,153 @@ def convert_polygon(polygons):
     return f"{','.join(all_shapes)}"
 
 def populate_parcels():
-    files = [file for file in Path("../../data/shp_plan_regional_parcels").glob("*4326.shp") if "Points" not in file.name]
-    data = fiona.open(files[0])
-    parsed_columns = parse_columns(data.schema)
-    columns = ",".join(["id SERIAL"] + parsed_columns)
+    try:
+        files = [file for file in Path("../../data/shp_plan_regional_parcels").glob("*4326.shp") if "Points" not in file.name]
+        data = fiona.open(files[0])
+        parsed_columns = parse_columns(data.schema)
+        columns = ",".join(["id SERIAL"] + parsed_columns)
+        connection = psycopg2.connect(f"dbname=postgres user=postgres password='{os.getenv('POSTGRES_PASSWORD')}' host='localhost'")
+        cursor = connection.cursor()
+        cursor.execute("DROP TABLE IF EXISTS parcels")
+        cursor.execute(f"""
+            CREATE TABLE parcels (
+                {columns},
+                parcel_area DOUBLE PRECISION,
+                geom GEOGRAPHY(MULTIPOLYGON),
+                geom_c GEOGRAPHY(Point),
+
+                PRIMARY KEY (id))
+        """)
+
+        # cursor.execute("""
+        #     SELECT AddGeometryColumn('parcels', 'geom', 4326, 'MULTIPOLYGON', 2)
+        # """)
+
+        # cursor.execute("""
+        #     SELECT AddGeometryColumn('parcels', 'geom_c', 4326, 'POINT', 2)
+        # """)
+
+        def process_values(row):
+            values = []
+            for col in parsed_columns:
+                value = row["properties"][col.split()[0]]
+                if value is None:
+                    values.append("NULL")
+                elif "VARCHAR" in col:
+                    value = value.replace("'", "")
+                    values.append(f"'{value}'")
+                elif "INTEGER" in col:
+                    values.append(f"'{value}'")
+                else:
+                    values.append(str(value))
+            return values
+
+
+        # use arcpy to get attribute data, populate PostGIS using psycopg2
+        cols = [col.split()[0] for col in parsed_columns]
+        for file in files:
+            data = fiona.open(file)
+            print(f"\nProcessing parcels from {file.name}")
+            for n, row in tqdm(enumerate(data), total=len(data)):
+                if row["properties"]["VIEWID"] == 130605:
+                    continue
+                if row["geometry"]["type"] == "MultiPolygon":
+                    parcel = ",".join([convert_polygon(shape) for shape in row["geometry"]["coordinates"]])
+                else:
+                    parcel = convert_polygon(row["geometry"]["coordinates"])
+                if row["properties"]["LONGITUDE"] == float("inf"):
+                    point_entry = "NULL"
+                else:
+                    point = str(row["properties"]["LONGITUDE"]) + " " + str(row["properties"]["LATITUDE"])
+                    # point_entry = f"ST_GeometryFromText('POINT({point})', 4326)"
+                    point_entry = f"'POINT({point})'"
+                # the id was transferring as a float so this is just to remove decimal
+                row_values = process_values(row)
+                # this was tough - everything needs to be a string and text being inserted wrapped in '' including wkt
+                try:
+                    # cursor.execute(f"INSERT INTO parcels ({', '.join(cols)}, geom, geom_c) VALUES ({', '.join(row_values)}, ST_GeometryFromText('MULTIPOLYGON({parcel})', 4326), {point_entry})")
+                    cursor.execute(f"INSERT INTO parcels ({', '.join(cols)}, parcel_area, geom, geom_c) VALUES ({', '.join(row_values)}, ST_Area('SRID=4326;MULTIPOLYGON({parcel})'::geometry), 'MULTIPOLYGON({parcel})', {point_entry})")
+                except:
+                    d = 1
+            connection.commit()
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()
+
+def populate_elections():
+    files = [file for file in Path("../../data/shp_bdry_electionresults_2012_2020").glob("*4326.shp") if "Points" not in file.name]
     connection = psycopg2.connect(f"dbname=postgres user=postgres password='{os.getenv('POSTGRES_PASSWORD')}' host='localhost'")
-    cursor = connection.cursor()
-    cursor.execute("DROP TABLE IF EXISTS parcels")
-    cursor.execute(f"""
-        CREATE TABLE parcels (
-            {columns},
-            parcel_area DOUBLE PRECISION,
-            geom GEOGRAPHY(MULTIPOLYGON),
-            geom_c GEOGRAPHY(Point),
+    try:
+        for file in files:
+            data = fiona.open(file)
+            parsed_columns = parse_columns(data.schema)
+            columns = ",".join(["id SERIAL"] + parsed_columns)
+            cursor = connection.cursor()
+            year = re.findall("(20[0-9]{2,})", file.name)[0]
+            table_name = f"results{year}"
+            cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
+            cursor.execute(f"""
+                CREATE TABLE {table_name} (
+                    {columns},
+                    parcel_area DOUBLE PRECISION,
+                    geom GEOGRAPHY(MULTIPOLYGON),
+                    geom_c GEOGRAPHY(Point),
 
-            PRIMARY KEY (id))
-    """)
+                    PRIMARY KEY (id))
+            """)
 
-    # cursor.execute("""
-    #     SELECT AddGeometryColumn('parcels', 'geom', 4326, 'MULTIPOLYGON', 2)
-    # """)
+            # cursor.execute("""
+            #     SELECT AddGeometryColumn('parcels', 'geom', 4326, 'MULTIPOLYGON', 2)
+            # """)
 
-    # cursor.execute("""
-    #     SELECT AddGeometryColumn('parcels', 'geom_c', 4326, 'POINT', 2)
-    # """)
+            # cursor.execute("""
+            #     SELECT AddGeometryColumn('parcels', 'geom_c', 4326, 'POINT', 2)
+            # """)
+            cursor.execute(f"ALTER TABLE parcels DROP COLUMN IF EXISTS vtdid_{year}")
+            cursor.execute(f"ALTER TABLE parcels ADD COLUMN vtdid_{year} INTEGER")
 
-    def process_values(row):
-        values = []
-        for col in parsed_columns:
-            value = row["properties"][col.split()[0]]
-            if value is None:
-                values.append("NULL")
-            elif "VARCHAR" in col:
-                value = value.replace("'", "")
-                values.append(f"'{value}'")
-            else:
-                values.append(str(value))
-        return values
+            def process_values(row):
+                values = []
+                for col in parsed_columns:
+                    value = row["properties"][col.split()[0]]
+                    if value is None:
+                        values.append("NULL")
+                    elif "VARCHAR" in col:
+                        value = value.replace("'", "")
+                        values.append(f"'{value}'")
+                    else:
+                        values.append(str(value))
+                return values
 
 
-    # use arcpy to get attribute data, populate PostGIS using psycopg2
-    cols = [col.split()[0] for col in parsed_columns]
-    for file in files:
-        data = fiona.open(file)
-        print(f"\nProcessing parcels from {file.name}")
-        for n, row in tqdm(enumerate(data), total=len(data)):
-            if row["properties"]["VIEWID"] == 130605:
-                continue
-            if row["geometry"]["type"] == "MultiPolygon":
-                parcel = ",".join([convert_polygon(shape) for shape in row["geometry"]["coordinates"]])
-            else:
-                parcel = convert_polygon(row["geometry"]["coordinates"])
-            if row["properties"]["LONGITUDE"] == float("inf"):
-                point_entry = "NULL"
-            else:
-                point = str(row["properties"]["LONGITUDE"]) + " " + str(row["properties"]["LATITUDE"])
-                # point_entry = f"ST_GeometryFromText('POINT({point})', 4326)"
-                point_entry = f"'POINT({point})'"
-            # the id was transferring as a float so this is just to remove decimal
-            row_values = process_values(row)
-            # this was tough - everything needs to be a string and text being inserted wrapped in '' including wkt
-            try:
-                # cursor.execute(f"INSERT INTO parcels ({', '.join(cols)}, geom, geom_c) VALUES ({', '.join(row_values)}, ST_GeometryFromText('MULTIPOLYGON({parcel})', 4326), {point_entry})")
-                cursor.execute(f"INSERT INTO parcels ({', '.join(cols)}, parcel_area, geom, geom_c) VALUES ({', '.join(row_values)}, ST_Area('SRID=4326;MULTIPOLYGON({parcel})'::geometry), 'MULTIPOLYGON({parcel})', {point_entry})")
-            except:
-                d = 1
-        connection.commit()
+            # use arcpy to get attribute data, populate PostGIS using psycopg2
+            cols = [col.split()[0] for col in parsed_columns]
+            for file in files:
+                data = fiona.open(file)
+                print(f"\nProcessing parcels from {file.name}")
+                for n, row in tqdm(enumerate(data), total=len(data)):
+                    parcel = convert_polygon(row["geometry"]["coordinates"])
+                    if row["properties"]["LONGITUDE"] == float("inf"):
+                        point_entry = "NULL"
+                    else:
+                        point = str(row["properties"]["LONGITUDE"]) + " " + str(row["properties"]["LATITUDE"])
+                        # point_entry = f"ST_GeometryFromText('POINT({point})', 4326)"
+                        point_entry = f"'POINT({point})'"
+                    # the id was transferring as a float so this is just to remove decimal
+                    row_values = process_values(row)
+                    # this was tough - everything needs to be a string and text being inserted wrapped in '' including wkt
+                    try:
+                        # cursor.execute(f"INSERT INTO parcels ({', '.join(cols)}, geom, geom_c) VALUES ({', '.join(row_values)}, ST_GeometryFromText('MULTIPOLYGON({parcel})', 4326), {point_entry})")
+                        cursor.execute(f"INSERT INTO {table_name} ({', '.join(cols)}, parcel_area, geom, geom_c) VALUES ({', '.join(row_values)}, ST_Area('SRID=4326;POLYGON{parcel}'::geometry), 'POLYGON{parcel}', {point_entry})")
+                        cursor.execute(f"UPDATE parcels SET vtdid_{year} = {row['VTDID']} WHERE ST_Within(geom_c::geometry, 'SRID=4326;{parcel}'::geometry)")
+                    except:
+                        d = 1
+                connection.commit()
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()
 
 def populate_counties():
     file = Path("../../data/MetroCounties.json")
@@ -175,6 +257,8 @@ def populate_counties():
         except:
             d = 1
     connection.commit()
+    cursor.close()
+    connection.close()
 
 def populate_grid():
     import geopandas as gpd
@@ -364,12 +448,13 @@ if __name__ == "__main__":
     elif args.type == "grid":
         populate_grid()
     elif args.type == "districts":
-        populate_precincts()
+        populate_elections()
     elif args.type == "all":
         populate_parcels()
+        populate_elections()
         populate_counties()
         populate_grid()
-        populate_precincts()
+        # populate_precincts()
     else:
         raise ValueError("type must be 'parcels' or 'counties'")
 

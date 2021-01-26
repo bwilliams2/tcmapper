@@ -76,6 +76,9 @@ defaultEntryPoints = ["https", "http"]
         entrypoints = "websecure"
         [http.routers.app-https.tls]
           certresolver="myresolver"
+      [http.routers.static-http]
+        rule = "Host(`tcmapper.bmwilliams.dev`) && PathPrefix(`/static`)"
+
 
       #  [http.routers.my-router]
       #     rule = "Host(`www.example.com`)"
@@ -87,4 +90,16 @@ defaultEntryPoints = ["https", "http"]
     [http.services]
       [http.services.django.loadBalancer]
         [[http.services.django.loadBalancer.server]]
-          port = "8000"
+          port = "127.0.0.1:8000"
+[ecs]
+#cluster = "default"
+clusters = ["MYCLUSTERNAME"]
+watch = true
+domain = "MYDOMAIN.com"
+autoDiscoverClusters = false
+refreshSeconds = 15
+exposedByDefault = true
+
+region = "eu-central-1"
+accessKeyID = "MYACCESSKEY"
+secretAccessKey = "MYSECRETKEY"

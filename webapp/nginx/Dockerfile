@@ -1,4 +1,4 @@
-FROM nginx
+FROM nginx:stable-alpine
 
-COPY vhost.d/default /etc/nginx/vhost.d/default
-COPY custom.conf /etc/nginx/conf.d/custom.conf
+COPY site.template /etc/nginx/conf.d/site.template
+EXPOSE 8001
