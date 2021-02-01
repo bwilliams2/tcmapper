@@ -1,9 +1,13 @@
 # aws stuff
 aws
 
+#binary pictures
+*.png
+
 # postgis backups
 /webapp/postgis/csvs
 /letsencrypt
+/devel/blog/images
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

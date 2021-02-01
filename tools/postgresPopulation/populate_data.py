@@ -193,7 +193,7 @@ def populate_elections():
         #     SELECT AddGeometryColumn('parcels', 'geom_c', 4326, 'POINT', 2)
         # """)
         process_values = values_factory(parsed_columns)
-        files = sorted(files, key=lambda x: re.findall("(20[0-9]{2,})", x)[0])
+        files = sorted(files, key=lambda x: re.findall("(20[0-9]{2,})", x.name)[0])
         years = []
         for n, file in enumerate(files):
             data = fiona.open(file)

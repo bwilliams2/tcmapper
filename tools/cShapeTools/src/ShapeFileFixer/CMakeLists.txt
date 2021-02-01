@@ -34,9 +34,10 @@ target_link_libraries(${PROJECT_NAME} m)
 
 target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}_LIB)
 
-find_package(PROJ4)
-target_link_libraries(${PROJECT_NAME} ${PROJ4_LIBRARIES})
+# find_package(PROJ4)
+# target_link_libraries(${PROJECT_NAME} ${PROJ4_LIBRARIES})
 
 # Add shapelib
 # find_package not working
 target_link_libraries(${PROJECT_NAME} /usr/lib64/libshp.so)
+target_link_libraries(${PROJECT_NAME} /usr/lib/x86_64-linux-gnu/libproj.so)

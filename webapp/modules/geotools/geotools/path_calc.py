@@ -11,7 +11,6 @@ import pandas as pd
 import json
 
 
-# from .distance_calc import get_distances, get_bounding_box
 
 def create_geojson(row):
     # Only keep columns used in fronted. Will need to update if more are needed
@@ -54,6 +53,7 @@ def _postgis_address_search(longitude: float, latitude:float, distance:float):
     
 
 def _address_search(files: Iterable[Path], longitude: float, latitude: float, distance: float):
+    from .distance_calc import get_distances, get_bounding_box
     all_distances = np.array([]) 
     county_addresses = []
     for file in files:
@@ -78,14 +78,16 @@ def _address_search(files: Iterable[Path], longitude: float, latitude: float, di
     return data, county_addresses
 
 def shp_address_search(longitude: float, latitude: float, distance: float):
-    with path("geotools", "data") as data_dir:
+    # This won't work for general use patched for examples
+    with Path("../../../data") as data_dir:
         files = [bytes(file.absolute()) for file in data_dir.joinpath("shp_plan_regional_parcels").glob("*Points.shp")]
     print(files)
     return _address_search(files, longitude, latitude, distance)
 
 def shp_parcel_address_search(longitude: float, latitude: float, distance: float):
-    with path("geotools", "data") as data_dir:
-        files = [bytes(file.absolute()) for file in data_dir.joinpath("shp_plan_regional_parcels").glob("*4326.shp") if "Points" not in file.name]
+    files_dir = os.getenv("GEOTOOLS_FILE_DIR", False)
+    if files_dir:
+        files = [bytes(file.absolute()) for file in Path(files_dir).joinpath("shp_plan_regional_parcels").glob("*4326.shp") if "Points" not in file.name]
     return _address_search(files, longitude, latitude, distance)
 
 def parcel_address_search(longitude: float, latitude: float, distance: float):

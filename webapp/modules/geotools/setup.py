@@ -16,7 +16,7 @@ from distutils.command.build_ext import build_ext
 #         "distance_calc",
 #         ["geotools/distance_calc.pyx"],
 #         libraries=["shp", "proj"],
-#         library_dirs=["usr/lib64"],
+#         library_dirs=["usr/lib64", "/usr/lib/x86_64-linux-gnu"],
 #         include_dirs=[
 #             '/usr/include',
 #             np.get_include(),
