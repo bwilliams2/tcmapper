@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <v-app>
-      <v-app-bar app color="primary" dark>
+      <v-app-bar app color="#6A76AB" dark>
         <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
 
         <v-container :style="{ zIndex: 10001 }">

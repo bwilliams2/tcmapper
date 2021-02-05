@@ -1,54 +1,71 @@
 <template>
-  <v-container fluid>
-    <v-row no-gutters>
-      <v-col cols="6">
-        <div class="fill" :style="{ height: '50vh' }">
-          <img
-            :src="mill"
-            :style="{ objectPosition: '100% 0', width: '100%', height: '100%' }"
-          />
-        </div>
-      </v-col>
-      <v-col cols="6">
-        <v-row no-gutters>
-          <v-col cols="6">
-            <v-card outlined elevation="3">
-              <div class="navButton">
-                <div
-                  class="bg"
-                  :style="{
-                    height: '30vh',
-                    width: '100%',
-                    backgroundImage: 'url(' + electionMap + ')',
-                    backgroundSize: '100% 100%',
-                  }"
-                  v-on:click="electionNav"
-                ></div>
-                <span>Election</span>
-              </div>
-            </v-card>
-          </v-col>
-          <v-col cols="6">
-            <v-card outlined elevation="3">
-              <div class="navButton">
-                <div
-                  class="bg"
-                  :style="{
-                    height: '30vh',
-                    width: '100%',
-                    backgroundImage: 'url(' + paperMap + ')',
-                    backgroundPosition: '50% 0',
-                  }"
-                  v-on:click="parcelsNav"
-                ></div>
-                <span>Parcels</span>
-              </div>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-col>
-    </v-row>
-  </v-container>
+  <div class="backContainer">
+    <div
+      class="largeBG"
+      :style="{ backgroundImage: 'url(' + city + ')' }"
+    ></div>
+    <v-container fluid>
+      <v-row>
+        <v-col cols="3">
+          <v-card outlined elevation="3">
+            <div class="navButton">
+              <div
+                class="bg"
+                :style="{
+                  height: '30vh',
+                  width: '100%',
+                  backgroundImage: 'url(' + electionMap + ')',
+                  backgroundSize: '100% 100%',
+                }"
+                v-on:click="electionNav"
+              ></div>
+              <span class="hoverAntiDisplay">Elections</span>
+              <v-container class="hoverDisplay">
+                <v-row>
+                  <v-col cols="12">
+                    <span>State Map</span>
+                  </v-col>
+                  <v-col cols="12">
+                    <span>Metro Precinct Statistics</span>
+                  </v-col>
+                  <v-col cols="12">
+                    <span>Metro Precinct Model</span>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </div>
+          </v-card>
+        </v-col>
+        <v-col cols="3">
+          <v-card outlined elevation="3">
+            <div class="navButton">
+              <div
+                class="bg"
+                :style="{
+                  height: '30vh',
+                  width: '100%',
+                  backgroundImage: 'url(' + paperMap + ')',
+                  backgroundPosition: '50% 10%',
+                }"
+                v-on:click="parcelsNav"
+              ></div>
+              <span class="hoverAntiDisplay">Parcels</span>
+              <v-container class="hoverDisplay">
+                <v-row>
+                  <v-col cols="12">
+                    <span>Parcel Map</span>
+                  </v-col>
+                  <v-col cols="12">
+                    <span>Density Stats</span>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </div>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
+  </div>
 </template>
 
 <script lang="ts">
