@@ -13,6 +13,8 @@ REST_FRAMEWORK = {
     }
 }
 
+ALLOWED_HOSTS=["tcmapper.bwilliams.dev"]
+
 DATABASES = {
     'default': {
         'ENGINE': os.getenv("SQL_ENGINE"),

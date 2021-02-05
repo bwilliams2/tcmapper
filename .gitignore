@@ -8,6 +8,7 @@ aws
 /webapp/postgis/csvs
 /letsencrypt
 /devel/blog/images
+aws-tutorial
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

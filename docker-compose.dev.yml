@@ -2,6 +2,7 @@ version: '3.7'
 
 services:
   django:
+    image: registry.digitalocean.com/brycemainrepo/django:latest
     build:
       context: ./webapp
       dockerfile: Dockerfile
@@ -12,14 +13,14 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.web.rule=Host(`tcmapper.localhost`)"
-      # - "traefik.http.middlewares.redirect-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.redirect-https.redirectscheme.scheme=https"
       - "traefik.http.routers.app-http.entrypoints=web"
       - "traefik.http.routers.app-http.rule=Host(`tcmapper.localhost`)"
       - "traefik.port=8000"
-      # - "traefik.http.routers.app-http.middlewares=redirect-https@docker"
-      # - "traefik.http.routers.app-https.rule=Host(`tcmapper.localhost`)"
-      # - "traefik.http.routers.app-https.entrypoints=websecure"
-      # - "traefik.http.routers.app-https.tls.certresolver=myresolver"
+      - "traefik.http.routers.app-http.middlewares=redirect-https@docker"
+      - "traefik.http.routers.app-https.rule=Host(`tcmapper.localhost`)"
+      - "traefik.http.routers.app-https.entrypoints=websecure"
+      - "traefik.http.routers.app-https.tls.certresolver=myresolver"
     expose:
       - 8000
     env_file:
@@ -28,6 +29,7 @@ services:
       - db
   
   db:
+    image: registry.digitalocean.com/brycemainrepo/db:latest
     build:
       context: ./webapp/postgis
       dockerfile: Dockerfile
@@ -35,6 +37,14 @@ services:
       - postgres_data:/var/lib/postgresql/data/
     ports:
       - 5432:5432
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app-http.entrypoints=web"
+      - "traefik.http.routers.app-http.rule=Host(`tcmapper.bwilliams.dev/db`)"
+      # - "traefik.port=8000
+      - "traefik.http.services.django.loadbalancer.server.port=5432"
+    ports:
+      - "5432:5432"
     env_file:
       - ./.env.dev.db
   
@@ -48,11 +58,11 @@ services:
       - "--providers.docker.network=web"
       - "--providers.docker.exposedbydefault=false"
       - "--entryPoints.web.address=:80"
-      # - "--entrypoints.websecure.address=:443"
-      # - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      # - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
-      # - "--certificatesresolvers.myresolver.acme.email=me@bwilliams.dev"
-      # - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.myresolver.acme.email=me@bwilliams.dev"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     ports:
       - "80:80"
       - "443:443"
@@ -70,7 +80,7 @@ services:
 
   static:
     # nginx config
-    image: nginx
+    image: registry.digitalocean.com/brycemainrepo/static:latest
     build:
       context: ./webapp
       dockerfile: Dockerfile
@@ -83,10 +93,23 @@ services:
       - django
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.static-http.entrypoints=web"
-      # - "traefik.http.routers.static-http.entrypoints=websecure"
+      # - "traefik.http.routers.static-http.entrypoints=web"
+      - "traefik.http.routers.static-http.entrypoints=websecure"
       - "traefik.http.routers.static-http.rule=Host(`tcmapper.localhost`) && PathPrefix(`/static`)" 
-      # - "traefik.http.routers.static-http.tls.certresolver=myresolver"  
+      - "traefik.http.routers.static-http.tls.certresolver=myresolver"  
+  
+  blog:
+    image: registry.digitalocean.com/brycemainrepo/bryce_blog:latest
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.blog-http.entrypoints=web"
+      - "traefik.port=8082"
+      - "traefik.http.services.blog.loadbalancer.server.port=8082"
+      - "traefik.http.routers.blog-http.entrypoints=websecure"
+      - "traefik.http.routers.blog-http.rule=Host(`www.bwilliams.dev`)" 
+      - "traefik.http.routers.blog-http.tls.certresolver=myresolver"  
+    ports:
+      - "8082:8082"
 
 volumes:
   postgres_data:

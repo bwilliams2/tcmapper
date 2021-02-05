@@ -28,7 +28,6 @@ import Vue from "vue";
 import _ from "lodash";
 import { mapState } from "vuex";
 import SearchMap from "./SearchMap.vue";
-import BarPlot from "./barplot/BarPlotContainer.vue";
 import {
   MapTypes,
   RootStateType,
@@ -101,7 +100,7 @@ export default Vue.extend({
     submitLatLng() {
       this.$store
         .dispatch("updatePlotData")
-        .then(() => this.$router.push({ path: "map" }));
+        .then(() => this.$router.push({ path: "/parcels/stats" }));
     },
   },
 });

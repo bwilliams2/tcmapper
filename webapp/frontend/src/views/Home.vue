@@ -53,13 +53,16 @@
             active-class="deep-purple--text text--accent-4"
           >
             <v-list-item>
-              <v-list-item-title>Home</v-list-item-title>
+              <v-btn to="/">Home</v-btn>
             </v-list-item>
             <v-list-item>
-              <v-list-item-title>Analysis</v-list-item-title>
+              <v-btn to="/parcels">Parcels</v-btn>
             </v-list-item>
             <v-list-item>
-              <v-list-item-title>About</v-list-item-title>
+              <v-btn to="/election">Election</v-btn>
+            </v-list-item>
+            <v-list-item>
+              <v-btn to="/about">About</v-btn>
             </v-list-item>
           </v-list-item-group>
         </v-list>

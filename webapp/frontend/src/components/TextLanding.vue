@@ -117,7 +117,7 @@ export default Vue.extend({
             ...Object.keys(this.addressInfo)
           );
           this.$store.dispatch("updateAddressInfo", addressInfo).then(() => {
-            this.$router.push({ path: "map" });
+            this.$router.push({ path: "/parcels/stats" });
           });
           // Assumption: ui is instantiated
           // Create an InfoBubble at the returned location

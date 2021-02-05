@@ -1,0 +1,47 @@
+/* .navButton {
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+    background-size: '100% 100%';
+} */
+
+.navButtion img {
+    flex-shrink: 0;
+    min-width: 100%;
+    min-height: 100%
+}
+
+
+.navButton {
+    position: relative;
+    z-index: 1;
+}
+
+.navButton .bg {
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.navButton:hover .bg {
+    cursor: pointer;
+    opacity: .4;
+}
+
+
+.fill {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden
+}
+.fill img {
+    flex-shrink: 0;
+    min-width: 100%;
+    min-height: 100%
+}

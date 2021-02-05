@@ -49,4 +49,6 @@ EXPOSE 8000
 ENTRYPOINT ["/webapp/backend/entrypoint.sh"]
 
 FROM nginx:stable-alpine as nginx
+COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY --from=Client /webapp/backend/static /usr/share/nginx/html/static
+EXPOSE 8081
