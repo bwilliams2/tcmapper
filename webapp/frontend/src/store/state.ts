@@ -1,5 +1,5 @@
 import { GeoJSON } from "leaflet";
-
+import { State as ParcelState } from "./modules/parcels";
 export type LocationDataItem = [number, number, number];
 
 export interface HistDataItem extends Record<string, number | string> {
@@ -88,6 +88,7 @@ export interface ComputedPlotDataState {
 export interface RootStateType {
   address: string;
   addressInfo: HereAddress;
+  parcels?: ParcelState;
   plotControls: PlotControlsState;
   plotData: PlotDataState;
   computedPlotData: ComputedPlotDataState;

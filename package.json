@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "post-commit": "^0.0.1"
+  }
+}

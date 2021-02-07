@@ -69,6 +69,7 @@ export default Vue.extend({
       type: Array as PropType<[number, number, number][]>,
     },
   },
+
   data(): MapData {
     return {
       url: `https://2.base.maps.ls.hereapi.com/maptile/2.1/maptile/newest/normal.day/{z}/{x}/{y}/512/png8?apiKey=${apiKey}&ppi=320`,
@@ -90,6 +91,9 @@ export default Vue.extend({
         return state.addressInfo;
       },
       latLng: (state: RootStateType) => state.plotControls.latLng,
+      // selectedProp: (state: RootStateType) {
+
+      // },
       selectedUseClasses: (state: RootStateType) =>
         state.plotControls.selectedUseClasses,
       analysisRange: (state: RootStateType) => state.plotControls.analysisRange,
@@ -156,17 +160,6 @@ export default Vue.extend({
     },
     initLayers() {
       const self = this;
-      const centerLatLng = new L.LatLng(
-        this.latLng[0] as number,
-        this.latLng[1] as number
-      );
-      this.circleLayer = L.circle(centerLatLng, {
-        color: "red",
-        opacity: 0.4,
-        weight: 5,
-        fill: false,
-        radius: self.analysisRange * 1.01,
-      });
 
       //@ts-ignore
 

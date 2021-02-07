@@ -3,6 +3,8 @@ import Vuex from "vuex";
 import rootState from "./state";
 import mutations from "./mutations";
 import actions from "./actions";
+import parcels from "./modules/parcels";
+import election from "./modules/election";
 
 Vue.use(Vuex);
 
@@ -10,7 +12,7 @@ const store = new Vuex.Store({
   state: rootState,
   mutations: mutations,
   actions: actions,
-  modules: {}
+  modules: { parcels, election },
 });
 
 if (module.hot) {
@@ -24,7 +26,7 @@ if (module.hot) {
     // swap in the new modules and mutations
     store.hotUpdate({
       mutations: newMutations,
-      actions: newActions
+      actions: newActions,
       // modules: {
       //   a: newModuleA
       // }

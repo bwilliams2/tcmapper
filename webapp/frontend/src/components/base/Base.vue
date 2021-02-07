@@ -5,58 +5,129 @@
       :style="{ backgroundImage: 'url(' + city + ')' }"
     ></div>
     <v-container fluid>
-      <v-row>
-        <v-col cols="3">
-          <v-card outlined elevation="3">
+      <v-row align="center" justify="center">
+        <v-col cols="12" sm="6" md="3" :style="{ height: '30vh' }">
+          <v-card outlined elevation="3" :style="{ height: '100%' }">
             <div class="navButton">
               <div
                 class="bg"
                 :style="{
-                  height: '30vh',
+                  height: '100%',
                   width: '100%',
-                  backgroundImage: 'url(' + electionMap + ')',
-                  backgroundSize: '100% 100%',
+                  backgroundImage: 'url(' + paperMap + ')',
+                  backgroundPosition: '50% 10%',
                 }"
-                v-on:click="electionNav"
+                id="parcelButton"
+                v-on:click="parcelsNav"
               ></div>
-              <span class="hoverAntiDisplay">Elections</span>
-              <v-container class="hoverDisplay">
-                <v-row>
-                  <v-col cols="12">
-                    <span>State Map</span>
+              <!-- <span class="hoverAntiDisplay">Parcels</span> -->
+              <!-- <v-container class="hoverDisplay" ma-0 pa-0> -->
+              <v-container ma-0 pa-0>
+                <v-row no-gutters>
+                  <v-col
+                    cols="12"
+                    class="text-xs-center"
+                    :style="parcelButtonStyle"
+                  >
+                    <v-btn
+                      absolute
+                      :style="{
+                        left: '50%',
+                        transform: 'translateX(-50%) translateY(100%)',
+                      }"
+                      :class="btnStyle"
+                      to="parcels"
+                      >Metro Parcel Map</v-btn
+                    >
                   </v-col>
-                  <v-col cols="12">
-                    <span>Metro Precinct Statistics</span>
-                  </v-col>
-                  <v-col cols="12">
-                    <span>Metro Precinct Model</span>
+                  <v-col
+                    cols="12"
+                    class="text-xs-center"
+                    :style="parcelButtonStyle"
+                  >
+                    <v-btn
+                      absolute
+                      :style="{
+                        left: '50%',
+                        transform: 'translateX(-50%) translateY(100%)',
+                      }"
+                      to="parcels/stats"
+                      >Parcel Density Stats</v-btn
+                    >
                   </v-col>
                 </v-row>
               </v-container>
             </div>
           </v-card>
         </v-col>
-        <v-col cols="3">
-          <v-card outlined elevation="3">
+        <v-col
+          cols="12"
+          sm="6"
+          md="3"
+          :style="{ height: '30vh' }"
+          offset-md="2"
+        >
+          <v-card outlined elevation="3" :style="{ height: '100%' }">
             <div class="navButton">
               <div
                 class="bg"
                 :style="{
-                  height: '30vh',
+                  height: '100%',
                   width: '100%',
-                  backgroundImage: 'url(' + paperMap + ')',
-                  backgroundPosition: '50% 10%',
+                  backgroundImage: 'url(' + electionMap + ')',
+                  backgroundSize: '100% 100%',
                 }"
-                v-on:click="parcelsNav"
+                v-on:click="electionNav"
+                id="electionButton"
               ></div>
-              <span class="hoverAntiDisplay">Parcels</span>
-              <v-container class="hoverDisplay">
-                <v-row>
-                  <v-col cols="12">
-                    <span>Parcel Map</span>
+              <!-- <span class="hoverAntiDisplay">Elections</span> -->
+              <!-- <v-container class="hoverDisplay" pa-0 ma-0> -->
+              <v-container pa-0 ma-0>
+                <v-row no-gutters>
+                  <v-col
+                    cols="12"
+                    class="text-xs-center"
+                    :style="electionButtonStyle"
+                  >
+                    <v-btn
+                      absolute
+                      :style="{
+                        left: '50%',
+                        transform: 'translateX(-50%) translateY(50%)',
+                      }"
+                      to="election/stateprecincts"
+                      >State Map</v-btn
+                    >
                   </v-col>
-                  <v-col cols="12">
-                    <span>Density Stats</span>
+                  <v-col
+                    cols="12"
+                    class="text-xs-center"
+                    :style="electionButtonStyle"
+                  >
+                    <v-btn
+                      absolute
+                      :style="{
+                        left: '50%',
+                        transform: 'translateX(-50%) translateY(50%)',
+                      }"
+                      to="election/metroprecincts"
+                      >Metro Precinct Statistics</v-btn
+                    >
+                  </v-col>
+                  <v-col
+                    cols="12"
+                    class="text-xs-center"
+                    :style="electionButtonStyle"
+                  >
+                    <v-btn
+                      absolute
+                      :style="{
+                        left: '50%',
+                        transform: 'translateX(-50%) translateY(50%)',
+                      }"
+                      to="election/metromodel"
+                      >Metro Precinct Model</v-btn
+                    >
                   </v-col>
                 </v-row>
               </v-container>
@@ -74,20 +145,40 @@ import "./Base.css";
 import _ from "lodash";
 
 interface State {
-  drawer: boolean;
-  selectStyle: any;
+  btnStyle: {
+    left: string;
+    transform: string;
+  };
+  electionButtonStyle: {
+    height: string | number;
+  };
+  parcelButtonStyle: {
+    height: string | number;
+  };
 }
 
 export default Vue.extend({
   name: "Home",
   data(): State {
     return {
-      drawer: false,
-      selectStyle: {
-        paddingTop: "25px",
-        marginRight: "10px",
+      btnStyle: {
+        left: "50%",
+        transform: "translateX(-50%) translateY(50%)",
+      },
+      electionButtonStyle: {
+        height: 0,
+      },
+      parcelButtonStyle: {
+        height: 0,
       },
     };
+  },
+  mounted() {
+    this.handleResize();
+    window.addEventListener("resize", this.onResize);
+  },
+  destroyed() {
+    window.removeEventListener("resize", this.onResize);
   },
   computed: {
     // ...mapState({
@@ -120,6 +211,20 @@ export default Vue.extend({
     },
   },
   methods: {
+    onResize() {
+      const handleResize = this.handleResize;
+      return _.debounce(function () {
+        handleResize;
+      }, 100);
+    },
+    handleResize() {
+      const buttonHeight = document.getElementById("parcelButton")
+        ?.offsetHeight;
+      if (buttonHeight) {
+        this.electionButtonStyle.height = buttonHeight / 3 + "px";
+        this.parcelButtonStyle.height = buttonHeight / 2 + "px";
+      }
+    },
     electionNav() {
       this.$router.push({ path: "/elections" });
     },

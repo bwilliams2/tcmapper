@@ -3,6 +3,7 @@ import VueRouter, { RouteConfig } from "vue-router";
 import Home from "../views/Home.vue";
 import Landing from "@/components/landing/Landing.vue";
 import MapData from "@/components/mapplot/MapData.vue";
+import ElectionStats from "@/components/electionStats/ElectionStats.vue";
 import Base from "@/components/base/Base.vue";
 
 Vue.use(VueRouter);
@@ -15,6 +16,11 @@ const routes: Array<RouteConfig> = [
       { path: "", component: Base, name: "home" },
       { path: "/parcels", component: Landing, name: "parcels" },
       { path: "/parcels/stats", component: MapData, name: "densityMap" },
+      {
+        path: "/election/metroprecincts",
+        component: ElectionStats,
+        name: "electionStats",
+      },
       // { path: "", component: MapData, name: "home" },
     ],
   },
