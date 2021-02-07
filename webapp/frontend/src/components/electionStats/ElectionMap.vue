@@ -4,19 +4,36 @@
 
 <script lang="ts">
 import Vue, { PropType } from "vue";
+//https://github.com/teastman/Leaflet.pattern
 import L, { LatLngTuple, TileLayer, LatLngBounds, Circle } from "leaflet";
 //@ts-ignore
 import geojsonvt from "geojson-vt";
 // import { LMap, LTileLayer, LMarker, LCircle } from "vue2-leaflet";
 import { mapGetters, mapState } from "vuex";
 import * as d3 from "d3";
-import { ScaleSequential } from "d3";
+import {
+  NumberValue,
+  RGBColor,
+  ScaleLinear,
+  ScaleOrdinal,
+  ScaleSequential,
+} from "d3";
 import { GeoProjection } from "d3-geo";
 import { FeatureCollection } from "geojson";
 import "leaflet.heat";
 import "leaflet.vectorgrid";
+import "leaflet.pattern";
 import { RootStateType, FeatureItem } from "@/store/state";
 const apiKey = process.env.VUE_APP_HERE_API_KEY as string;
+
+type ColorGenerator =
+  | ScaleSequential<string, d3.NumberValue>
+  | ScaleOrdinal<string, string>
+  | ScaleLinear<string, number>;
+// leaflet.pattern doesn't have typescript support so use any in place
+type PatternGenerator = (
+  propValue: string
+) => Record<string, any> | (() => null);
 
 function colorIsSequential(color: unknown): color is ScaleSequential<"string"> {
   return color !== null;
@@ -89,7 +106,7 @@ export default Vue.extend({
     ...mapGetters("election", {
       features: "features",
       properties: "properties",
-      selectedProperty: "selectedProperty",
+      selectedColorProperty: "selectedColorProperty",
     }),
   },
   watch: {
@@ -124,8 +141,8 @@ export default Vue.extend({
         this.center[1] as number
       );
       const centerPoint = this.map.latLngToContainerPoint(centerLatLng);
-      const offset = this.map.getSize().x * 0.2;
-      centerPoint.x += offset;
+      // const offset = this.map.getSize().x * 0.2;
+      // centerPoint.x += offset;
 
       // Set center to latLng
       this.map.panTo(this.map.layerPointToLatLng(centerPoint));
@@ -134,17 +151,50 @@ export default Vue.extend({
       // this.map.panBy(new L.Point(-offset, 0), { animate: false });
       this.initLayers();
     },
+    colorFactory(): ColorGenerator {
+      if (this.selectedColorProperty !== null) {
+        const selectedProperty = this.selectedColorProperty;
+        const propertyVals = this.features.map(
+          (el: { properties: Record<string, number | string> }) =>
+            el.properties[selectedProperty]
+        );
+        const propertyType = this.features[0].properties[
+          this.selectedColorProperty
+        ];
+        if (propertyType === "string") {
+          // Set color scheme for parcel map
+          propertyVals.sort();
+          const unique = [...new Set<string>(propertyVals)];
+
+          const scale: ScaleOrdinal<string, string> = d3
+            .scaleOrdinal(d3.schemeCategory10)
+            .domain(unique);
+          return scale;
+        } else {
+          propertyVals.sort(d3.ascending);
+          const domain = d3.extent(propertyVals as number[]);
+          if (domain) {
+            return d3
+              .scaleLinear<string, number>()
+              .domain([domain[0], 0, domain[1]] as number[])
+              .range(["red", "white", "blue"]);
+          }
+        }
+      }
+      throw new Error("No values for given property");
+    },
     initLayers() {
       const self = this;
 
       //@ts-ignore
 
+      const selectedColorProperty = this.selectedColorProperty;
       // Define popup for parcel map
       function popup(e: any) {
         L.popup()
           .setContent(
-            // `<span>USECLASS: ${e.layer.properties.USECLASS1}</span><br><span>YEAR_BUILT: ${e.layer.properties.YEAR_BUILT}</span>`
-            "<span>Test item</span>"
+            `<span>${selectedColorProperty}: ${e.layer.properties[selectedColorProperty]}</span>`
+            // "<span></span>"
           )
           .setLatLng(e.latlng)
           .openOn(self.map);
@@ -155,69 +205,49 @@ export default Vue.extend({
         this.map.removeLayer(this.currentLayer);
       }
 
-      if (this.selectedProperty !== null) {
-        const selectedProperty = this.selectedProperty;
-        const propertyVals = this.features.map(
-          (el: Record<string, number | string>) => el[selectedProperty]
-        );
-        const propertyType = this.features[0][this.selectedProperty];
-        let color = null as ScaleSequential<"string"> | null;
-        if (propertyType === "string") {
-          // Set color scheme for parcel map
-          propertyVals.sort();
-          color = d3
-            .scaleSequential(d3.interpolateRdYlBu)
-            .domain(propertyVals) as ScaleSequential<"string">;
-        } else {
-          propertyVals.sort(d3.ascending);
-          const domain = d3.extent(propertyVals as number[]);
-          if (domain) {
-            color = d3
-              .scaleSequential(d3.interpolateViridis)
-              .domain(domain as number[]) as ScaleSequential<"string">;
-          }
-        }
-        if (colorIsSequential(color)) {
-          // Construct GEOJson FeatureCollection
-          const geoJsonConstruct = {
-            type: "FeatureCollection",
-            features: this.features,
-          };
-          //@ts-ignore
-          this.currentLayer = L.vectorGrid.slicer(geoJsonConstruct, {
-            vectorTileLayerStyles: {
-              sliced: function (properties: any) {
-                //@ts-ignore
-                const parcelColor = d3
-                  .color(
-                    (color as ScaleSequential<"string">)(
-                      properties[selectedProperty]
-                    )
-                  )
-                  .formatHex();
-                return {
+      // Construct GEOJson FeatureCollection
+      const geoJsonConstruct = {
+        type: "FeatureCollection",
+        features: this.features,
+      };
+      const color = this.colorFactory();
+      //@ts-ignore
+      this.currentLayer = L.vectorGrid.slicer(geoJsonConstruct, {
+        vectorTileLayerStyles: {
+          sliced: function (properties: Record<string, string | number>) {
+            //@ts-ignore
+            let parcelColor = null;
+            if (selectedColorProperty !== null) {
+              parcelColor = d3
+                .color(
                   //@ts-ignore
-                  fill: true,
-                  fillColor: parcelColor,
-                  fillOpacity: 0.8,
-                  color: "black",
-                  opacity: 0.9,
-                  weight: 0.5,
-                };
-              },
-            },
-            maxZoom: 15,
-            // indexMaxZoom: 5, // max zoom in the initial tile index
-            interactive: true,
-            // getFeatureId: function(feature) {
-            //     return feature.properties["cartodb_id"]
-            // }
-          });
-          this.tileLayer?.setOpacity(0.7);
-          this.currentLayer?.addTo(this.map);
-          this.currentLayer?.on("click", popup);
-        }
-      }
+                  (color(
+                    properties[selectedColorProperty]
+                  ) as unknown) as RGBColor
+                )
+                .formatHex();
+            }
+            return {
+              //@ts-ignore
+              fill: true,
+              fillColor: parcelColor,
+              fillOpacity: 0.8,
+              color: "black",
+              opacity: 0.9,
+              weight: 0.5,
+            };
+          },
+        },
+        maxZoom: 15,
+        // indexMaxZoom: 5, // max zoom in the initial tile index
+        interactive: true,
+        // getFeatureId: function(feature) {
+        //     return feature.properties["cartodb_id"]
+        // }
+      });
+      this.tileLayer?.setOpacity(0.7);
+      this.currentLayer?.addTo(this.map);
+      this.currentLayer?.on("click", popup);
     },
   },
 });

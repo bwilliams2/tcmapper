@@ -23,6 +23,6 @@ urlpatterns = [
     path('', index, name='index'),
     path('map/', index, name='index'),
     path('parcels/', index, name='index'),
-    path('election/', index, name='index'),
+    path('election/(.*)', index, name='index'),
     re_path('^api/', include(api_urls))
 ]

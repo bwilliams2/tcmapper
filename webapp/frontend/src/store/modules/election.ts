@@ -5,7 +5,8 @@ import axios from "axios";
 
 export interface ElectionControlsState {
   properties: string[];
-  selectedProperty: string | null;
+  selectedPatternProperty: string | null;
+  selectedColorProperty: string | null;
 }
 
 export interface ElectionDataState {
@@ -20,7 +21,8 @@ interface State {
 const state: State = {
   controls: {
     properties: [],
-    selectedProperty: null,
+    selectedPatternProperty: null,
+    selectedColorProperty: null,
   },
   data: {
     features: [],
@@ -46,10 +48,11 @@ const mutations = {
     state.data.features = payload;
     if (payload.length > 0) {
       state.controls.properties = Object.keys(payload[0].properties);
+      state.controls.selectedColorProperty = "2016-2020";
     }
   },
   updateParcelProperty(state: State, payload: string) {
-    state.controls.selectedProperty = payload;
+    state.controls.selectedColorProperty = payload;
   },
 };
 
@@ -60,8 +63,11 @@ const getters = {
   properties: (state: State) => {
     return state.controls.properties;
   },
-  selectedProperty: (state: State) => {
-    return state.controls.selectedProperty;
+  selectedColorProperty: (state: State) => {
+    return state.controls.selectedColorProperty;
+  },
+  selectedPatternProperty: (state: State) => {
+    return state.controls.selectedPatternProperty;
   },
 };
 
