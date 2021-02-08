@@ -24,6 +24,7 @@ import "leaflet.heat";
 import "leaflet.vectorgrid";
 import "leaflet.pattern";
 import { RootStateType, FeatureItem } from "@/store/state";
+import { PrecinctItem } from "@/store/modules/election";
 const apiKey = process.env.VUE_APP_HERE_API_KEY as string;
 
 type ColorGenerator =
@@ -106,6 +107,7 @@ export default Vue.extend({
     ...mapGetters("election", {
       features: "features",
       properties: "properties",
+      selectedYear: "selectedYear",
       selectedColorProperty: "selectedColorProperty",
     }),
   },
@@ -114,6 +116,9 @@ export default Vue.extend({
       this.initLayers();
     },
     selectedProperty: function () {
+      this.initLayers();
+    },
+    selectedYear: function () {
       this.initLayers();
     },
   },
@@ -185,15 +190,22 @@ export default Vue.extend({
     },
     initLayers() {
       const self = this;
+      const selectedYear = this.selectedYear;
 
       //@ts-ignore
 
       const selectedColorProperty = this.selectedColorProperty;
       // Define popup for parcel map
       function popup(e: any) {
+        let propVal = e.layer.properties[selectedColorProperty];
+        if (!Number.isNaN(propVal)) {
+          const scale = selectedColorProperty.includes("margin") ? 1000 : 100;
+          propVal = Math.round(propVal * scale) / scale;
+        }
         L.popup()
           .setContent(
-            `<span>${selectedColorProperty}: ${e.layer.properties[selectedColorProperty]}</span>`
+            `<span>Year: ${selectedYear}</span><br>` +
+              `<span>${selectedColorProperty}: ${propVal}</span>`
             // "<span></span>"
           )
           .setLatLng(e.latlng)
@@ -208,7 +220,9 @@ export default Vue.extend({
       // Construct GEOJson FeatureCollection
       const geoJsonConstruct = {
         type: "FeatureCollection",
-        features: this.features,
+        features: this.features.filter(
+          (el: PrecinctItem) => el.properties.year == selectedYear
+        ),
       };
       const color = this.colorFactory();
       //@ts-ignore

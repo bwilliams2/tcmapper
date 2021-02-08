@@ -60,6 +60,6 @@ def weight_search(request):
 
 @api_view(["GET"])
 def all_election_precincts(request):
-    with Path(__file__).parent.joinpath("ProcessedElections.geojson").open() as f:
+    with Path(__file__).parent.joinpath("FullStateProcessedElections.geojson").open() as f:
         data = json.load(f)
     return Response(json.dumps(data["features"]))
