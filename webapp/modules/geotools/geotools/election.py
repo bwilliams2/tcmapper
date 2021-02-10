@@ -19,7 +19,7 @@ def create_geojson(row):
     }
     return geojson
 
-def all_election_data():
+def all_election_data(year: int):
     import psycopg2
     import psycopg2.extras
 
@@ -32,7 +32,7 @@ def all_election_data():
     try:
         connection = psycopg2.connect(f"dbname='{dbname}' user='{user}' password='{password}' host='{host}' port='{port}'")
         cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        cursor.execute(f"SELECT *, ST_AsGeoJSON(p.geom) as parcel FROM processed_election p")
+        cursor.execute(f"SELECT *, ST_AsGeoJSON(p.geom) as parcel FROM processed_election p WHERE p.year = {year}")
         d = cursor.fetchall()
         data = pd.DataFrame(d).drop(columns=["geom", "geom_c", "parcel"])
         data.columns = [col for col in data.columns]

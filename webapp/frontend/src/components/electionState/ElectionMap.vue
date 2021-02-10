@@ -115,7 +115,7 @@ export default Vue.extend({
     mapType: function () {
       this.initLayers();
     },
-    selectedProperty: function () {
+    selectedColorProperty: function () {
       this.initLayers();
     },
     selectedYear: function () {

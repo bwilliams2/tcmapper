@@ -61,6 +61,7 @@ def weight_search(request):
 
 @api_view(["GET"])
 def all_election_precincts(request):
-    data, features = all_election_data
-    records = data.to_dict(orient="records")
+    year = request.query_params.get("year")
+    data, features = all_election_data(year)
+    records = data.where(data.notna(), None).to_dict(orient="records")
     return Response({"data": json.dumps(records), "features": json.dumps(features)})

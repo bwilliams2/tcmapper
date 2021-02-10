@@ -52,6 +52,7 @@ const actions = {
     commit("updateShowLoadingOverlay", true, { root: true });
     return axios
       .get(`${API_URL}/api/election/precincts`, {
+        params: { year: state.metroControls.selectedYear },
         timeout: 50000,
       })
       .then((res) => {
@@ -83,7 +84,7 @@ const mutations = {
       newControls.properties = [...properties];
       newControls.years = [2012, 2014, 2016, 2018, 2020];
       newControls.selectedYear = 2020;
-      newControls.selectedColorProperty = "2016-2020";
+      newControls.selectedColorProperty = "2020-2016";
       state.stateControls = { ...newControls };
       state.metroControls = { ...newControls };
     }
