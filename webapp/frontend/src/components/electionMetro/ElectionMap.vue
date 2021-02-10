@@ -124,7 +124,7 @@ export default Vue.extend({
   },
   methods: {
     async getPrecincts() {
-      await this.$store.dispatch("election/updateParcels", this.selectedYear);
+      await this.$store.dispatch("election/updateParcels");
       this.initMap();
     },
     initMap() {

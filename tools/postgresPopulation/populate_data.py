@@ -76,7 +76,10 @@ def values_factory(parsed_columns):
 
 def populate_parcels():
     try:
-        files = [file for file in Path("../../data/shp_plan_regional_parcels").glob("*4326.shp") if "Points" not in file.name]
+        files = [
+            file for file in Path("../../data/shp_plan_regional_parcels").glob("*4326.shp") 
+            if "Points" not in file.name
+        ]
         data = fiona.open(files[0])
         parsed_columns = parse_columns(data.schema)
         columns = ",".join(["id SERIAL"] + parsed_columns)
@@ -138,7 +141,12 @@ def populate_parcels():
                 # this was tough - everything needs to be a string and text being inserted wrapped in '' including wkt
                 try:
                     # cursor.execute(f"INSERT INTO parcels ({', '.join(cols)}, geom, geom_c) VALUES ({', '.join(row_values)}, ST_GeometryFromText('MULTIPOLYGON({parcel})', 4326), {point_entry})")
-                    cursor.execute(f"INSERT INTO parcels ({', '.join(cols)}, parcel_area, geom, geom_c) VALUES ({', '.join(row_values)}, ST_Area('SRID=4326;MULTIPOLYGON({parcel})'::geometry), 'MULTIPOLYGON({parcel})', {point_entry})")
+                    # cursor.execute(f"INSERT INTO parcels ({', '.join(cols)}, parcel_area, geom, geom_c) VALUES ({', '.join(row_values)}, ST_Area('SRID=4326;MULTIPOLYGON({parcel})'::geometry), 'MULTIPOLYGON({parcel})', {point_entry})")
+                    cursor.execute(
+                        f"INSERT INTO parcels ({', '.join(cols)}, parcel_area, geom, geom_c) VALUES ("\
+                        f"{', '.join(row_values)}, ST_Area('SRID=4326;MULTIPOLYGON({parcel})'::geometry),"\
+                        f" 'MULTIPOLYGON({parcel})', {point_entry})"
+                    )
                 except:
                     d = 1
             connection.commit()

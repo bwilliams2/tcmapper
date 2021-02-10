@@ -28,8 +28,6 @@ services:
     image: registry.digitalocean.com/brycemainrepo/db:latest
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    ports:
-      - 5432:5432
     # labels:
       # - "traefik.enable=true"
       # - "traefik.http.routers.app-http.entrypoints=web"

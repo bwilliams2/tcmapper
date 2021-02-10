@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.conf import settings
+from geotools.election import all_election_data
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -60,6 +61,6 @@ def weight_search(request):
 
 @api_view(["GET"])
 def all_election_precincts(request):
-    with Path(__file__).parent.joinpath("FullStateProcessedElections.geojson").open() as f:
-        data = json.load(f)
-    return Response(json.dumps(data["features"]))
+    data, features = all_election_data
+    records = data.to_dict(orient="records")
+    return Response({"data": json.dumps(records), "features": json.dumps(features)})
