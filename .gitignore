@@ -4,6 +4,7 @@ aws
 #binary pictures
 *.png
 
+devel/
 # postgis backups
 /webapp/postgis/csvs
 /letsencrypt
