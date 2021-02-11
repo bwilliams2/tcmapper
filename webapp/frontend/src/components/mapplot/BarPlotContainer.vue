@@ -72,8 +72,8 @@
                   <v-btn
                     dark
                     icon
-                    color="black"
-                    :style="{ marginTop: '25px' }"
+                    color="white"
+                    :style="{ marginTop: '25px', marginLeft: '15px' }"
                     id="use-class-filter"
                     v-on="{ ...onMenu, ...onTooltip }"
                     v-bind="attrs"

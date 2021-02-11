@@ -9,7 +9,7 @@ def test_weight_search():
     assert len(res.data) > 0      
 
 def test_all_election_precincts():
-    request = rf.get("api/election")
+    request = rf.get("api/election", {"year": 2020})
     res = all_election_precincts(request)
     assert len(res.data) > 0
 

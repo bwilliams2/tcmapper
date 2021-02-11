@@ -63,5 +63,5 @@ def weight_search(request):
 def all_election_precincts(request):
     year = request.query_params.get("year")
     data, features = all_election_data(year)
-    records = data.where(data.notna(), None).to_dict(orient="records")
+    records = data.dropna(how="all", axis=1).sort_index(axis=1).where(data.notna(), None).to_dict(orient="records")
     return Response({"data": json.dumps(records), "features": json.dumps(features)})

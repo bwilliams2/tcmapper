@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <v-app>
-      <v-app-bar app color="#6A76AB" dark>
+      <v-app-bar app color="#454545" dark>
         <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
 
         <v-container :style="{ zIndex: 10001 }">
@@ -13,7 +13,7 @@
                   fontWeight: 'bold',
                 }"
               >
-                TC Address Mapper
+                TC Mapper
               </div>
             </v-col>
           </v-row>
@@ -53,16 +53,16 @@
             active-class="deep-purple--text text--accent-4"
           >
             <v-list-item>
-              <v-btn to="/">Home</v-btn>
+              <v-btn min-width="100%" to="/">Home</v-btn>
             </v-list-item>
             <v-list-item>
-              <v-btn to="/parcels">Parcels</v-btn>
+              <v-btn min-width="100%" to="/parcels">Parcels</v-btn>
             </v-list-item>
             <v-list-item>
-              <v-btn to="/election">Election</v-btn>
+              <v-btn min-width="100%" to="/election">Election</v-btn>
             </v-list-item>
             <v-list-item>
-              <v-btn to="/about">About</v-btn>
+              <v-btn min-width="100%" to="/about">About</v-btn>
             </v-list-item>
           </v-list-item-group>
         </v-list>

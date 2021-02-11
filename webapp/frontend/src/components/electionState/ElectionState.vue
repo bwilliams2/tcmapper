@@ -5,7 +5,7 @@
         <v-select
           :items="properties"
           :value="selectedColorProperty"
-          label="Map Overlay"
+          label="Color Property"
           @input="updateSelectedColorProperty"
           :style="{
             marginLeft: '10px',

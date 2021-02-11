@@ -6,7 +6,23 @@
     ></div>
     <v-container fluid>
       <v-row align="center" justify="center">
-        <v-col cols="12" sm="6" md="3" :style="{ height: '30vh' }">
+        <v-col cols="10">
+          <div class="text-h3 text-center font-weight-medium mb-16">
+            Twin Cities Metro Statistics
+          </div>
+          <div class="text-h6 text-center font-weight-medium mt-16">
+            Welcome to my site for presentation and analysis of geographic and
+            election data in the Twin Cities metro and Greater Minnesota.
+          </div>
+          <div class="text-h6 text-center font-weight-medium mb-16">
+            For more information on site development and additional analysis
+            visit my main blog at
+            <a href="https://bwilliams.dev">bwilliams.dev</a>.
+          </div>
+        </v-col>
+      </v-row>
+      <v-row align="center" justify="center">
+        <v-col cols="12" sm="6" md="4" lg="3" :style="{ height: '30vh' }">
           <v-card outlined elevation="3" :style="{ height: '100%' }">
             <div class="navButton">
               <div
@@ -37,6 +53,7 @@
                       }"
                       :class="btnStyle"
                       to="parcels"
+                      disabled
                       >Metro Parcel Map</v-btn
                     >
                   </v-col>
@@ -63,9 +80,10 @@
         <v-col
           cols="12"
           sm="6"
-          md="3"
+          md="4"
+          lg="3"
           :style="{ height: '30vh' }"
-          offset-md="2"
+          offset-md="1"
         >
           <v-card outlined elevation="3" :style="{ height: '100%' }">
             <div class="navButton">
@@ -110,6 +128,7 @@
                         left: '50%',
                         transform: 'translateX(-50%) translateY(50%)',
                       }"
+                      disabled
                       to="election/metroprecincts"
                       >Metro Precinct Statistics</v-btn
                     >
@@ -125,6 +144,7 @@
                         left: '50%',
                         transform: 'translateX(-50%) translateY(50%)',
                       }"
+                      disabled
                       to="election/metromodel"
                       >Metro Precinct Model</v-btn
                     >
