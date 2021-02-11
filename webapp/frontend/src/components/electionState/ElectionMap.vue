@@ -73,6 +73,7 @@ type DataPoints = [number, number];
 export default Vue.extend({
   name: "ElectionMap",
   mounted() {
+    this.initMap();
     // this.initLayers();
     this.getPrecincts();
   },
@@ -108,24 +109,29 @@ export default Vue.extend({
       features: "features",
       properties: "properties",
       selectedYear: "selectedYear",
-      selectedColorProperty: "selectedColorProperty",
+      selectedProperty: "selectedProperty",
     }),
   },
   watch: {
-    mapType: function () {
-      this.initLayers();
-    },
-    selectedColorProperty: function () {
-      this.initLayers();
+    selectedProperty: function (newValue) {
+      if (this.map && newValue) {
+        this.initLayers();
+      } else if (this.currentLayer) {
+        this.map.removeLayer(this.currentLayer);
+      }
     },
     selectedYear: function () {
-      this.initLayers();
+      if (this.currentLayer) {
+        this.map.removeLayer(this.currentLayer);
+      }
+
+      this.getPrecincts();
     },
   },
   methods: {
     async getPrecincts() {
       await this.$store.dispatch("election/updateParcels", this.selectedYear);
-      this.initMap();
+      this.initLayers();
     },
     initMap() {
       this.map = L.map("map", {
@@ -154,18 +160,16 @@ export default Vue.extend({
       // Calculate the offset
       // Then move the map
       // this.map.panBy(new L.Point(-offset, 0), { animate: false });
-      this.initLayers();
+      // this.initLayers();
     },
     colorFactory(): ColorGenerator {
-      if (this.selectedColorProperty !== null) {
-        const selectedProperty = this.selectedColorProperty;
+      if (this.selectedProperty !== null) {
+        const selectedProperty = this.selectedProperty;
         const propertyVals = this.features.map(
           (el: { properties: Record<string, number | string> }) =>
             el.properties[selectedProperty]
         );
-        const propertyType = this.features[0].properties[
-          this.selectedColorProperty
-        ];
+        const propertyType = this.features[0].properties[this.selectedProperty];
         if (propertyType === "string") {
           // Set color scheme for parcel map
           propertyVals.sort();
@@ -194,7 +198,7 @@ export default Vue.extend({
 
       //@ts-ignore
 
-      const selectedColorProperty = this.selectedColorProperty;
+      const selectedColorProperty = this.selectedProperty;
       // Define popup for parcel map
       function popup(e: any) {
         let propVal = e.layer.properties[selectedColorProperty];

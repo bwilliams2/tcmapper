@@ -63,5 +63,29 @@ def weight_search(request):
 def all_election_precincts(request):
     year = request.query_params.get("year")
     data, features = all_election_data(year)
-    records = data.dropna(how="all", axis=1).sort_index(axis=1).where(data.notna(), None).to_dict(orient="records")
-    return Response({"data": json.dumps(records), "features": json.dumps(features)})
+    data = data.dropna(how="all", axis=1).sort_index(axis=1)
+    cols = data.columns.tolist()
+
+    voting = {}
+    used_cols = []
+    for col in cols:
+        if "us" in col or "mn" in col:
+            base = col[:5] if "mnag" not in col else col[:4]
+            if base not in voting:
+                voting[base] = [col]
+            else:
+                voting[base].append(col)
+            used_cols.append(col)
+        elif "2016" in col:
+            if "usprs" in voting:
+                voting["usprs"].append(col)
+            else:
+                voting["usprs"] = [col]
+            used_cols.append(col)
+    
+    election_info = ["ab_mb", "edr", "reg7am", "regmilovab", "signatures", "tabmodel", "tabsystem", "totvoting", "mailballot"]
+    voting["election"] = [item for item in election_info if item in cols]
+    precinct_stats = ["mean_age", "median_age", "mean_emv", "median_emv", "growth"]
+    voting["precinct"] = [item for item in precinct_stats if item in cols]
+    records = data.where(data.notna(), None).to_dict(orient="records")
+    return Response({"selection": json.dumps(voting), "data": json.dumps(records), "features": json.dumps(features)})

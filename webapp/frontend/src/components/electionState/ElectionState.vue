@@ -3,10 +3,32 @@
     <div :style="buttonContainer">
       <v-card outlined elevation="3">
         <v-select
+          :items="years"
+          :value="selectedYear"
+          label="Election Year"
+          @input="updateSelectedYear"
+          :style="{
+            marginLeft: '10px',
+            marginRight: '10px',
+            marginBottom: '-10px',
+          }"
+        ></v-select>
+        <v-select
+          :items="categories"
+          :value="selectedCategory"
+          label="Category"
+          @input="updateSelectedCategory"
+          :style="{
+            marginLeft: '10px',
+            marginRight: '10px',
+            marginBottom: '-10px',
+          }"
+        ></v-select>
+        <v-select
           :items="properties"
-          :value="selectedColorProperty"
-          label="Color Property"
-          @input="updateSelectedColorProperty"
+          :value="selectedProperty"
+          label="Property"
+          @input="updateSelectedProperty"
           :style="{
             marginLeft: '10px',
             marginRight: '10px',
@@ -22,8 +44,9 @@
 </template>
 
 <script lang="ts">
+import { RootStateType } from "@/store/state";
 import Vue, { PropType } from "vue";
-import { mapGetters } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import ElectionMap from "./ElectionMap.vue";
 
 interface State {
@@ -48,6 +71,7 @@ interface State {
     width: string;
     height: string;
   };
+  availableProperties: string[];
 }
 
 export default Vue.extend({
@@ -79,18 +103,25 @@ export default Vue.extend({
         height: "100%",
         width: "100%",
       },
+      availableProperties: [],
     };
   },
   computed: {
     ...mapGetters("election", {
       properties: "properties",
+      categories: "categories",
+      years: "years",
       selectedYear: "selectedYear",
-      selectedColorProperty: "selectedColorProperty",
+      selectedProperty: "selectedProperty",
+      selectedCategory: "selectedCategory",
     }),
   },
   methods: {
-    updateSelectedColorProperty(newValue: string) {
-      this.$store.dispatch("election/updateColorProperty", newValue);
+    updateSelectedProperty(newValue: string) {
+      this.$store.dispatch("election/updateSelectedProperty", newValue);
+    },
+    updateSelectedCategory(newValue: string) {
+      this.$store.dispatch("election/updateSelectedCategory", newValue);
     },
     updateSelectedYear(newValue: string) {
       this.$store.dispatch("election/updateYear", parseInt(newValue));

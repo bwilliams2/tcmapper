@@ -8,11 +8,12 @@ export interface PrecinctProperties extends Record<string, unknown> {
 
 export type PrecinctItem = GeoJSON.Feature<GeoJSON.Polygon, PrecinctProperties>;
 export interface ElectionControlsState {
-  properties: string[];
+  properties: Record<string, string[]>;
+  categories: string[];
   years: number[];
   selectedYear: number | null;
-  selectedPatternProperty: string | null;
-  selectedColorProperty: string | null;
+  selectedCategory: string | null;
+  selectedProperty: string | null;
 }
 
 export interface ElectionDataState {
@@ -20,7 +21,7 @@ export interface ElectionDataState {
   data: Record<string, string | number | null>[];
 }
 
-interface State {
+export interface State {
   metroControls: ElectionControlsState;
   stateControls: ElectionControlsState;
   data: ElectionDataState;
@@ -28,18 +29,20 @@ interface State {
 
 const state: State = {
   metroControls: {
-    properties: [],
-    years: [],
+    properties: {},
+    categories: [],
+    years: [2012, 2014, 2016, 2018, 2020],
     selectedYear: 2020,
-    selectedPatternProperty: null,
-    selectedColorProperty: null,
+    selectedCategory: null,
+    selectedProperty: null,
   },
   stateControls: {
-    properties: [],
-    years: [],
+    properties: {},
+    categories: [],
+    years: [2012, 2014, 2016, 2018, 2020],
     selectedYear: 2020,
-    selectedPatternProperty: null,
-    selectedColorProperty: null,
+    selectedCategory: null,
+    selectedProperty: null,
   },
   data: {
     features: [],
@@ -59,13 +62,24 @@ const actions = {
         commit("updateShowLoadingOverlay", false, { root: true });
         commit("updateFullParcels", JSON.parse(res.data.features));
         commit("updateFullData", JSON.parse(res.data.data));
+        const properties = JSON.parse(res.data.selection);
+        const categories = Object.keys(properties);
+        commit("updateProperties", properties);
+        commit("updateCategories", categories);
       });
   },
-  updateColorProperty(
+  updateSelectedCategory(
     { commit, state }: { commit: Commit; state: State },
     newValue: string
   ) {
-    commit("updateColorProperty", newValue);
+    commit("updateSelectedCategory", newValue);
+    commit("updateSelectedProperty", null);
+  },
+  updateSelectedProperty(
+    { commit, state }: { commit: Commit; state: State },
+    newValue: string
+  ) {
+    commit("updateSelectedProperty", newValue);
   },
 };
 
@@ -81,25 +95,35 @@ const mutations = {
       //   }
       // );
       const properties = Object.keys(payload[0].properties);
-      newControls.properties = [...properties];
-      newControls.years = [2012, 2014, 2016, 2018, 2020];
       newControls.selectedYear = 2020;
-      newControls.selectedColorProperty = "2020-2016";
+      newControls.selectedCategory = "usprs";
+      newControls.selectedProperty = "2020-2016";
       state.stateControls = { ...newControls };
       state.metroControls = { ...newControls };
     }
   },
+  updateProperties(state: State, payload: Record<string, string[]>) {
+    state.stateControls.properties = payload;
+    state.metroControls.properties = payload;
+  },
+  updateCategories(state: State, payload: string[]) {
+    state.stateControls.categories = payload;
+    state.metroControls.categories = payload;
+  },
   updateFullData(state: State, payload: ElectionDataState["data"]) {
     state.data.data = payload;
   },
-  updateColorProperty(state: State, payload: string) {
-    state.stateControls.selectedColorProperty = payload;
+  updateSelectedProperty(state: State, payload: string) {
+    state.stateControls.selectedProperty = payload;
+  },
+  updateSelectedCategory(state: State, payload: string) {
+    state.stateControls.selectedCategory = payload;
   },
   updateYear(state: State, payload: number) {
     state.stateControls.selectedYear = payload;
   },
   updateMetroColorProperty(state: State, payload: string) {
-    state.metroControls.selectedColorProperty = payload;
+    state.metroControls.selectedProperty = payload;
   },
   updateMetroYear(state: State, payload: number) {
     state.metroControls.selectedYear = payload;
@@ -110,26 +134,37 @@ const getters = {
   features: (state: State) => {
     return state.data.features;
   },
+  years: (state: State) => {
+    return state.stateControls.years;
+  },
   properties: (state: State) => {
-    return state.stateControls.properties;
+    const category = state.stateControls.selectedCategory;
+    if (category) {
+      return state.stateControls.properties[category];
+    } else {
+      return [];
+    }
+  },
+  categories: (state: State) => {
+    return state.stateControls.categories;
   },
   selectedYear: (state: State) => {
     return state.stateControls.selectedYear;
   },
-  selectedColorProperty: (state: State) => {
-    return state.stateControls.selectedColorProperty;
+  selectedCategory: (state: State) => {
+    return state.stateControls.selectedCategory;
   },
-  selectedPatternProperty: (state: State) => {
-    return state.stateControls.selectedPatternProperty;
+  selectedProperty: (state: State) => {
+    return state.stateControls.selectedProperty;
   },
   selectedMetroYear: (state: State) => {
     return state.metroControls.selectedYear;
   },
-  selectedMetroColorProperty: (state: State) => {
-    return state.metroControls.selectedColorProperty;
+  selectedMetroCategory: (state: State) => {
+    return state.metroControls.selectedCategory;
   },
-  selectedMetroPatternProperty: (state: State) => {
-    return state.metroControls.selectedPatternProperty;
+  selectedMetroProperty: (state: State) => {
+    return state.metroControls.selectedProperty;
   },
 };
 

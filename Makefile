@@ -2,7 +2,7 @@
 CONFIG_NAME=personalSite
 
 buildPushUp: buildAWS pushAWS awsUp
-buildPush: buildAWS pushAWS
+buildPush: build push
 
 createConfig:
 	ecs-cli configure --cluster $(CONFIG_NAME) --default-launch-type EC2 --config-name $(CONFIG_NAME) --region us-east-1
@@ -20,7 +20,7 @@ pushAWS:
 
 publishBlogs:
 	cd $(PROJECT_HOME)/devel/blog && \
-	ls *.ipynb | nb2hugo --site-dir /home/bryce/blog --section posts
+	ls *.ipynb | nb2hugo --site-dir ./../blog --section posts
 
 
 # deployAWS:
@@ -35,6 +35,12 @@ awsDown:
 
 awsPs: 
 	ecs-cli ps --cluster-config $(CONFIG_NAME) --ecs-profile $(CONFIG_NAME)-profile	
+
+build:
+	docker-compose -f docker-compose.prod.yml build
+
+push:
+	docker-compose -f docker-compose.prod.yml push
 
 copyEnv:
 	scp .env* deployer@$(DROPLET_IP):/home/deployer/commute
