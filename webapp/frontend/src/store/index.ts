@@ -5,6 +5,7 @@ import mutations from "./mutations";
 import actions from "./actions";
 import parcels from "./modules/parcels";
 import election from "./modules/election";
+import model from "./modules/model";
 
 Vue.use(Vuex);
 
@@ -12,7 +13,7 @@ const store = new Vuex.Store({
   state: rootState,
   mutations: mutations,
   actions: actions,
-  modules: { parcels, election },
+  modules: { parcels, election, model },
 });
 
 if (module.hot) {

@@ -4,6 +4,7 @@ import axios from "axios";
 
 export interface PrecinctProperties extends Record<string, unknown> {
   year: number;
+  countyname: string;
 }
 
 export type PrecinctItem = GeoJSON.Feature<GeoJSON.Polygon, PrecinctProperties>;
@@ -66,6 +67,29 @@ const actions = {
         const categories = Object.keys(properties);
         commit("updateProperties", properties);
         commit("updateCategories", categories);
+      });
+  },
+  async updateMetroParcels({
+    commit,
+    state,
+  }: {
+    commit: Commit;
+    state: State;
+  }) {
+    commit("updateShowLoadingOverlay", true, { root: true });
+    return axios
+      .get(`${API_URL}/api/election/metroprecincts`, {
+        params: { year: 2020 },
+        timeout: 50000,
+      })
+      .then((res) => {
+        commit("updateShowLoadingOverlay", false, { root: true });
+        commit("updateFullParcels", JSON.parse(res.data.features));
+        // commit("updateFullData", JSON.parse(res.data.data));
+        // const properties = JSON.parse(res.data.selection);
+        // const categories = Object.keys(properties);
+        // commit("updateProperties", properties);
+        // commit("updateCategories", categories);
       });
   },
   updateSelectedCategory(

@@ -73,6 +73,7 @@ type DataPoints = [number, number];
 export default Vue.extend({
   name: "ElectionMap",
   mounted() {
+    this.initMap();
     // this.initLayers();
     this.getPrecincts();
   },
@@ -104,28 +105,30 @@ export default Vue.extend({
     };
   },
   computed: {
-    ...mapGetters("election", {
-      features: "features",
-      properties: "properties",
-      selectedYear: "selectedYear",
-      selectedColorProperty: "selectedColorProperty",
+    ...mapGetters("model", {
+      features: "metroFeatures",
     }),
   },
   watch: {
-    mapType: function () {
-      this.initLayers();
-    },
-    selectedProperty: function () {
-      this.initLayers();
+    selectedProperty: function (newValue) {
+      if (this.map && newValue) {
+        this.initLayers();
+      } else if (this.currentLayer) {
+        this.map.removeLayer(this.currentLayer);
+      }
     },
     selectedYear: function () {
-      this.initLayers();
+      if (this.currentLayer) {
+        this.map.removeLayer(this.currentLayer);
+      }
+
+      this.getPrecincts();
     },
   },
   methods: {
     async getPrecincts() {
-      await this.$store.dispatch("election/updateParcels");
-      this.initMap();
+      await this.$store.dispatch("election/updateMetroParcels");
+      this.initLayers();
     },
     initMap() {
       this.map = L.map("map", {
@@ -154,47 +157,44 @@ export default Vue.extend({
       // Calculate the offset
       // Then move the map
       // this.map.panBy(new L.Point(-offset, 0), { animate: false });
-      this.initLayers();
+      // this.initLayers();
     },
     colorFactory(): ColorGenerator {
-      if (this.selectedColorProperty !== null) {
-        const selectedProperty = this.selectedColorProperty;
-        const propertyVals = this.features.map(
-          (el: { properties: Record<string, number | string> }) =>
-            el.properties[selectedProperty]
-        );
-        const propertyType = this.features[0].properties[
-          this.selectedColorProperty
-        ];
-        if (propertyType === "string") {
-          // Set color scheme for parcel map
-          propertyVals.sort();
-          const unique = [...new Set<string>(propertyVals)];
+      const selectedProperty = "2020-2016";
+      const propertyVals = this.features.map(
+        (el: { properties: Record<string, number | string> }) =>
+          el.properties[selectedProperty]
+      );
+      const propertyType = this.features[0].properties[selectedProperty];
+      if (propertyType === "string") {
+        // Set color scheme for parcel map
+        propertyVals.sort();
+        const unique = [...new Set<string>(propertyVals)];
 
-          const scale: ScaleOrdinal<string, string> = d3
-            .scaleOrdinal(d3.schemeCategory10)
-            .domain(unique);
-          return scale;
+        const scale: ScaleOrdinal<string, string> = d3
+          .scaleOrdinal(d3.schemeCategory10)
+          .domain(unique);
+        return scale;
+      } else {
+        propertyVals.sort(d3.ascending);
+        const domain = d3.extent(propertyVals as number[]);
+        if (domain) {
+          return d3
+            .scaleLinear<string, number>()
+            .domain([domain[0], 0, domain[1]] as number[])
+            .range(["red", "white", "blue"]);
         } else {
-          propertyVals.sort(d3.ascending);
-          const domain = d3.extent(propertyVals as number[]);
-          if (domain) {
-            return d3
-              .scaleLinear<string, number>()
-              .domain([domain[0], 0, domain[1]] as number[])
-              .range(["red", "white", "blue"]);
-          }
+          throw new Error("domain not found");
         }
       }
-      throw new Error("No values for given property");
     },
     initLayers() {
       const self = this;
-      const selectedYear = this.selectedYear;
+      const selectedYear = 2020;
 
       //@ts-ignore
 
-      const selectedColorProperty = this.selectedColorProperty;
+      const selectedColorProperty = this.selectedProperty;
       // Define popup for parcel map
       function popup(e: any) {
         let propVal = e.layer.properties[selectedColorProperty];

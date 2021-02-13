@@ -29,8 +29,10 @@ const apiKey = process.env.VUE_APP_HERE_API_KEY as string;
 
 type ColorGenerator =
   | ScaleSequential<string, d3.NumberValue>
+  | ScaleSequential<number, d3.NumberValue>
   | ScaleOrdinal<string, string>
-  | ScaleLinear<string, number>;
+  | ScaleLinear<string, number>
+  | ScaleLinear<number, number>;
 // leaflet.pattern doesn't have typescript support so use any in place
 type PatternGenerator = (
   propValue: string
@@ -109,6 +111,7 @@ export default Vue.extend({
       features: "features",
       properties: "properties",
       selectedYear: "selectedYear",
+      selectedCategory: "selectedCategory",
       selectedProperty: "selectedProperty",
     }),
   },
@@ -170,23 +173,47 @@ export default Vue.extend({
             el.properties[selectedProperty]
         );
         const propertyType = this.features[0].properties[this.selectedProperty];
-        if (propertyType === "string") {
+        if (typeof propertyType === "string") {
           // Set color scheme for parcel map
           propertyVals.sort();
           const unique = [...new Set<string>(propertyVals)];
+          const colorRange = d3
+            .scaleSequential(d3.interpolateViridis)
+            .domain([0, unique.length]);
 
           const scale: ScaleOrdinal<string, string> = d3
-            .scaleOrdinal(d3.schemeCategory10)
-            .domain(unique);
+            .scaleOrdinal<string>()
+            .domain(unique)
+            .range(unique.map((el, i): string => colorRange(i)) as string[]);
           return scale;
         } else {
           propertyVals.sort(d3.ascending);
-          const domain = d3.extent(propertyVals as number[]);
+          let domain = d3.extent<number>(propertyVals) as number[];
           if (domain) {
-            return d3
-              .scaleLinear<string, number>()
-              .domain([domain[0], 0, domain[1]] as number[])
-              .range(["red", "white", "blue"]);
+            if (
+              ["election", "precinct"].includes(this.selectedCategory) ||
+              selectedProperty.includes("density") ||
+              selectedProperty.slice(-4) === "dist"
+            ) {
+              return d3
+                .scaleSequential<string, NumberValue>()
+                .domain([domain[0], domain[1]] as number[])
+                .interpolator(d3.interpolateViridis);
+            } else {
+              let range: string[];
+              if (selectedProperty.slice(-1) === "r") {
+                range = ["white", "red"];
+              } else if (selectedProperty.slice(-3) === "dfl") {
+                range = ["white", "blue"];
+              } else {
+                range = ["red", "white", "blue"];
+                domain = [domain[0], 0, domain[1]];
+              }
+              return d3
+                .scaleLinear<string, number>()
+                .domain(domain)
+                .range(range);
+            }
           }
         }
       }
@@ -202,7 +229,7 @@ export default Vue.extend({
       // Define popup for parcel map
       function popup(e: any) {
         let propVal = e.layer.properties[selectedColorProperty];
-        if (!Number.isNaN(propVal)) {
+        if (Number.isNaN(propVal)) {
           const scale = selectedColorProperty.includes("margin") ? 1000 : 100;
           propVal = Math.round(propVal * scale) / scale;
         }
