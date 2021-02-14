@@ -193,7 +193,9 @@ export default Vue.extend({
             if (
               ["election", "precinct"].includes(this.selectedCategory) ||
               selectedProperty.includes("density") ||
-              selectedProperty.slice(-4) === "dist"
+              selectedProperty.slice(-4) === "dist" ||
+              selectedProperty.includes("total") ||
+              selectedProperty.includes("tot")
             ) {
               return d3
                 .scaleSequential<string, NumberValue>()
@@ -205,9 +207,14 @@ export default Vue.extend({
                 range = ["white", "red"];
               } else if (selectedProperty.slice(-3) === "dfl") {
                 range = ["white", "blue"];
-              } else {
+              } else if (
+                selectedProperty.includes("2016") ||
+                selectedProperty.includes("margin")
+              ) {
                 range = ["red", "white", "blue"];
                 domain = [domain[0], 0, domain[1]];
+              } else {
+                range = ["white", "green"];
               }
               return d3
                 .scaleLinear<string, number>()

@@ -68,7 +68,7 @@
                         left: '50%',
                         transform: 'translateX(-50%) translateY(100%)',
                       }"
-                      to="parcels/stats"
+                      to="parcels"
                       >Parcel Density Stats</v-btn
                     >
                   </v-col>
@@ -144,7 +144,6 @@
                         left: '50%',
                         transform: 'translateX(-50%) translateY(50%)',
                       }"
-                      disabled
                       to="election/metromodel"
                       >Metro Precinct Model</v-btn
                     >

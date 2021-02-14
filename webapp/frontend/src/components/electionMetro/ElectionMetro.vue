@@ -73,6 +73,11 @@
         ></v-select>
       </v-card>
     </div> -->
+    <div :style="plotContainer">
+      <v-card outlined elevation="3">
+        <model-container></model-container>
+      </v-card>
+    </div>
     <div :style="mapContainer">
       <ElectionMap />
     </div>
@@ -84,8 +89,20 @@ import { RootStateType } from "@/store/state";
 import Vue, { PropType } from "vue";
 import { mapGetters, mapState } from "vuex";
 import ElectionMap from "./ElectionMap.vue";
+import ModelContainer from "./ModelContainer.vue";
 
 interface State {
+  plotContainer: {
+    position: string;
+    top: string;
+    zIndex: number;
+    // backgroundColor: string;
+    right: string;
+    left: string;
+    // width: window.innerWidth * 0.35,
+    height: string;
+    padding: string;
+  };
   mapContainer: {
     position: "absolute";
     height: "100%";
@@ -114,9 +131,21 @@ export default Vue.extend({
   name: "Home",
   components: {
     ElectionMap,
+    ModelContainer,
   },
   data(): State {
     return {
+      plotContainer: {
+        position: "absolute",
+        top: "20px",
+        zIndex: 1000,
+        // backgroundColor: "rgb(255,255,255, 0.8)",
+        right: "20px",
+        left: "200px",
+        // width: window.innerWidth * 0.35,
+        height: "200px",
+        padding: "20px",
+      },
       buttonContainer: {
         position: "absolute",
         top: "10px",
@@ -142,6 +171,10 @@ export default Vue.extend({
       availableProperties: [],
     };
   },
+  mounted() {
+    window.addEventListener("resize", this.handleResize);
+    this.handleResize();
+  },
   computed: {
     ...mapGetters("election", {
       properties: "properties",
@@ -150,6 +183,9 @@ export default Vue.extend({
       selectedYear: "selectedYear",
       selectedProperty: "selectedProperty",
       selectedCategory: "selectedCategory",
+    }),
+    ...mapGetters("model", {
+      closestIDs: "closestIDs",
     }),
   },
   methods: {
@@ -161,6 +197,11 @@ export default Vue.extend({
     },
     updateSelectedYear(newValue: string) {
       this.$store.dispatch("election/updateYear", parseInt(newValue));
+    },
+    handleResize() {
+      this.containerStyle.height = window.innerHeight - 64 + "px";
+      this.plotContainer.left = window.innerWidth * 0.55 + "px";
+      this.plotContainer.height = window.innerHeight - 64 - 60 + "px";
     },
   },
 });

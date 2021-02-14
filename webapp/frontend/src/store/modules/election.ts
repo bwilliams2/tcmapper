@@ -17,9 +17,15 @@ export interface ElectionControlsState {
   selectedProperty: string | null;
 }
 
+export interface ElectionDataItem
+  extends Record<string, string | number | null> {
+  year: number;
+  countyname: string;
+}
+
 export interface ElectionDataState {
   features: PrecinctItem[];
-  data: Record<string, string | number | null>[];
+  data: ElectionDataItem[];
 }
 
 export interface State {
@@ -78,7 +84,7 @@ const actions = {
   }) {
     commit("updateShowLoadingOverlay", true, { root: true });
     return axios
-      .get(`${API_URL}/api/election/metroprecincts`, {
+      .get(`${API_URL}/api/election/precincts`, {
         params: { year: 2020 },
         timeout: 50000,
       })

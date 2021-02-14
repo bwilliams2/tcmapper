@@ -4,6 +4,7 @@ import Home from "../views/Home.vue";
 import Landing from "@/components/landing/Landing.vue";
 import MapData from "@/components/mapplot/MapData.vue";
 import ElectionState from "@/components/electionState/ElectionState.vue";
+import ElectionMetro from "@/components/electionMetro/ElectionMetro.vue";
 import Base from "@/components/base/Base.vue";
 
 Vue.use(VueRouter);
@@ -20,6 +21,11 @@ const routes: Array<RouteConfig> = [
         path: "/election/stateprecincts",
         component: ElectionState,
         name: "electionState",
+      },
+      {
+        path: "/election/metromodel",
+        component: ElectionMetro,
+        name: "electionMetro",
       },
       // { path: "", component: MapData, name: "home" },
     ],

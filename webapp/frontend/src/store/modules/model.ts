@@ -1,7 +1,9 @@
 import axios from "axios";
 import { API_URL } from "@/utils/misc";
+import math from "mathjs";
 import { Commit } from "vuex/types";
 import { RootStateType } from "../state";
+import { ElectionDataItem, ElectionDataState } from "./election";
 
 export interface State {
   controls: {
@@ -58,11 +60,21 @@ const actions = {
   },
   async updateControlLimits({ commit, state }: ActionArgument) {
     return axios
-      .get(`${API_URL}/api/election/modelLimits`, {
+      .get(`${API_URL}/api/election/precinctstatsrange`, {
         timeout: 5000,
       })
       .then((res) => {
-        commit("updateModelControlLimits", JSON.parse(res.data));
+        commit("updateModelControlLimits", JSON.parse(res.data.stats));
+      });
+  },
+  updateClosestIDs({ commit, state }: ActionArgument) {
+    return axios
+      .get(`${API_URL}/api/election/metroprecincts`, {
+        params: { ...state.controls },
+        timeout: 5000,
+      })
+      .then((res) => {
+        commit("updateClosestIDs", JSON.parse(res.data.ids));
       });
   },
   updateMeanAge({ commit, state }: ActionArgument, newAge: number) {
@@ -80,8 +92,23 @@ const mutations = {
   updateModelData(state: State, payload: State["data"]) {
     state.data = { ...payload };
   },
-  updateModelControlLimits(state: State, payload: State["limits"]) {
-    state.limits = { ...payload };
+  updateModelControlLimits(
+    state: State,
+    payload: {
+      city_dis: [number, number];
+      mean_emv: [number, number];
+      mean_age: [number, number];
+    }
+  ) {
+    state.limits.cityDis = payload.city_dis;
+    state.limits.meanEMV = payload.mean_emv;
+    state.limits.meanAge = payload.mean_age;
+    state.controls.cityDis = (payload.city_dis[0] + payload.city_dis[1]) / 2;
+    state.controls.meanEMV = (payload.mean_emv[0] + payload.mean_emv[1]) / 2;
+    state.controls.meanAge = (payload.mean_age[0] + payload.mean_age[1]) / 2;
+  },
+  updateClosestIDs(state: State, payload: number[]) {
+    state.data.closestIDs = payload;
   },
   updateMeanAge(state: State, payload: number) {
     state.controls.meanAge = payload;
@@ -95,7 +122,7 @@ const mutations = {
 };
 
 const getters = {
-  metroFeatures: (state: State, rootState: RootStateType) => {
+  metroFeatures: (state: State, getters: unknown, rootState: RootStateType) => {
     const counties = [
       "Anoka",
       "Dakota",
@@ -105,10 +132,29 @@ const getters = {
       "Washington",
       "Carver",
     ];
-    return rootState.election?.data.features.filter(
-      (el) =>
-        counties.includes(el?.properties.countyname) &&
-        el.properties.year === 2020
+    if (rootState.election && rootState.election.data.features.length === 0) {
+      return [];
+    } else {
+      return rootState.election?.data.features.filter(
+        (el) =>
+          counties.includes(el?.properties.countyname) &&
+          el.properties.year === 2020
+      );
+    }
+  },
+  metroData: (state: State, rootState: RootStateType) => {
+    const counties = [
+      "Anoka",
+      "Dakota",
+      "Hennepin",
+      "Scott",
+      "Ramsey",
+      "Washington",
+      "Carver",
+    ];
+    return rootState.election?.data.data.filter(
+      (el: ElectionDataItem) =>
+        counties.includes(el.countyname) && el.year === 2020
     );
   },
   meanAge: (state: State) => {
@@ -129,7 +175,7 @@ const getters = {
   cityDisLimits: (state: State) => {
     return state.limits.cityDis;
   },
-  closetIDs: (state: State) => {
+  closestIDs: (state: State) => {
     return state.data.closestIDs;
   },
   closetData: (state: State) => {

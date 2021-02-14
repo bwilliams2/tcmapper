@@ -20,6 +20,7 @@ import {
 } from "d3";
 import { GeoProjection } from "d3-geo";
 import { FeatureCollection } from "geojson";
+import _ from "lodash";
 import "leaflet.heat";
 import "leaflet.vectorgrid";
 import "leaflet.pattern";
@@ -75,11 +76,17 @@ export default Vue.extend({
   mounted() {
     this.initMap();
     // this.initLayers();
-    this.getPrecincts();
+    this.getPrecincts().then(() => {
+      this.initLayers();
+      this.updateClosestIDStyles([]);
+    });
   },
   beforeDestroy() {
     this.map.off();
     this.map.remove();
+  },
+  created() {
+    this.updateLayers = _.debounce(this.updateLayers, 500);
   },
   props: {
     selectedFeatures: {
@@ -107,6 +114,7 @@ export default Vue.extend({
   computed: {
     ...mapGetters("model", {
       features: "metroFeatures",
+      closestIDs: "closestIDs",
     }),
   },
   watch: {
@@ -117,17 +125,28 @@ export default Vue.extend({
         this.map.removeLayer(this.currentLayer);
       }
     },
+    features: function () {
+      this.initLayers();
+    },
+    closestIDs: function (newValues, oldValues) {
+      this.updateClosestIDStyles(oldValues);
+    },
     selectedYear: function () {
       if (this.currentLayer) {
         this.map.removeLayer(this.currentLayer);
       }
 
-      this.getPrecincts();
+      this.getPrecincts().then(() => {
+        this.initLayers();
+      });
     },
   },
   methods: {
     async getPrecincts() {
       await this.$store.dispatch("election/updateMetroParcels");
+      this.initLayers();
+    },
+    updateLayers() {
       this.initLayers();
     },
     initMap() {
@@ -194,7 +213,7 @@ export default Vue.extend({
 
       //@ts-ignore
 
-      const selectedColorProperty = this.selectedProperty;
+      const selectedColorProperty = "2020-2016";
       // Define popup for parcel map
       function popup(e: any) {
         let propVal = e.layer.properties[selectedColorProperty];
@@ -225,8 +244,12 @@ export default Vue.extend({
         ),
       };
       const color = this.colorFactory();
-      //@ts-ignore
+      const closestIDs = this.closestIDs;
+      //@ts-ignore no types for vectorGrid
       this.currentLayer = L.vectorGrid.slicer(geoJsonConstruct, {
+        getFeatureId: function (f: any) {
+          return f.properties.id;
+        },
         vectorTileLayerStyles: {
           sliced: function (properties: Record<string, string | number>) {
             //@ts-ignore
@@ -245,10 +268,10 @@ export default Vue.extend({
               //@ts-ignore
               fill: true,
               fillColor: parcelColor,
-              fillOpacity: 0.8,
+              fillOpacity: closestIDs.includes(properties.id) ? 1 : 0.1,
               color: "black",
-              opacity: 0.9,
-              weight: 0.5,
+              opacity: closestIDs.includes(properties.id) ? 1 : 0.1,
+              weight: closestIDs.includes(properties.id) ? 1 : 0.1,
             };
           },
         },
@@ -262,6 +285,13 @@ export default Vue.extend({
       this.tileLayer?.setOpacity(0.7);
       this.currentLayer?.addTo(this.map);
       this.currentLayer?.on("click", popup);
+    },
+    updateClosestIDStyles(oldIDs: number[]) {
+      this.initLayers();
+      //@ts-ignore
+      // this.closestIDs.forEach((el) => this.currentLayer?.setFeatureStyle(el, { fillOpacity: 1 }));
+      // //@ts-ignore
+      // oldIDs.forEach((el) => this.currentLayer?.resetFeatureStyle(el));
     },
   },
 });

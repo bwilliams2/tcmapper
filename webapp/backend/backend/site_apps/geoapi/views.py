@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from django.conf import settings
-from geotools.election import all_election_data
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -9,6 +8,7 @@ import uuid
 import json
 
 from geotools.path_calc import weighted_parcel_address_search
+from geotools.election import all_election_data, metro_ids, precinct_stat_ranges
 from geotools.misc import get_metro_counties
 from geotools.stats import growth_rates
 
@@ -89,3 +89,19 @@ def all_election_precincts(request):
     voting["precinct"] = [item for item in precinct_stats if item in cols]
     records = data.where(data.notna(), None).to_dict(orient="records")
     return Response({"selection": json.dumps(voting), "data": json.dumps(records), "features": json.dumps(features)})
+
+@api_view(["GET"])
+def get_metro_parcel_ids(request):
+    mean_emv = request.query_params.get("meanEMV", None)
+    mean_emv = float(mean_emv) if mean_emv is not None else mean_emv
+    mean_age = request.query_params.get("meanAge", None)
+    mean_age = float(mean_age) if mean_age is not None else mean_age
+    city_dis = request.query_params.get("cityDis", None)
+    city_dis = float(city_dis) if city_dis is not None else city_dis
+    found_ids = metro_ids(2020, mean_emv, mean_age, city_dis)
+    return Response({"ids": json.dumps(found_ids)})
+
+@api_view(["GET"])
+def get_precinct_stat_ranges(request):
+    stats = precinct_stat_ranges()
+    return Response({"stats": json.dumps(stats)})
