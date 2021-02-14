@@ -18,6 +18,8 @@ password = os.getenv("POSTGRES_PASSWORD")
 host = os.getenv("POSTGRES_HOST")
 port = os.getenv("POSTGRES_PORT")
 
+counties = ["Anoka", "Dakota", "Hennepin", "Scott", "Ramsey", "Washington", "Carver"]
+
 def create_geojson(row):
     # Only keep columns used in fronted. Will need to update if more are needed
     parcel = row.pop("parcel")
@@ -59,7 +61,6 @@ def metro_ids(year: int, mean_emv: float = None, mean_age: float = None, city_di
         additional_query = ""
 
 
-    counties = ["Anoka", "Dakota", "Hennepin", "Scott", "Ramsey", "Washington", "Carver"]
     # counties = [f"'{val}'" for val in counties]
     county_array = "'{" + f",".join(counties) + "}'::text[]"
     additional_query += f" AND (p.countyname = ANY ({county_array}))"
@@ -104,3 +105,29 @@ def precinct_stat_ranges():
             cursor.close()
             connection.close()
     return values
+
+def model_nearest_neighbors(n_neighbors: int = 10, **kwargs):
+    # Create auto-centered array and find nearest neighbor
+    select_query = "p." + ", p.".join(kwargs.keys())
+    
+    year = 2020
+    county_array = "'{" + f",".join(counties) + "}'::text[]"
+    query = f"SELECT p.id, {select_query} FROM processed_election p WHERE p.year = {year} AND (p.countyname = ANY ({county_array}))"
+
+    try:
+        connection = psycopg2.connect(f"dbname='{dbname}' user='{user}' password='{password}' host='{host}' port='{port}'")
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cursor.execute(query)
+        d = cursor.fetchall()
+    finally:
+        if (connection):
+            cursor.close()
+            connection.close()
+    center = np.array(list(kwargs.values()))
+    df = pd.DataFrame(d).dropna()
+    cols = [col for col in df.columns if col != "id"]
+    records = df[cols].values
+    records = np.vstack([records, center])
+    d = (records - np.mean(records, axis=0)) / (np.max(records, axis=0) - np.min(records, axis=0))
+    min_args = np.argsort(np.sum((d[:-1] - d[-1]) ** 2, axis=1))
+    return df["id"].iloc[min_args[:n_neighbors]]
