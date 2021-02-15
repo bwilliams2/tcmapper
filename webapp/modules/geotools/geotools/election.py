@@ -94,11 +94,15 @@ def precinct_stat_ranges():
             f"MAX(p.mean_age) as max_mean_age, "\
             f"MIN(p.mean_age) as min_mean_age, "\
             f"MAX(p.cit_dis) as max_city_dis, "\
-            f"MIN(p.cit_dis) as min_city_dis "\
+            f"MIN(p.cit_dis) as min_city_dis, "\
+            f"MAX(p.usprs_vote_density) as max_usprs_vote_density, "\
+            f"MIN(p.usprs_vote_density) as min_usprs_vote_density, "\
+            f"MAX(p.growth) as max_growth, "\
+            f"MIN(p.growth) as min_growth "\
             f"FROM processed_election p WHERE p.year = {year}{additional_query}")
         d = cursor.fetchall()[0]
         values = {}
-        for cat in ["mean_age", "mean_emv", "city_dis"]:
+        for cat in ["mean_age", "mean_emv", "city_dis", "growth", "usprs_vote_density"]:
             values[cat] = [d[f"min_{cat}"], d[f"max_{cat}"]]
     finally:
         if (connection):
@@ -106,11 +110,9 @@ def precinct_stat_ranges():
             connection.close()
     return values
 
-def model_nearest_neighbors(n_neighbors: int = 10, **kwargs):
+def model_nearest_neighbors(n_neighbors: int = 10, year: int = 2020, **kwargs):
     # Create auto-centered array and find nearest neighbor
     select_query = "p." + ", p.".join(kwargs.keys())
-    
-    year = 2020
     county_array = "'{" + f",".join(counties) + "}'::text[]"
     query = f"SELECT p.id, {select_query} FROM processed_election p WHERE p.year = {year} AND (p.countyname = ANY ({county_array}))"
 

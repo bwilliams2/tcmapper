@@ -17,8 +17,18 @@ import sys
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load model to top level django
+import tensorflow as tf
 
-
+def load_model():
+    # load the pre-trained Keras model (here we are using a model
+    # pre-trained on ImageNet and provided by Keras, but you can
+    # substitute in your own networks just as easily)
+    global model
+    model = tf.keras.models.load_model(Path(__file__).parent.joinpath("data/Model"))
+    return model
+# Load our model when server starts
+MODEL = load_model()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/

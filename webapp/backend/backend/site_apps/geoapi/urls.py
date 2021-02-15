@@ -6,5 +6,5 @@ urlpatterns = [
     re_path("^weight", weight_search),
     re_path("^election/precinctstatsrange", get_precinct_stat_ranges),
     re_path("^election/precincts", all_election_precincts),
-    re_path("^election/metroprecincts", get_metro_parcel_ids),
+    re_path("^election/metromodel", get_metro_parcel_ids),
 ]

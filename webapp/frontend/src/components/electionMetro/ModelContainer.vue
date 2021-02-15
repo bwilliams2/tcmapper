@@ -50,10 +50,39 @@
           >
             <template v-slot:thumb-label="item"> {{ item.value }} mi </template>
           </v-slider>
+          <v-slider
+            :value="voteDensity"
+            @change="updateVoteDensity"
+            :min="voteDensityLimits[0]"
+            :max="voteDensityLimits[1]"
+            label="Vote Density"
+            thumb-label="always"
+            thumb-size="35"
+            :style="{ margin: '20px' }"
+          >
+            <template v-slot:thumb-label="item">
+              {{ parseInt(item.value / 1000) }}
+            </template>
+          </v-slider>
+          <v-slider
+            :value="growth * 1000"
+            @change="updateGrowth"
+            :min="growthLimits[0] * 1000"
+            :max="growthLimits[1] * 1000"
+            label="5-year Growth"
+            thumb-label="always"
+            thumb-size="35"
+            :style="{ margin: '20px' }"
+          >
+            <template v-slot:thumb-label="item">
+              {{ item.value / 10 }}%
+            </template>
+          </v-slider>
         </v-col>
       </v-row>
       <v-row class="fill-height">
         <v-col cols="12">
+          <div class="text-h5">Prediction: {{ predictedMargin }}</div>
           <!-- <div
             id="barplotparent"
             v-bind:style="parentStyle"
@@ -158,6 +187,12 @@ export default Vue.extend({
     meanAge: function () {
       this.updateClosestIDs();
     },
+    voteDensity: function () {
+      this.updateClosestIDs();
+    },
+    growth: function () {
+      this.updateClosestIDs();
+    },
   },
   mounted() {
     this.$store.dispatch("model/updateControlLimits");
@@ -167,9 +202,14 @@ export default Vue.extend({
       meanEMV: "meanEMV",
       meanAge: "meanAge",
       cityDis: "cityDis",
+      growth: "growth",
+      voteDensity: "voteDensity",
+      predictedMargin: "predictedMargin",
       meanEMVLimits: "meanEMVLimits",
       meanAgeLimits: "meanAgeLimits",
       cityDisLimits: "cityDisLimits",
+      growthLimits: "growthLimits",
+      voteDensityLimits: "voteDensityLimits",
       closestIDs: "closetIDs",
       metroData: "metroData",
     }),
@@ -186,6 +226,12 @@ export default Vue.extend({
     },
     updateMeanAge(newAge: number) {
       this.$store.dispatch("model/updateMeanAge", newAge);
+    },
+    updateGrowth(newGrowth: number) {
+      this.$store.dispatch("model/updateGrowth", newGrowth / 1000);
+    },
+    updateVoteDensity(newVoteDensity: number) {
+      this.$store.dispatch("model/updateVoteDensity", newVoteDensity);
     },
     resetAnalysis() {
       this.$store.dispatch("resetAnalysis");

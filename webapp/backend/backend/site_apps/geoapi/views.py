@@ -6,9 +6,10 @@ from rest_framework.response import Response
 from pathlib import Path
 import uuid
 import json
+import numpy as np
 
 from geotools.path_calc import weighted_parcel_address_search
-from geotools.election import all_election_data, metro_ids, precinct_stat_ranges
+from geotools.election import all_election_data, metro_ids, precinct_stat_ranges, model_nearest_neighbors
 from geotools.misc import get_metro_counties
 from geotools.stats import growth_rates
 
@@ -92,14 +93,21 @@ def all_election_precincts(request):
 
 @api_view(["GET"])
 def get_metro_parcel_ids(request):
-    mean_emv = request.query_params.get("meanEMV", None)
-    mean_emv = float(mean_emv) if mean_emv is not None else mean_emv
-    mean_age = request.query_params.get("meanAge", None)
-    mean_age = float(mean_age) if mean_age is not None else mean_age
-    city_dis = request.query_params.get("cityDis", None)
-    city_dis = float(city_dis) if city_dis is not None else city_dis
-    found_ids = metro_ids(2020, mean_emv, mean_age, city_dis)
-    return Response({"ids": json.dumps(found_ids)})
+    inputs = dict(
+        mean_emv = request.query_params.get("meanEMV", None),
+        mean_age = request.query_params.get("meanAge", None),
+        cit_dis = request.query_params.get("cityDis", None),
+        usprs_vote_density = request.query_params.get("voteDensity", None),
+        growth = request.query_params.get("growth", None),
+    )
+    if any([val is None for val in inputs.values()]):
+        raise ValueError("Missing required inputs for model.")
+    inputs = {k: float(v) for k, v in inputs.items()}
+    found_ids = model_nearest_neighbors(**inputs).values.tolist()
+    X_cols = ["cit_dis", "growth", "usprs_vote_density", "mean_emv", "mean_age"]
+    vals = np.array([[inputs[col] for col in X_cols]])
+    predicted = float(np.squeeze(settings.MODEL(vals).numpy()))
+    return Response({"ids": json.dumps(found_ids), "prediction": predicted})
 
 @api_view(["GET"])
 def get_precinct_stat_ranges(request):
