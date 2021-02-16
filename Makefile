@@ -46,3 +46,11 @@ copyEnv:
 	scp .env* deployer@$(DROPLET_IP):/home/deployer/commute
 	scp docker-compose* deployer@$(DROPLET_IP):/home/deployer/commute
 	scp dockerservice/* deployer@$(DROPLET_IP):/home/deployer/commute/docker-service
+
+deploy:
+	docker-compose -f docker-compose.deploy.yml down -v
+	docker rmi $(docker images -f "dangling=true" -q)
+	docker volume prune
+	docker-compose -f docker-compose.deploy.yml pull
+	docker-compose -f docker-compose.deploy.yml up -d --force-recreate
+
