@@ -158,6 +158,85 @@ def populate_parcels():
             cursor.close()
             connection.close()
 
+def populate_census():
+    files = [file for file in Path("../../data/census").glob("*.shp")]
+    connection = psycopg2.connect(f"dbname=postgres user=postgres password='{os.getenv('POSTGRES_PASSWORD')}' host='localhost'")
+    cursor = connection.cursor()
+    try:
+        parsed_columns = set()
+        for file in files:
+            print(f"\nProcessing tracts from {file.name}")
+            data = fiona.open(file)
+            parsed_columns.update(set(parse_columns(data.schema)))
+        parsed_columns = sorted(list(parsed_columns))
+        # consolidate duplicates to Integers
+        split_cols = [[col.split(" ")[0], " ".join(col.split(" ")[1:])] for col in parsed_columns]
+        d = pd.DataFrame(split_cols)
+        def cast_value(df):
+            if df.shape[0] > 1:
+                try:
+                    return df.loc[df.iloc[:,1] == "INTEGER"]
+                except:
+                    pass
+            return df
+        f = d.groupby(0).apply(cast_value)
+        parsed_columns = [" ".join(row) for row in f.values.tolist()]
+        columns = ",".join(["id SERIAL", "year INTEGER"] + parsed_columns)
+        cursor.execute(f"DROP TABLE IF EXISTS election")
+        cursor.execute(f"""
+            CREATE TABLE census (
+                {columns},
+                tract_area DOUBLE PRECISION,
+                geom GEOGRAPHY(MULTIPOLYGON),
+                geom_c GEOGRAPHY(Point),
+
+                PRIMARY KEY (id))
+        """)
+
+        # cursor.execute("""
+        #     SELECT AddGeometryColumn('parcels', 'geom', 4326, 'MULTIPOLYGON', 2)
+        # """)
+
+        # cursor.execute("""
+        #     SELECT AddGeometryColumn('parcels', 'geom_c', 4326, 'POINT', 2)
+        # """)
+        process_values = values_factory(parsed_columns)
+        files = sorted(files, key=lambda x: re.findall("(20[0-9]{2,})", x.name)[0])
+
+        # Put parcels in census tracts
+        cursor.execute(f"ALTER TABLE parcels DROP COLUMN IF EXISTS tract_geoid")
+        cursor.execute(f"ALTER TABLE parcels ADD COLUMN tract_geoid TEXT")
+
+        # Align precincts with census
+        cursor.execute(f"ALTER TABLE election DROP COLUMN IF EXISTS tract_geoid")
+        cursor.execute(f"ALTER TABLE election ADD COLUMN tract_geoid TEXT")
+
+        cursor.execute(f"")
+        for n, file in enumerate(files):
+            # use arcpy to get attribute data, populate PostGIS using psycopg2
+            cols = [col.split()[0] for col in parsed_columns]
+            print(f"\nProcessing parcels from {file.name}")
+            for n, row in tqdm(enumerate(data), total=len(data)):
+                if row["geometry"]["type"] == "MultiPolygon":
+                    parcel = ",".join([convert_polygon(shape) for shape in row["geometry"]["coordinates"]])
+                else:
+                    parcel = convert_polygon(row["geometry"]["coordinates"])
+                # the id was transferring as a float so this is just to remove decimal
+                row_values = [*process_values(row)]
+                # this was tough - everything needs to be a string and text being inserted wrapped in '' including wkt
+                # cursor.execute(f"INSERT INTO parcels ({', '.join(cols)}, geom, geom_c) VALUES ({', '.join(row_values)}, ST_GeometryFromText('MULTIPOLYGON({parcel})', 4326), {point_entry})")
+                cursor.execute(f"INSERT INTO census ({', '.join(cols)}, tract_area, geom, geom_c) VALUES ({', '.join(row_values)}, ST_Area('SRID=4326;MULTIPOLYGON({parcel})'::geometry), 'MULTIPOLYGON({parcel})', ST_Centroid('SRID=4326;MULTIPOLYGON({parcel})'::geography))")
+                cursor.execute(f"UPDATE parcels SET tract_geoid = '{row['properties']['geoid']}' WHERE ST_Intersects('SRID=4326;MULTIPOLYGON({parcel})'::geometry, parcels.geom_c::geometry)")
+                cursor.execute(f"UPDATE election SET tract_geoid = '{row['properties']['geoid']}' WHERE ST_Intersects('SRID=4326;MULTIPOLYGON({parcel})'::geometry, election.geom_c::geometry)")
+                # cursor.execute(f"UPDATE parcels SET tract_geoid = array_append(tract_geoid, '{row['properties']['GEOID']}') WHERE ST_Intersects('SRID=4326;MULTIPOLYGON({parcel})'::geometry, parcels.geom_c::geometry)")
+            connection.commit()
+        connection.commit()
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()
+    
+
 def populate_elections():
     files = [file for file in Path("../../data/shp_bdry_electionresults_2012_2020").glob("*4326.shp") if "Points" not in file.name]
     connection = psycopg2.connect(f"dbname=postgres user=postgres password='{os.getenv('POSTGRES_PASSWORD')}' host='localhost'")
@@ -487,9 +566,12 @@ if __name__ == "__main__":
             ops.append(populate_grid)
         elif arg == "districts":
             ops.append(populate_elections)
+        elif arg == "census":
+            ops.append(populate_census)
         elif arg == "all":
             ops.append(populate_parcels)
             ops.append(populate_elections)
+            ops.append(populate_census)
             ops.append(populate_counties)
             ops.append(populate_grid)
             break
