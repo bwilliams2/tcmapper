@@ -16,7 +16,7 @@
       <g class="x-axis-label">
         <text
           :transform="`translate(${width / 2}, ${height + margins.top + 30})`"
-          :style="{ textAnchor: 'middle' }"
+          :style="{ textAnchor: 'middle', color: 'white' }"
         >
           Year Built
         </text>
@@ -26,7 +26,7 @@
           :transform="`rotate(-90)`"
           :y="`${0 - margins.left + 10}`"
           :x="`${0 - height / 2}`"
-          :style="{ textAnchor: 'middle' }"
+          :style="{ textAnchor: 'middle', color: 'white' }"
         >
           Annual Growth Rate
         </text>

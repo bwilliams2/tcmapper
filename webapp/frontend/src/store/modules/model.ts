@@ -12,6 +12,9 @@ export interface State {
     cityDis: number | null;
     growth: number | null;
     voteDensity: number | null;
+    medianAge: number | null;
+    medianInc: number | null;
+    ratioOneHouse: number | null;
   };
   limits: {
     meanAge: [number, number];
@@ -19,6 +22,9 @@ export interface State {
     cityDis: [number, number];
     growth: [number, number];
     voteDensity: [number, number];
+    medianAge: [number, number];
+    medianInc: [number, number];
+    ratioOneHouse: [number, number];
   };
   data: {
     closestIDs: number[];
@@ -34,6 +40,9 @@ const state: State = {
     cityDis: null,
     growth: null,
     voteDensity: null,
+    medianAge: null,
+    medianInc: null,
+    ratioOneHouse: null,
   },
   limits: {
     meanAge: [1974, 2003],
@@ -41,6 +50,9 @@ const state: State = {
     cityDis: [0.5, 30],
     growth: [0, 1],
     voteDensity: [100000, 200000],
+    medianAge: [20, 80],
+    medianInc: [10000, 700000],
+    ratioOneHouse: [0, 0.8],
   },
   data: {
     closestIDs: [],
@@ -101,6 +113,18 @@ const actions = {
   updateGrowth({ commit, state }: ActionArgument, growth: number) {
     commit("updateGrowth", growth);
   },
+  updateMedianAge({ commit, state }: ActionArgument, medianAge: number) {
+    commit("updateMedianAge", medianAge);
+  },
+  updateMedianInc({ commit, state }: ActionArgument, medianInc: number) {
+    commit("updateMedianInc", medianInc);
+  },
+  updateRatioOneHouse(
+    { commit, state }: ActionArgument,
+    ratioOneHouse: number
+  ) {
+    commit("updateRatioOneHouse", ratioOneHouse);
+  },
 };
 
 const mutations = {
@@ -115,6 +139,9 @@ const mutations = {
       mean_age: [number, number];
       usprs_vote_density: [number, number];
       growth: [number, number];
+      medage: [number, number];
+      medinc: [number, number];
+      ronehouse: [number, number];
     }
   ) {
     state.limits.cityDis = payload.city_dis;
@@ -125,6 +152,10 @@ const mutations = {
     state.controls.cityDis = (payload.city_dis[0] + payload.city_dis[1]) / 2;
     state.controls.meanEMV = (payload.mean_emv[0] + payload.mean_emv[1]) / 2;
     state.controls.meanAge = (payload.mean_age[0] + payload.mean_age[1]) / 2;
+    state.controls.medianAge = (payload.medage[0] + payload.medage[1]) / 2;
+    state.controls.medianInc = (payload.medinc[0] + payload.medinc[1]) / 2;
+    state.controls.ratioOneHouse =
+      (payload.ronehouse[0] + payload.ronehouse[1]) / 2;
     state.controls.voteDensity =
       (payload.usprs_vote_density[0] + payload.usprs_vote_density[1]) / 2;
     state.controls.growth = (payload.growth[0] + payload.growth[1]) / 2;
@@ -143,6 +174,15 @@ const mutations = {
   },
   updateGrowth(state: State, payload: number) {
     state.controls.growth = payload;
+  },
+  updateMedianAge(state: State, payload: number) {
+    state.controls.medianAge = payload;
+  },
+  updateMedianInc(state: State, payload: number) {
+    state.controls.medianInc = payload;
+  },
+  updateRatioOneHouse(state: State, payload: number) {
+    state.controls.ratioOneHouse = payload;
   },
   updateVoteDensity(state: State, payload: number) {
     state.controls.voteDensity = payload;
@@ -203,6 +243,15 @@ const getters = {
   growth: (state: State) => {
     return state.controls.growth;
   },
+  medianAge: (state: State) => {
+    return state.controls.medianAge;
+  },
+  medianInc: (state: State) => {
+    return state.controls.medianInc;
+  },
+  ratioOneHouse: (state: State) => {
+    return state.controls.ratioOneHouse;
+  },
   meanAgeLimits: (state: State) => {
     return state.limits.meanAge;
   },
@@ -217,6 +266,15 @@ const getters = {
   },
   growthLimits: (state: State) => {
     return state.limits.growth;
+  },
+  medianAgeLimits: (state: State) => {
+    return state.limits.medianAge;
+  },
+  medianIncLimits: (state: State) => {
+    return state.limits.medianInc;
+  },
+  ratioOneHouseLimits: (state: State) => {
+    return state.limits.ratioOneHouse;
   },
   closestIDs: (state: State) => {
     return state.data.closestIDs;

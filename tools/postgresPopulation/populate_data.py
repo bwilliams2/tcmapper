@@ -182,7 +182,7 @@ def populate_census():
         f = d.groupby(0).apply(cast_value)
         parsed_columns = [" ".join(row) for row in f.values.tolist()]
         columns = ",".join(["id SERIAL", "year INTEGER"] + parsed_columns)
-        cursor.execute(f"DROP TABLE IF EXISTS election")
+        cursor.execute(f"DROP TABLE IF EXISTS census")
         cursor.execute(f"""
             CREATE TABLE census (
                 {columns},
@@ -211,24 +211,28 @@ def populate_census():
         cursor.execute(f"ALTER TABLE election DROP COLUMN IF EXISTS tract_geoid")
         cursor.execute(f"ALTER TABLE election ADD COLUMN tract_geoid TEXT")
 
-        cursor.execute(f"")
         for n, file in enumerate(files):
             # use arcpy to get attribute data, populate PostGIS using psycopg2
             cols = [col.split()[0] for col in parsed_columns]
             print(f"\nProcessing parcels from {file.name}")
             for n, row in tqdm(enumerate(data), total=len(data)):
-                if row["geometry"]["type"] == "MultiPolygon":
-                    parcel = ",".join([convert_polygon(shape) for shape in row["geometry"]["coordinates"]])
-                else:
-                    parcel = convert_polygon(row["geometry"]["coordinates"])
-                # the id was transferring as a float so this is just to remove decimal
-                row_values = [*process_values(row)]
-                # this was tough - everything needs to be a string and text being inserted wrapped in '' including wkt
-                # cursor.execute(f"INSERT INTO parcels ({', '.join(cols)}, geom, geom_c) VALUES ({', '.join(row_values)}, ST_GeometryFromText('MULTIPOLYGON({parcel})', 4326), {point_entry})")
-                cursor.execute(f"INSERT INTO census ({', '.join(cols)}, tract_area, geom, geom_c) VALUES ({', '.join(row_values)}, ST_Area('SRID=4326;MULTIPOLYGON({parcel})'::geometry), 'MULTIPOLYGON({parcel})', ST_Centroid('SRID=4326;MULTIPOLYGON({parcel})'::geography))")
-                cursor.execute(f"UPDATE parcels SET tract_geoid = '{row['properties']['geoid']}' WHERE ST_Intersects('SRID=4326;MULTIPOLYGON({parcel})'::geometry, parcels.geom_c::geometry)")
-                cursor.execute(f"UPDATE election SET tract_geoid = '{row['properties']['geoid']}' WHERE ST_Intersects('SRID=4326;MULTIPOLYGON({parcel})'::geometry, election.geom_c::geometry)")
-                # cursor.execute(f"UPDATE parcels SET tract_geoid = array_append(tract_geoid, '{row['properties']['GEOID']}') WHERE ST_Intersects('SRID=4326;MULTIPOLYGON({parcel})'::geometry, parcels.geom_c::geometry)")
+                try: 
+                    if row["geometry"]["type"] == "MultiPolygon":
+                        parcel = ",".join([convert_polygon(shape) for shape in row["geometry"]["coordinates"]])
+                    else:
+                        parcel = convert_polygon(row["geometry"]["coordinates"])
+                    # the id was transferring as a float so this is just to remove decimal
+                    row_values = [*process_values(row)]
+                    # this was tough - everything needs to be a string and text being inserted wrapped in '' including wkt
+                    # cursor.execute(f"INSERT INTO parcels ({', '.join(cols)}, geom, geom_c) VALUES ({', '.join(row_values)}, ST_GeometryFromText('MULTIPOLYGON({parcel})', 4326), {point_entry})")
+                    cursor.execute(f"INSERT INTO census ({', '.join(cols)}, tract_area, geom, geom_c) VALUES ({', '.join(row_values)}, ST_Area('SRID=4326;MULTIPOLYGON({parcel})'::geometry), 'MULTIPOLYGON({parcel})', ST_Centroid('SRID=4326;MULTIPOLYGON({parcel})'::geography))")
+                    cursor.execute(f"UPDATE parcels SET tract_geoid = '{row['properties']['GEOID']}' WHERE ST_Intersects('SRID=4326;MULTIPOLYGON({parcel})'::geometry, parcels.geom_c::geometry)")
+                    cursor.execute(f"UPDATE election SET tract_geoid = '{row['properties']['GEOID']}' WHERE ST_Intersects('SRID=4326;MULTIPOLYGON({parcel})'::geometry, election.geom_c::geometry)")
+                    # cursor.execute(f"UPDATE parcels SET tract_geoid = array_append(tract_geoid, '{row['properties']['GEOID']}') WHERE ST_Intersects('SRID=4326;MULTIPOLYGON({parcel})'::geometry, parcels.geom_c::geometry)")
+                except Exception as e:
+                    print(e)
+                    print(row)
+                    pass
             connection.commit()
         connection.commit()
     finally:

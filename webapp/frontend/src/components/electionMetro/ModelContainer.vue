@@ -19,7 +19,7 @@
             @change="updateMeanEMV"
             :min="meanEMVLimits[0]"
             :max="meanEMVLimits[1]"
-            label="Mean EMV"
+            label="Mean Estimated House Value"
             thumb-label="always"
             thumb-size="35"
             :style="{ margin: '20px' }"
@@ -33,7 +33,7 @@
             @change="updateMeanAge"
             :min="meanAgeLimits[0]"
             :max="meanAgeLimits[1]"
-            label="Mean Age"
+            label="Mean House Age"
             thumb-label="always"
             thumb-size="35"
             :style="{ margin: '20px' }"
@@ -43,7 +43,7 @@
             @change="updateCityDis"
             :min="cityDisLimits[0]"
             :max="cityDisLimits[1]"
-            label="City Dis"
+            label="Distance to City Center"
             thumb-label="always"
             thumb-size="35"
             :style="{ margin: '20px' }"
@@ -69,7 +69,7 @@
             @change="updateGrowth"
             :min="growthLimits[0] * 1000"
             :max="growthLimits[1] * 1000"
-            label="5-year Growth"
+            label="5-year SFH Growth"
             thumb-label="always"
             thumb-size="35"
             :style="{ margin: '20px' }"
@@ -78,11 +78,53 @@
               {{ item.value / 10 }}%
             </template>
           </v-slider>
+          <v-slider
+            :value="medianAge"
+            @change="updateMedianAge"
+            :min="medianAgeLimits[0]"
+            :max="medianAgeLimits[1]"
+            label="Median Age"
+            thumb-label="always"
+            thumb-size="35"
+            :style="{ margin: '20px' }"
+          >
+            <template v-slot:thumb-label="item">
+              {{ item.value / 10 }}%
+            </template>
+          </v-slider>
+          <v-slider
+            :value="medianInc"
+            @change="updateMedianInc"
+            :min="medianIncLimits[0]"
+            :max="medianIncLimits[1]"
+            label="Median Income"
+            thumb-label="always"
+            thumb-size="35"
+            :style="{ margin: '20px' }"
+          >
+            <template v-slot:thumb-label="item">
+              {{ item.value / 1000 }}k
+            </template>
+          </v-slider>
+          <v-slider
+            :value="ratioOneHouse"
+            @change="updateRatioOneHouse"
+            :min="ratioOneHouseLimits[0]"
+            :max="ratioOneHouseLimits[1]"
+            label="Ratio in House for < 4 years"
+            thumb-label="always"
+            thumb-size="35"
+            :style="{ margin: '20px' }"
+          >
+            <template v-slot:thumb-label="item">
+              {{ item.value / 1000 }}k
+            </template>
+          </v-slider>
         </v-col>
       </v-row>
       <v-row class="fill-height">
         <v-col cols="12">
-          <div class="text-h5">Prediction: {{ predictedMargin }}</div>
+          <div class="text-h5">Prediction: {{ predictedMargin.toFixed() }}</div>
           <!-- <div
             id="barplotparent"
             v-bind:style="parentStyle"
@@ -204,11 +246,17 @@ export default Vue.extend({
       cityDis: "cityDis",
       growth: "growth",
       voteDensity: "voteDensity",
+      medianAge: "medianAge",
+      medianInc: "medianInc",
+      ratioOneHouse: "ratioOneHouse",
       predictedMargin: "predictedMargin",
       meanEMVLimits: "meanEMVLimits",
       meanAgeLimits: "meanAgeLimits",
       cityDisLimits: "cityDisLimits",
       growthLimits: "growthLimits",
+      medianAgeLimits: "medianAgeLimits",
+      medianIncLimits: "medianIncLimits",
+      ratioOneHouseLimits: "ratioOneHouseLimits",
       voteDensityLimits: "voteDensityLimits",
       closestIDs: "closetIDs",
       metroData: "metroData",
@@ -232,6 +280,15 @@ export default Vue.extend({
     },
     updateVoteDensity(newVoteDensity: number) {
       this.$store.dispatch("model/updateVoteDensity", newVoteDensity);
+    },
+    updateMedianAge(newMedianAge: number) {
+      this.$store.dispatch("model/updateMedianAge", newMedianAge);
+    },
+    updateMedianInc(newMedianInc: number) {
+      this.$store.dispatch("model/updateMedianInc", newMedianInc);
+    },
+    updateRatioOneHouse(newRatioOneHouse: number) {
+      this.$store.dispatch("model/updateRatioOneHouse", newRatioOneHouse);
     },
     resetAnalysis() {
       this.$store.dispatch("resetAnalysis");

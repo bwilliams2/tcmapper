@@ -99,12 +99,15 @@ def get_metro_parcel_ids(request):
         cit_dis = request.query_params.get("cityDis", None),
         usprs_vote_density = request.query_params.get("voteDensity", None),
         growth = request.query_params.get("growth", None),
+        medage = request.query_params.get("medage", None),
+        medinc = request.query_params.get("medinc", None),
+        ronehouse = request.query_params.get("ronehouse", None)
     )
     if any([val is None for val in inputs.values()]):
         raise ValueError("Missing required inputs for model.")
     inputs = {k: float(v) for k, v in inputs.items()}
     found_ids = model_nearest_neighbors(**inputs).values.tolist()
-    X_cols = ["cit_dis", "growth", "usprs_vote_density", "mean_emv", "mean_age"]
+    X_cols = ["cit_dis", "growth", "usprs_vote_density", "mean_emv", "mean_age", "medage", "medinc", "ronehouse"]
     vals = np.array([[inputs[col] for col in X_cols]])
     predicted = float(np.squeeze(settings.MODEL(vals).numpy()))
     return Response({"ids": json.dumps(found_ids), "prediction": predicted})
