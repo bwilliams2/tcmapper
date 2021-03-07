@@ -48,10 +48,7 @@
         :style="{ zIndex: 10000 }"
       >
         <v-list nav dense>
-          <v-list-item-group
-            v-model="group"
-            active-class="deep-purple--text text--accent-4"
-          >
+          <v-list-item-group active-class="deep-purple--text text--accent-4">
             <v-list-item>
               <v-btn min-width="100%" to="/">Home</v-btn>
             </v-list-item>

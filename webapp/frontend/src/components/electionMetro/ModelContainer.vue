@@ -116,15 +116,13 @@
             thumb-size="35"
             :style="{ margin: '20px' }"
           >
-            <template v-slot:thumb-label="item">
-              {{ item.value / 1000 }}k
-            </template>
+            <template v-slot:thumb-label="item"> {{ item.value }}% </template>
           </v-slider>
         </v-col>
       </v-row>
       <v-row class="fill-height">
         <v-col cols="12">
-          <div class="text-h5">Prediction: {{ predictedMargin.toFixed() }}</div>
+          <div class="text-h5">Prediction: {{ predictedMargin }}</div>
           <!-- <div
             id="barplotparent"
             v-bind:style="parentStyle"
@@ -233,6 +231,15 @@ export default Vue.extend({
       this.updateClosestIDs();
     },
     growth: function () {
+      this.updateClosestIDs();
+    },
+    medianAge: function () {
+      this.updateClosestIDs();
+    },
+    medianInc: function () {
+      this.updateClosestIDs();
+    },
+    ratioOneHouse: function () {
       this.updateClosestIDs();
     },
   },

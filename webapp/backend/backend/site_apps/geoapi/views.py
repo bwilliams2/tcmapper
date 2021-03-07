@@ -99,9 +99,9 @@ def get_metro_parcel_ids(request):
         cit_dis = request.query_params.get("cityDis", None),
         usprs_vote_density = request.query_params.get("voteDensity", None),
         growth = request.query_params.get("growth", None),
-        medage = request.query_params.get("medage", None),
-        medinc = request.query_params.get("medinc", None),
-        ronehouse = request.query_params.get("ronehouse", None)
+        medage = request.query_params.get("medianAge", None),
+        medinc = request.query_params.get("medianInc", None),
+        ronehouse = request.query_params.get("ratioOneHouse", None)
     )
     if any([val is None for val in inputs.values()]):
         raise ValueError("Missing required inputs for model.")

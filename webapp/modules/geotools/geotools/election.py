@@ -98,11 +98,17 @@ def precinct_stat_ranges():
             f"MAX(p.usprs_vote_density) as max_usprs_vote_density, "\
             f"MIN(p.usprs_vote_density) as min_usprs_vote_density, "\
             f"MAX(p.growth) as max_growth, "\
-            f"MIN(p.growth) as min_growth "\
+            f"MIN(p.growth) as min_growth, "\
+            f"MAX(p.medinc) as max_medinc, "\
+            f"MIN(p.medinc) as min_medinc, "\
+            f"MAX(p.medage) as max_medage, "\
+            f"MIN(p.medage) as min_medage, "\
+            f"MAX(p.ronehouse) as max_ronehouse, "\
+            f"MIN(p.ronehouse) as min_ronehouse "\
             f"FROM processed_election p WHERE p.year = {year}{additional_query}")
         d = cursor.fetchall()[0]
         values = {}
-        for cat in ["mean_age", "mean_emv", "city_dis", "growth", "usprs_vote_density"]:
+        for cat in ["mean_age", "mean_emv", "city_dis", "growth", "usprs_vote_density", "medinc", "medage", "ronehouse"]:
             values[cat] = [d[f"min_{cat}"], d[f"max_{cat}"]]
     finally:
         if (connection):
