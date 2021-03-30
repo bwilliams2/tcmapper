@@ -97,7 +97,7 @@ ptyprocess==0.6.0
 py==1.8.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
-Pygments==2.5.2
+Pygments==2.7.4
 pyodbc==4.0.30
 pyparsing==2.4.5
 pyproj==2.4.2.post1
