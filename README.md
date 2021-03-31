@@ -3,6 +3,7 @@
 Project to create visualization tools for Twin Cities metro and Greater Minnesota. 
 
 Current visualizations:
+
     1. Area property parcel analysis to visualize new addresses in given     radius of selected location.
     2. Election analysis for 2012 - 2020 elections in Great Minnesota with per precinct visualizations
     3. Model for change in DFL-GOP margin in the Twin Cities metro based on precinct-specific housing properties and statistics including property value, distance from city center, and growth rates.
