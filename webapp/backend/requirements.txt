@@ -109,7 +109,7 @@ pytest-dotenv==0.5.2
 python-dateutil==2.8.1
 python-dotenv==0.15.0
 pytz==2019.3
-PyYAML==5.2
+PyYAML==5.4
 pyzmq==18.1.1
 qtconsole==4.6.0
 QtPy==1.9.0
