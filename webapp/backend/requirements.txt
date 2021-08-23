@@ -60,7 +60,7 @@ jupyter==1.0.0
 jupyter-client==5.3.4
 jupyter-console==4.1.1
 jupyter-core==4.6.1
-jupyterlab==2.2.9
+jupyterlab==2.2.10
 jupyterlab-server==1.2.0
 Keras-Preprocessing==1.1.2
 kiwisolver==1.2.0
