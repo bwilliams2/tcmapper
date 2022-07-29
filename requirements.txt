@@ -86,7 +86,7 @@ Markdown==3.3.4
 MarkupSafe==1.1.1
 matplotlib==3.3.4
 mccabe==0.6.1
-mistune==0.8.4
+mistune==2.0.3
 more-itertools==8.7.0
 mslex==0.3.0
 munch==2.5.0
